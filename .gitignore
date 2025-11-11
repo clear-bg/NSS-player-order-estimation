@@ -1,0 +1,14 @@
+# データベースファイル
+*.db
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# macOS固有のファイル
+.DS_Store
+
+# Windows固有のファイル
+Thumbs.db
