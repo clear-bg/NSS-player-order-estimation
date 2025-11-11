@@ -5,6 +5,7 @@ from mysql.connector import Error
 import os
 # 環境変数 (.env) をロードするためのライブラリ
 from dotenv import load_dotenv
+from typing import List, Tuple
 
 # プロジェクトルートにある.envファイルをロード
 load_dotenv()
@@ -88,6 +89,38 @@ def setup_database():
     finally:
         if conn and conn.is_connected():
             conn.close()
+
+def insert_observation_log(conn, ordered_list_str: str) -> int:
+    """
+    Observations テーブルに観測ログを挿入し、新しく生成された ID を返す。
+    """
+    sql = "INSERT INTO Observations (ordered_list, observation_time) VALUES (%s, NOW())"
+    cursor = conn.cursor()
+    cursor.execute(sql, (ordered_list_str,))
+
+    # MySQLでの最終挿入IDの取得
+    new_id = cursor.lastrowid
+    conn.commit()
+    return new_id
+
+def update_relationships(conn, relationship_data: List[Tuple[str, str, int, int]]):
+    """
+    Relationship テーブルに優劣関係を挿入/更新する。
+    ON DUPLICATE KEY UPDATE 構文で頻度をインクリメントする。
+    """
+    sql_insert_relationship = """
+    INSERT INTO Relationship (superior_player_id, inferior_player_id, frequency)
+    VALUES (%s, %s, %s)
+    ON DUPLICATE KEY UPDATE
+        frequency = frequency + VALUES(frequency);
+    """
+    # 観測IDは今回は無視して、frequencyの更新のみに集中
+    data_for_update = [(r[0], r[1], r[3]) for r in relationship_data]
+
+    cursor = conn.cursor()
+    cursor.executemany(sql_insert_relationship, data_for_update)
+    conn.commit()
+    print(f"データベースに {cursor.rowcount} 件の優劣関係を挿入/更新しました。")
 
 
 # --- テスト実行ブロック ---
