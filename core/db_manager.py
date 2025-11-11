@@ -122,6 +122,14 @@ def update_relationships(conn, relationship_data: List[Tuple[str, str, int, int]
     conn.commit()
     print(f"データベースに {cursor.rowcount} 件の優劣関係を挿入/更新しました。")
 
+def fetch_all_relationships(conn) -> List[Tuple[str, str, int]]:
+    """
+    Relationship テーブルの全レコード (優位ID, 劣位ID, 頻度) を取得する。
+    """
+    sql = "SELECT superior_player_id, inferior_player_id, frequency FROM Relationship"
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    return cursor.fetchall()
 
 # --- テスト実行ブロック ---
 if __name__ == '__main__':
