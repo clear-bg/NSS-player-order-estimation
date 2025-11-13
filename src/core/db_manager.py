@@ -17,7 +17,7 @@ DB_CONFIG = {
     'database': os.getenv('DB_NAME', 'order_ranking_db'),
     'user': os.getenv('DB_USER', 'app_user'),
     # パスワードは必ず環境変数から取得
-    'password': os.getenv('DB_PASSWORD'), 
+    'password': os.getenv('DB_PASSWORD'),
 }
 
 # --- テーブル作成用のSQL ---
@@ -140,6 +140,29 @@ def fetch_all_player_ids(conn) -> List[str]:
     cursor.execute(sql)
     # 結果がタプルのリストで返されるため、IDのリストに変換
     return [row[0] for row in cursor.fetchall()]
+
+def setup_test_environment(conn):
+    """
+    DBをクリアし、テーブルをセットアップする機能。
+    ⚠️ 本番設定では、テストプレイヤーの静的登録は行いません。
+    """
+    cursor = conn.cursor()
+    print("--- 環境セットアップ: DBクリア ---")
+    try:
+        setup_database()
+
+        # MySQLではTRUNCATE TABLEでデータをクリア
+        cursor.execute("TRUNCATE TABLE Observations")
+        cursor.execute("TRUNCATE TABLE Relationship")
+        cursor.execute("TRUNCATE TABLE Players") # プレイヤーマスターテーブルをクリア
+
+        # ⚠️ ここにあったテストプレイヤー（A, B, C...）の静的登録コードを削除します。
+
+        conn.commit()
+        print("✅ DBクリアとテーブル初期化完了。")
+    except Exception as e:
+        print(f"⚠️ 環境セットアップ中にエラー: {e}")
+        conn.rollback()
 
 # --- テスト実行ブロック ---
 if __name__ == '__main__':

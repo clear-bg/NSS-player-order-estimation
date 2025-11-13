@@ -55,7 +55,7 @@ def analyze_and_rank(conn) -> Union[List[str], Tuple[str, str]]:
     DBからデータを取得し、グラフを構築・分析して順序を推定するメイン関数。
     """
     # 依存関係を外部からインポートする必要がある
-    from core.db_manager import fetch_all_relationships
+    from src.core.db_manager import fetch_all_relationships
 
     # 1. DBから優劣関係データを取得
     relationships = fetch_all_relationships(conn)
