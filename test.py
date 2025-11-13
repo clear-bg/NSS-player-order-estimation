@@ -1,37 +1,46 @@
+# order_tool/main.py
+
 from core.db_manager import (
     get_db_connection,
     insert_observation_log,
     update_relationships,
     fetch_all_relationships,
     fetch_all_player_ids,
-    setup_database
+    setup_database # 開発中はこの関数もインポートしておく
 )
 from core.extractor import extract_relationships
 from logic.sorter import analyze_and_rank, build_weighted_graph
 from logic.result_formatter import format_ranking, assign_rank_and_print
 
+# --- データのクリアと初期登録 (開発用) ---
+# order_tool/main.py (setup_test_environment の修正箇所)
+
+# ... (中略)
 def setup_test_environment(conn):
-    """
-    DBをクリアし、テーブルをセットアップする機能。
-    ⚠️ 本番設定では、テストプレイヤーの静的登録は行いません。
-    """
+    """開発中のテストを容易にするため、DBをクリアし初期データを投入する"""
     cursor = conn.cursor()
-    print("--- 環境セットアップ: DBクリア ---")
+    print("--- 開発環境セットアップ: DBクリアと初期プレイヤー登録 ---")
     try:
+        # テーブル構造が存在しない可能性に備えて、setup_databaseを呼び出す
         setup_database()
 
         # MySQLではTRUNCATE TABLEでデータをクリア
         cursor.execute("TRUNCATE TABLE Observations")
         cursor.execute("TRUNCATE TABLE Relationship")
-        cursor.execute("TRUNCATE TABLE Players") # プレイヤーマスターテーブルをクリア
+        # プレイヤーマスターテーブルもクリアする (前回のバグ修正)
+        cursor.execute("TRUNCATE TABLE Players")
 
-        # ⚠️ ここにあったテストプレイヤー（A, B, C...）の静的登録コードを削除します。
-
+        # テストプレイヤーをPlayersテーブルに登録
+        cursor.execute("""
+            INSERT IGNORE INTO Players (player_id)
+            VALUES ('A'), ('B'), ('C'), ('D'), ('P1'), ('P2'), ('P3'), ('P4')
+        """)
         conn.commit()
-        print("✅ DBクリアとテーブル初期化完了。")
+        print("✅ DBクリアとテストプレイヤー(A, B, C, D, P1-P4)登録完了。")
     except Exception as e:
         print(f"⚠️ 環境セットアップ中にエラー: {e}")
         conn.rollback()
+        # ここでは例外を再送出しない（処理を継続させるため）
 
 # --- CLI機能: 1. 新規観測データの投入 ---
 def handle_new_observation(conn):
@@ -53,13 +62,6 @@ def handle_new_observation(conn):
         # 3. Relationship テーブルに優劣関係を挿入/更新
         update_relationships(conn, relationships)
 
-        # Playerマスターテーブルにも登場したプレイヤーを追加（既存ならIGNORE）
-        player_ids = [p.strip() for p in observation_list_str.split(',') if p.strip()]
-        player_values = ", ".join([f"('{p}')" for p in player_ids])
-        cursor = conn.cursor()
-        cursor.execute(f"INSERT IGNORE INTO Players (player_id) VALUES {player_values}")
-        conn.commit()
-
         print(f"\n✅ 観測ログ ID:{observation_id} を処理し、{len(relationships)} 件の関係を更新しました。")
 
     except Exception as e:
@@ -71,12 +73,12 @@ def handle_show_ranking(conn):
     print("\n--- 2. ランキングの表示 ---")
 
     # グラフ構築に必要なデータを取得
-    relationships = fetch_all_relationships(conn) 
+    relationships = fetch_all_relationships(conn)
     if not relationships:
         print("データが不足しています。観測データを入力してください。")
         return
 
-    G = build_weighted_graph(relationships) 
+    G = build_weighted_graph(relationships)
     ranking_result = analyze_and_rank(conn)
 
     if isinstance(ranking_result, list):
@@ -92,7 +94,7 @@ def handle_show_ranking(conn):
 
         # 整形ロジックを実行し、結果を表示
         ranked_groups = format_ranking(final_sorted_list, G)
-        assign_rank_and_print(ranked_groups) 
+        assign_rank_and_print(ranked_groups)
 
     elif isinstance(ranking_result, tuple):
         # 矛盾が検出された場合 (analyze_and_rankがTupleを返した時)
@@ -108,9 +110,10 @@ def main():
     conn = None
     try:
         conn = get_db_connection()
-        print("--- プレイヤー順序推定ツール (CLI - 本番モード) ---")
+        print("--- プレイヤー順序推定ツール (CLI) ---")
 
-        # ⚠️ 本番モードでは、起動時に自動でDBクリア/テストデータ登録は行いません。
+        # 開発中のため、起動時にテスト環境をセットアップ
+        setup_test_environment(conn)
 
         while True:
             print("\n何をしますか？")
@@ -129,12 +132,15 @@ def main():
                 print("ツールを終了します。")
                 break
             elif choice == '0':
-                setup_test_environment(conn) # オプション0でのみテスト環境を準備
+                setup_test_environment(conn)
             else:
                 print("無効な選択です。1, 2, 3, 0のいずれかを入力してください。")
 
     except Exception as e:
         print(f"\n致命的な接続エラーが発生しました。アプリケーションを終了します: {e}")
+        # 詳細なトレースバックを表示
+        import traceback
+        traceback.print_exc()
 
     finally:
         if conn and conn.is_connected():
