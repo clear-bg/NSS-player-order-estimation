@@ -131,6 +131,16 @@ def fetch_all_relationships(conn) -> List[Tuple[str, str, int]]:
     cursor.execute(sql)
     return cursor.fetchall()
 
+def fetch_all_player_ids(conn) -> List[str]:
+    """
+    Players テーブルに登録されている全プレイヤーIDを取得する。
+    """
+    sql = "SELECT player_id FROM Players"
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    # 結果がタプルのリストで返されるため、IDのリストに変換
+    return [row[0] for row in cursor.fetchall()]
+
 # --- テスト実行ブロック ---
 if __name__ == '__main__':
     try:
