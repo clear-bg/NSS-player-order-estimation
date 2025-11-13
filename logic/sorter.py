@@ -21,20 +21,34 @@ def build_weighted_graph(relationships: RelationshipData) -> nx.DiGraph:
 def find_player_order(G: nx.DiGraph) -> Union[List[str], Tuple[str, str]]:
     """
     グラフからプレイヤーの順序を推定する (トポロジカルソート)。
-    矛盾がある場合は、そのペアを報告する。
+    矛盾がある場合は、そのサイクルを報告する。
     """
     try:
-        # トポロジカルソートを実行し、矛盾のない順序を返す
-        # Note: networkxのtopological_sortは、複数の順序がある場合、そのうちの1つを返す
+        # トポロジカルソートを実行
         sorted_nodes = list(nx.topological_sort(G))
         return sorted_nodes
     except nx.NetworkXUnfeasible:
-        # グラフにサイクル（矛盾）がある場合、トポロジカルソートは失敗する
-        # 矛盾を引き起こしているノードのペアを探す必要があるが、ここでは簡略化のためエラーメッセージを返す
+        # グラフにサイクル（矛盾）がある場合
 
-        # 矛盾しているプレイヤーペアを特定するロジック（後で実装可能）
-        # 例外処理として、矛盾の発生を報告する
-        return ("Cycle Detected", "Order cannot be determined due to contradiction.")
+        # 矛盾を引き起こしているサイクルを検出
+        try:
+            # networkx.find_cycle は、見つかった最初の一つを返す
+            # 戻り値の形式: [(u1, v1, key1), (v1, v2, key2), ...]
+            cycle = nx.find_cycle(G, orientation='original')
+
+            # サイクルに含まれるノードを抽出して報告
+            # サイクル内のノードをセットにして重複を排除
+            nodes_in_cycle = set()
+            for u, v, data in cycle:
+                nodes_in_cycle.add(u)
+                nodes_in_cycle.add(v)
+
+            # 報告しやすい形式に整形して返す
+            return ("Cycle Detected", ", ".join(sorted(list(nodes_in_cycle))))
+
+        except nx.NetworkXNoCycle:
+            # 理論上ありえないが、念のため
+            return ("Cycle Detected", "A contradiction exists, but cycle could not be identified.")
 
 def analyze_and_rank(conn) -> Union[List[str], Tuple[str, str]]:
     """
