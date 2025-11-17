@@ -1,4 +1,9 @@
+import sys
+import os
 import traceback
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.core.db_manager import get_db_connection, setup_test_environment
 from src.cli.cli_handlers import handle_new_observation, handle_show_ranking # 👈 新しいハンドラをインポート
 
@@ -6,6 +11,10 @@ def main():
     conn = None
     try:
         conn = get_db_connection()
+
+        from src.core.db_manager import setup_database
+        setup_database()
+
         print("--- プレイヤー順序推定ツール (CLI - 本番モード) ---")
 
         while True:
