@@ -12,10 +12,10 @@ load_dotenv()
 
 # 接続情報の設定: 環境変数から取得。取得できなければデフォルト値（Docker Composeの設定）を使用
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'db'),
+    'host': os.getenv('DB_HOST'),
     'port': os.getenv('DB_PORT', 3306),
-    'database': os.getenv('DB_NAME', 'order_ranking_db'),
-    'user': os.getenv('DB_USER', 'app_user'),
+    'database': os.getenv('DB_NAME', 'player_order_data_test'),
+    'user': os.getenv('DB_USER', 'admin'),
     # パスワードは必ず環境変数から取得
     'password': os.getenv('DB_PASSWORD'),
 }
@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS Relationship (
 def get_db_connection():
     """MySQLデータベースへの接続オブジェクトを返す"""
     # パスワードが設定されていない場合はエラーを出す
-    if not DB_CONFIG['password']:
-        raise ValueError("DB_PASSWORDが設定されていません。")
+    if not DB_CONFIG['password'] or not DB_CONFIG['host']:
+        raise ValueError("DB_HOSTまたはDB_PASSWORDが設定されていません。")
 
     try:
         # DB_CONFIG 辞書の内容を展開して接続
