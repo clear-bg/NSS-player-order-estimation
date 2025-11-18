@@ -69,7 +69,9 @@ python core/db_manager.py
 ```
 
 ### 4.2. コア機能のテスト
-（次の開発ステップ以降で実装された機能のテストコマンドをここに追記します）
+```bash
+./venv/bin/python3 -m src.main
+```
 
 ## 5. Gitコマンド
 基本的なコミットの流れです。
