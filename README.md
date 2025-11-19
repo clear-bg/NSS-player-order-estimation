@@ -1,81 +1,97 @@
 # NSS Player Order Estimation Tool
-このプロジェクトは、ゲームの観測データ（プレイヤーの並び順）を基に、内部的なソートキーによるプレイヤー間の優劣関係を推定・管理するためのツールです。
+
+このプロジェクトは、Nintendo Switch Sports サッカー等のゲームにおけるプレイヤーの並び順（観測データ）を基に、内部的なソートキー（Hidden ID）によるプレイヤー間の順序関係を推定・管理するためのツールです。
+
+AWS RDS (MySQL) をバックエンドに使用し、CLIツールを用いて観測データの入力やランキングの閲覧を行います。
+
 ---
 
 ## 1. 開発環境のセットアップ
-本プロジェクトは Docker Compose を使用してMySQLサーバーを構築するため、開発環境によらず一貫した環境で動作します。
 
-### 1.1. 必須ツールのインストール
-以下のツールがシステムにインストールされていることを確認してください。
-- Git: ソースコード管理
-- Python 3.10+: アプリケーション実行環境
-- Docker Desktop: MYSQLサーバー（コンテナ）の実行環境
+### 1.1. 必須要件
+* **Python 3.10+**
+* **AWS CLI**: セキュリティグループ更新のために必要です。
+* **AWS アカウント & RDS**: 事前にMySQLデータベースが構築されていること。
 
-### 1.2. 接続情報の準備
-プロジェクトルートに .env ファイルを作成し、MySQLへの接続情報を記述します。
+### 1.2. リポジトリのクローンとライブラリインストール
 
-```toml
-# .env
-
-# MySQL 接続設定
-DB_HOST=localhost         # ホストOSから接続するため
-DB_PORT=3306
-DB_NAME=order_ranking_db
-DB_USER=app_user
-DB_PASSWORD=your_app_password # ⚠️ docker-compose.ymlと一致させる
+リポジトリのクローン
+```bash
+git clone <repository_url>
+cd NSS-player-order-estimation-CLI
 ```
 
-## 2. データベースの管理（Docker Compose）
-Docker Compose コマンドは、MySQLサーバーの起動、停止、および管理に使用します。
-コマンド,説明
-docker compose up -d,MySQLサーバーをバックグラウンドで起動します。（初回はイメージのダウンロードが行われます）
-docker compose stop,サーバーを停止します。
-docker compose down,サーバーを停止し、コンテナを削除します。データボリュームは残るため、次回起動時にデータは引き継がれます。
-docker compose ps,現在起動中のコンテナの状態を確認します。STATUSが Up であれば正常です。
-docker compose logs -f,サーバーのログをリアルタイムで確認します。（デバッグ時）
 
-## 3. Python 仮想環境の管理
-開発に必要なライブラリをプロジェクトごとに隔離し、管理します。
-
-### 3.1. 仮想環境の作成とセットアップ
-プロジェクトルートで一度だけ実行します。
-
+仮想環境の作成
 ```bash
-# 仮想環境の作成
 python -m venv venv
-
-# 必要なライブラリのインストール
-./venv/bin/pip install -r requirements.txt # (requirements.txt作成後はこれを使用)
-# もしくは:
-# pip install mysql-connector-python networkx python-dotenv
 ```
 
-### 3.2. 仮想環境への入り方（有効化）
-ターミナルセッションを開始するたびに、以下のコマンドで仮想環境を有効化してください。
-
-OS,コマンド
-macOS / Linux,source venv/bin/activate
-Windows (PowerShell),.\venv\Scripts\Activate.ps1
-Windows (Command Prompt),.\venv\Scripts\activate
-
-## 4. 初期セットアップとテスト
-
-### 4.1. データベース構造の作成
-仮想環境に入った状態で実行します。
-
+仮想環境有効化 (Mac/Linux)
 ```bash
-# サーバーが起動していることを確認してから実行
-python core/db_manager.py
+source venv/bin/activate
+```
+仮想環境有効化 (Windows)
+```bash
+.\venv\Scripts\activate
 ```
 
-### 4.2. コア機能のテスト
-（次の開発ステップ以降で実装された機能のテストコマンドをここに追記します）
+ライブラリのインストール
+```bash
+pip install -r requirements.txt
+# (requirements.txtが無い場合は以下を実行)
+# pip install mysql-connector-python networkx python-dotenv boto3 requests
+```
 
-## 5. Gitコマンド
-基本的なコミットの流れです。
+### 1.3. AWS CLIの初期設定
+AWSのセキュリティグループを操作するため、ローカル環境に権限を設定します。
 
 ```bash
-git add .
-git commit -m "feat: [コミット内容の要約]"
-git push origin main
+aws configure
+# AWS Access Key ID: [あなたのアクセスキー]
+# AWS Secret Access Key: [あなたのシークレットキー]
+# Default region name: ap-southeast-2  (RDSのあるリージョンを指定)
+# Default output format: json
+```
+
+## 2. 接続設定 (.env)
+プロジェクトルートに `.env` ファイルを作成し、DB接続情報とAWS設定を記述します。 注意: このファイルは機密情報を含むため、Gitにはコミットしないでください。
+
+## 3. 使用方法 (Mac/Linux)
+セキュリティのため、AWS RDSは特定のIPアドレスからの接続のみを許可する設定にします。 ゲームや開発を始める前に、必ず **Step1** を実行して現在の自分のIPを許可リストに追加してください。
+
+**Step 1: 接続元IPの自動更新**
+現在のパブリックIPアドレスを取得し、AWSセキュリティグループのインバウンドルールを自動更新します。
+
+```bash
+python3 src/aws/update_security_group.py
+```
+
+- 成功すると `✅ 新しいルールを追加しました: xxx.xxx.xxx.xxx/32`と表示されます。
+- これでDBへの経路が開通します。
+
+**Step 2: アプリケーションの実行**
+メインのCLIツールを起動します。
+
+```bash
+python3 src/main.py
+```
+
+**主な機能**
+1. 新規観測データの入力:
+   - 例: `PlayerA, PlayerB, PlayerC`
+   - 画面上の並び順を入力すると、裏での優劣関係（A>B, A>C, B>C）としてDBに保存されます。
+2. 現在の推定ランキングを表示:
+   - 蓄積されたデータからグラフ理論（トポロジカルソート）を用いて、最も確からしい並び順を表示します。
+
+## 4. ディレクトリ構造
+```Plaintext
+.
+├── src/
+│   ├── aws/               # AWS関連ユーティリティ
+│   │   └── update_security_group.py
+│   ├── cli/               # CLI操作ハンドラ
+│   ├── core/              # DB操作、データ抽出ロジック
+│   └── logic/             # ランキング計算アルゴリズム
+└── .env                   # 設定ファイル (Git対象外)
 ```
