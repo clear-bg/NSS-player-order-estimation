@@ -2,6 +2,7 @@
 Nintendo Switch Sports（サッカー）などのゲームにおけるプレイヤーの並び順（観測データ）を基に、内部的なソートキー（Hidden ID）によるプレイヤー間の順序関係を推定・管理するためのデスクトップアプリケーションです。
 
 バックエンドに AWS RDS (MySQL) を使用し、フロントエンドは C# (Avalonia UI) で構築されているため、Windows と macOS の両方で動作します。
+
 ---
 
 ## 1. 開発環境のセットアップ
@@ -29,6 +30,7 @@ Nintendo Switch Sports（サッカー）などのゲームにおけるプレイ�
 ## 2. セットアップ手順
 
 ### 2.1. リポジトリのクローン
+
 ```bash
 git clone <repository-url>
 cd NSS-Order_Estimator
@@ -39,6 +41,7 @@ cd NSS-Order_Estimator
 データベース接続情報を含む`.env`ファイルを作成し、`NssOrderTool`プロジェクトフォルダの直下に配置します。
 
 `NssOrderTool.env`
+
 ```TOML
 # AWS RDS 接続情報
 DB_HOST=your-db-endpoint.rds.amazonaws.com
@@ -82,6 +85,7 @@ dotnet run
 ```
 
 # 4. プロジェクト構成
+
 ```Plaintext
 .
 ├── NssOrderTool/           # C# アプリケーション本体 (Avalonia UI)
