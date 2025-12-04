@@ -4,6 +4,49 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="NssOrderTool.MainWindow"
-        Title="NssOrderTool">
-    Welcome to Avalonia!
+        Title="NSS 順序推定ツール (C#)"
+        Width="800" Height="500"
+        WindowStartupLocation="CenterScreen">
+
+	<Grid Margin="20" ColumnDefinitions="*, 20, *">
+
+		<StackPanel Grid.Column="0" Spacing="10">
+			<TextBlock Text="✏️ 新規観測データの入力" FontWeight="Bold" FontSize="16"/>
+			<TextBlock Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" FontSize="12" Foreground="Gray"/>
+
+			<TextBox Name="InputBox"
+                     Watermark="例: Player1, Player2, Player3"
+                     Height="100"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"/>
+
+			<Button Name="RegisterButton"
+                    Content="データを登録"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Background="#007ACC" Foreground="White"
+                    Click="RegisterButton_Click"/>
+
+			<TextBlock Name="StatusText"
+                       Text="準備完了"
+                       Foreground="Green"
+                       TextWrapping="Wrap"/>
+		</StackPanel>
+
+		<StackPanel Grid.Column="2" Spacing="10">
+			<Grid ColumnDefinitions="*, Auto">
+				<TextBlock Grid.Column="0" Text="🏆 推定ランキング" FontWeight="Bold" FontSize="16"/>
+				<Button Grid.Column="1" Name="ReloadButton" Content="更新" Click="ReloadButton_Click"/>
+			</Grid>
+
+			<ListBox Name="RankingList" Height="380" Background="#F0F0F0">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding}" Padding="5"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</StackPanel>
+
+	</Grid>
 </Window>
