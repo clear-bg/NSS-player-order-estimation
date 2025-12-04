@@ -1,5 +1,7 @@
 using System;
 using System.Data;
+using System.IO;          // 追加: ファイル読み込み用
+using System.Text.Json;   // 追加: JSONパース用
 using MySqlConnector;
 using DotNetEnv;
 
@@ -7,8 +9,10 @@ namespace NssOrderTool.Services
 {
     public class DbManager
     {
-        // 接続文字列を保持するプライベート変数
         private string? _connectionString;
+
+        // 外部（GUI）から「今どっちの環境？」を知るためのプロパティ
+        public string CurrentEnvironment { get; private set; } = "UNKNOWN";
 
         public DbManager()
         {
@@ -21,11 +25,55 @@ namespace NssOrderTool.Services
 
         private string BuildConnectionString()
         {
+            // 1. .env から機密情報を取得
             string host = Env.GetString("DB_HOST");
             string port = Env.GetString("DB_PORT", "3306");
-            string database = Env.GetString("DB_NAME", "order_ranking_db");
             string user = Env.GetString("DB_USER");
             string password = Env.GetString("DB_PASSWORD");
+
+            // --- ▼ 変更: 環境設定を appsettings.json から読み込む ▼ ---
+            string env = "TEST"; // 読み込めなかった場合のフォールバック（デフォルト）
+
+            try
+            {
+                // 実行フォルダにある appsettings.json を読み込む
+                var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+                if (File.Exists(jsonPath))
+                {
+                    var jsonString = File.ReadAllText(jsonPath);
+                    // AppConfigクラスは Services/AppSettings.cs で定義されている前提です
+                    var config = JsonSerializer.Deserialize<AppConfig>(jsonString);
+
+                    if (config?.AppSettings?.Environment != null)
+                    {
+                        env = config.AppSettings.Environment.ToUpper();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー時はログに出すなどしても良いが、とりあえずデフォルト(TEST)で進める
+                System.Diagnostics.Debug.WriteLine($"設定ファイル読み込みエラー: {ex.Message}");
+            }
+            // --- ▲ 変更ここまで ▲ ---
+
+            string database;
+            if (env == "PROD" || env == "PRODUCTION")
+            {
+                CurrentEnvironment = "PROD";
+                database = Env.GetString("DB_NAME_PROD");
+            }
+            else
+            {
+                CurrentEnvironment = "TEST";
+                database = Env.GetString("DB_NAME_TEST");
+            }
+
+            // DB名が設定されていなかった場合のガード
+            if (string.IsNullOrEmpty(database))
+            {
+                throw new InvalidOperationException($"環境 '{env}' 用のデータベース名が .env に設定されていません。");
+            }
 
             if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             {
@@ -42,10 +90,8 @@ namespace NssOrderTool.Services
                 Password = password,
                 // 【重要】文字化け防止
                 CharacterSet = "utf8mb4",
-                // 【重要】接続プーリング有効化（都度Open/Closeしても効率的になります）
+                // 【重要】接続プーリング有効化
                 Pooling = true,
-                // 【重要】サーバーとの通信が切れた場合の自動再接続はオフにし、アプリ側で制御する
-                // (Pooling=trueなら、Open時に壊れた接続は自動で破棄され新しいのが作られます)
             };
 
             return builder.ConnectionString;
@@ -66,7 +112,6 @@ namespace NssOrderTool.Services
             connection.Open();
 
             // 【重要】セッションのタイムゾーンを日本時間 (JST) に設定
-            // これにより、NOW() などで保存される時間が日本時間になります
             using (var cmd = new MySqlCommand("SET time_zone = '+09:00';", connection))
             {
                 cmd.ExecuteNonQuery();
