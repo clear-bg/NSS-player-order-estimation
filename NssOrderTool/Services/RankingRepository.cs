@@ -111,5 +111,27 @@ namespace NssOrderTool.Services
             }
             return list;
         }
+
+        // 6. 全データの削除 (初期化用)
+        public void ClearAllData()
+        {
+            using var conn = _dbManager.GetConnection();
+            using var tx = conn.BeginTransaction();
+
+            try
+            {
+                // 外部キー制約がある場合は順序に注意（今回は制約なし）
+                new MySqlCommand("TRUNCATE TABLE Relationship;", conn, tx).ExecuteNonQuery();
+                new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx).ExecuteNonQuery();
+                new MySqlCommand("TRUNCATE TABLE Players;", conn, tx).ExecuteNonQuery();
+
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
     }
 }
