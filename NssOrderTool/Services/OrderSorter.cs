@@ -7,16 +7,16 @@ namespace NssOrderTool.Services
     public class OrderSorter
     {
         /// <summary>
-        /// 順序ペアのリストから、トポロジカルソートを用いて全体の順序を決定する
+        /// 順序ペアのリストから、階層構造（同率含む）を持つランキングを計算する
+        /// 戻り値: 1位グループ, 2位グループ... のリスト
         /// </summary>
-        public List<string> Sort(List<OrderPair> pairs)
+        public List<List<string>> Sort(List<OrderPair> pairs)
         {
-            // 1. グラフの構築 (入次数マップと隣接リスト)
-            var inDegree = new Dictionary<string, int>(); // 入ってくるエッジの数
-            var adj = new Dictionary<string, List<string>>(); // 出ていくエッジの先
+            var inDegree = new Dictionary<string, int>();
+            var adj = new Dictionary<string, List<string>>();
             var nodes = new HashSet<string>();
 
-            // ノードとエッジの登録
+            // 1. グラフ構築
             foreach (var pair in pairs)
             {
                 nodes.Add(pair.Predecessor);
@@ -28,49 +28,64 @@ namespace NssOrderTool.Services
                 if (!inDegree.ContainsKey(pair.Predecessor)) inDegree[pair.Predecessor] = 0;
                 if (!inDegree.ContainsKey(pair.Successor)) inDegree[pair.Successor] = 0;
 
-                // エッジ追加: Predecessor -> Successor
                 adj[pair.Predecessor].Add(pair.Successor);
                 inDegree[pair.Successor]++;
             }
 
-            // 2. トポロジカルソート (Kahn's Algorithm)
-            // 入次数が0（自分より前の要素がない）ノードをキューに入れる
+            // 2. 階層的トポロジカルソート
+            // 入次数0のノードを全てキューに入れる
             var queue = new Queue<string>();
             foreach (var node in nodes)
             {
-                if (inDegree[node] == 0)
+                if (!inDegree.ContainsKey(node) || inDegree[node] == 0)
                 {
                     queue.Enqueue(node);
                 }
             }
 
-            var result = new List<string>();
+            var resultLayers = new List<List<string>>();
+            int processedCount = 0;
+
             while (queue.Count > 0)
             {
-                var u = queue.Dequeue();
-                result.Add(u);
+                // 現在のキューに入っているノードは、すべて「現時点で前提条件がない」ノードたち。
+                // つまり、これらは互いに順序がつかない「同率グループ」とみなせる。
+                var currentLayer = new List<string>();
+                int layerSize = queue.Count;
 
-                if (adj.ContainsKey(u))
+                // 現在のレイヤー分だけループを回して取り出す
+                for (int i = 0; i < layerSize; i++)
                 {
-                    foreach (var v in adj[u])
+                    var u = queue.Dequeue();
+                    currentLayer.Add(u);
+                    processedCount++;
+
+                    if (adj.ContainsKey(u))
                     {
-                        inDegree[v]--;
-                        if (inDegree[v] == 0)
+                        foreach (var v in adj[u])
                         {
-                            queue.Enqueue(v);
+                            inDegree[v]--;
+                            if (inDegree[v] == 0)
+                            {
+                                queue.Enqueue(v);
+                            }
                         }
                     }
                 }
+
+                // 名前順などで整列しておくと見やすい
+                currentLayer.Sort();
+                resultLayers.Add(currentLayer);
             }
 
-            // 閉路検出: ソート結果の数がノード総数と一致しない場合、循環参照（矛盾）が存在する
-            if (result.Count != nodes.Count)
+            // 閉路検出
+            if (processedCount != nodes.Count)
             {
                 System.Diagnostics.Debug.WriteLine("⚠️ 順序矛盾（閉路）が検出されました。");
-                return new List<string>();
+                return new List<List<string>>();
             }
 
-            return result;
+            return resultLayers;
         }
     }
 }

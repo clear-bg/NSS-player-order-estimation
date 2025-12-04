@@ -91,18 +91,30 @@ public partial class MainWindow : Window
     {
         try
         {
-            // DBから全ペアを取得
             var allPairs = _repository.GetAllPairs();
 
-            // ソート実行
-            var sortedList = _sorter.Sort(allPairs);
+            // 修正: 戻り値が List<List<string>> になりました
+            var sortedLayers = _sorter.Sort(allPairs);
 
-            // リストボックスに表示
-            // (順位をつけて表示用リストを作成)
             var displayList = new List<string>();
-            for (int i = 0; i < sortedList.Count; i++)
+            int currentRank = 1;
+
+            foreach (var group in sortedLayers)
             {
-                displayList.Add($"{i + 1}位 : {sortedList[i]}");
+                // グループ内の人数が1人か複数かで表示を変える
+                if (group.Count == 1)
+                {
+                    displayList.Add($"{currentRank}位 : {group[0]}");
+                }
+                else
+                {
+                    // カンマ区切りで結合 (例: "B, D")
+                    string names = string.Join(", ", group);
+                    displayList.Add($"{currentRank}位 : {names} (推定同率)");
+                }
+
+                // 次の順位へ（同率がいても次は+1ランクとするか、人数分飛ばすかは仕様次第ですが、一旦+1で）
+                currentRank++;
             }
 
             RankingList.ItemsSource = displayList;
