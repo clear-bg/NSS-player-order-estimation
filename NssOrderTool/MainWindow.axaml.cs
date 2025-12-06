@@ -128,17 +128,30 @@ public partial class MainWindow : Window
     // 「初期化」ボタンが押されたとき
     private async void ClearButton_Click(object? sender, RoutedEventArgs e)
     {
-        // 本来はここで「本当に削除しますか？」というダイアログを出すべきですが、
-        // まずは機能実装を優先して直接削除します。
-        try
+        // 1. 確認ダイアログを作成
+        var dialog = new ConfirmationDialog();
+
+        // 2. ダイアログを表示し、結果を待つ (ShowDialog)
+        // MainWindow (this) の上に表示する
+        var result = await dialog.ShowDialog<bool>(this);
+
+        // 3. 結果が true (削除する) の場合のみ実行
+        if (result)
         {
-            _repository.ClearAllData();
-            StatusText.Text = "🗑️ データを全削除しました";
-            LoadRanking(); // 空になったランキングを表示
+            try
+            {
+                _repository.ClearAllData();
+                StatusText.Text = "🗑️ データを全削除しました";
+                LoadRanking(); // 空になったランキングを表示
+            }
+            catch (Exception ex)
+            {
+                StatusText.Text = $"❌ 削除エラー: {ex.Message}";
+            }
         }
-        catch (Exception ex)
+        else
         {
-            StatusText.Text = $"❌ 削除エラー: {ex.Message}";
+            StatusText.Text = "キャンセルしました";
         }
     }
 }
