@@ -1,3 +1,4 @@
+using NssOrderTool.Models;
 using System;
 using System.Data;
 using System.IO;          // 追加: ファイル読み込み用

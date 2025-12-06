@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NssOrderTool.Models;
 
 namespace NssOrderTool.Services
 {
     // 順序関係を表すレコード
     // Predecessor: 順序が先のプレイヤー
     // Successor: 順序が後のプレイヤー
-    public record OrderPair(string Predecessor, string Successor);
 
     public class RelationshipExtractor
     {

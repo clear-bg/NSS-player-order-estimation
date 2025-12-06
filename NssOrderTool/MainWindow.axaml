@@ -2,8 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        
         xmlns:local="using:NssOrderTool"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        xmlns:models="using:NssOrderTool.Models"  mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
         x:Class="NssOrderTool.MainWindow"
         Title="NSS 順序推定ツール (C#)"
         Width="800" Height="550"
@@ -104,7 +105,7 @@
 
 					<ListBox Name="AliasList" Height="380" Background="#F0F0F0" Foreground="Black">
 						<ListBox.ItemTemplate>
-							<DataTemplate x:DataType="local:AliasGroupItem">
+							<DataTemplate x:DataType="models:AliasGroupItem">
 								<Grid ColumnDefinitions="*, Auto, Auto">
 									<TextBlock Grid.Column="0"
 											   Text="{Binding DisplayText}"
