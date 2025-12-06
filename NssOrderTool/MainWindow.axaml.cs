@@ -22,6 +22,20 @@ public partial class MainWindow : Window
         _extractor = new RelationshipExtractor();
         _sorter = new OrderSorter();
 
+        string envName = _repository.GetEnvironmentName();
+        EnvText.Text = envName;
+
+        if (envName == "PROD")
+        {
+            EnvBadge.Background = Avalonia.Media.Brushes.DarkRed; // 本番は赤
+            this.Title += " (本番環境)";
+        }
+        else
+        {
+            EnvBadge.Background = Avalonia.Media.Brushes.Green;   // テストは緑
+            this.Title += " (テスト環境)";
+        }
+
         // アプリ起動時にテーブル作成 & ランキング読み込み
         try
         {

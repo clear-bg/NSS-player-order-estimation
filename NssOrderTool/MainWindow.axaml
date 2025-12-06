@@ -12,6 +12,16 @@
 
 		<StackPanel Grid.Column="0" Spacing="10">
 			<TextBlock Text="✏️ 新規観測データの入力" FontWeight="Bold" FontSize="16"/>
+			<StackPanel Grid.Column="0" Spacing="10">
+				<StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+					<TextBlock Text="✏️ 入力" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+
+					<Border Name="EnvBadge" CornerRadius="4" Padding="8,2" Background="Gray">
+						<TextBlock Name="EnvText" Text="LOADING" Foreground="White" FontWeight="Bold" FontSize="12"/>
+					</Border>
+				</StackPanel>
+			</StackPanel>
+			
 			<TextBlock Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" FontSize="12" Foreground="Gray"/>
 
 			<TextBox Name="InputBox"

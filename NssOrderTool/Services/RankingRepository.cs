@@ -133,5 +133,11 @@ namespace NssOrderTool.Services
                 throw;
             }
         }
+
+        // 7. 現在の環境名を取得する (今回追加)
+        public string GetEnvironmentName()
+        {
+            return _dbManager.CurrentEnvironment;
+        }
     }
 }
