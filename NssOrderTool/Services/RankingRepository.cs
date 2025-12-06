@@ -32,7 +32,13 @@ namespace NssOrderTool.Services
                     inferior_player_id VARCHAR(50),
                     frequency INT DEFAULT 0,
                     PRIMARY KEY (superior_player_id, inferior_player_id)
-                );";
+                );
+                CREATE TABLE IF NOT EXISTS Aliases (
+                    alias_name VARCHAR(50) PRIMARY KEY,
+                    target_player_id VARCHAR(50)
+                );
+                ";
+
 
             using var conn = _dbManager.GetConnection();
             using var cmd = new MySqlCommand(sql, conn);
@@ -124,6 +130,7 @@ namespace NssOrderTool.Services
                 new MySqlCommand("TRUNCATE TABLE Relationship;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Players;", conn, tx).ExecuteNonQuery();
+                new MySqlCommand("TRUNCATE TABLE Aliases;", conn, tx).ExecuteNonQuery();
 
                 tx.Commit();
             }
@@ -138,6 +145,62 @@ namespace NssOrderTool.Services
         public string GetEnvironmentName()
         {
             return _dbManager.CurrentEnvironment;
+        }
+
+        // 8. エイリアスの追加
+        public void AddAlias(string alias, string target)
+        {
+            // 正規名と別名が同じ場合は登録不要（あるいはエラー）ですが、
+            // ここではDB制約に任せてシンプルにINSERTします。
+            var sql = "INSERT INTO Aliases (alias_name, target_player_id) VALUES (@alias, @target)";
+
+            using var conn = _dbManager.GetConnection();
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@alias", alias);
+            cmd.Parameters.AddWithValue("@target", target);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException ex) when (ex.Number == 1062) // Duplicate entry
+            {
+                throw new InvalidOperationException($"エイリアス '{alias}' は既に登録されています。");
+            }
+        }
+
+        // 9. エイリアスの削除
+        public void DeleteAlias(string alias)
+        {
+            var sql = "DELETE FROM Aliases WHERE alias_name = @alias";
+
+            using var conn = _dbManager.GetConnection();
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@alias", alias);
+            cmd.ExecuteNonQuery();
+        }
+
+        // 10. 全エイリアスの取得 (変換用辞書として返す)
+        public Dictionary<string, string> GetAliasDictionary()
+        {
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // 大文字小文字を区別しない
+            var sql = "SELECT alias_name, target_player_id FROM Aliases";
+
+            using var conn = _dbManager.GetConnection();
+            using var cmd = new MySqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var alias = reader.GetString(0);
+                var target = reader.GetString(1);
+                // 辞書に追加 (重複はDBで弾いているはずだが念のためTryAdd)
+                if (!dict.ContainsKey(alias))
+                {
+                    dict.Add(alias, target);
+                }
+            }
+            return dict;
         }
     }
 }

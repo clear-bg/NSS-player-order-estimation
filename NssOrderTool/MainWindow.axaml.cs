@@ -17,11 +17,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        // サービス (ロジック) の初期化
+        // 【修正1】初期化 (new) を必ず最初に行う
+        // これを先にやらないと、下の EnsureTablesExist などでエラー(NullReference)になります
         _repository = new RankingRepository();
         _extractor = new RelationshipExtractor();
         _sorter = new OrderSorter();
 
+        // 環境表示の更新
         string envName = _repository.GetEnvironmentName();
         EnvText.Text = envName;
 
@@ -36,11 +38,12 @@ public partial class MainWindow : Window
             this.Title += " (テスト環境)";
         }
 
-        // アプリ起動時にテーブル作成 & ランキング読み込み
+        // アプリ起動時にテーブル作成 & データ読み込み
         try
         {
             _repository.EnsureTablesExist();
             LoadRanking();
+            LoadAliases();
         }
         catch (Exception ex)
         {
@@ -51,9 +54,9 @@ public partial class MainWindow : Window
     // 「データを登録」ボタンが押されたとき
     private void RegisterButton_Click(object? sender, RoutedEventArgs e)
     {
-        string input = InputBox.Text ?? "";
+        string rawInput = InputBox.Text ?? "";
 
-        if (string.IsNullOrWhiteSpace(input))
+        if (string.IsNullOrWhiteSpace(rawInput))
         {
             StatusText.Text = "⚠️ 入力が空です";
             return;
@@ -61,11 +64,44 @@ public partial class MainWindow : Window
 
         try
         {
-            // 1. 観測ログを保存
-            _repository.AddObservation(input);
+            // 【修正2】エイリアス変換ロジックの追加
+            // 入力された文字列を一度分解し、辞書にある名前なら書き換える
+
+            // 1. 辞書の取得
+            var aliasDict = _repository.GetAliasDictionary();
+
+            // 2. 分解 (カンマ区切り)
+            var rawNames = rawInput.Split(',')
+                                   .Select(p => p.Trim())
+                                   .Where(p => !string.IsNullOrEmpty(p))
+                                   .ToList();
+
+            // 3. 変換 (辞書にあれば置換、なければそのまま)
+            var convertedNames = new List<string>();
+            foreach (var name in rawNames)
+            {
+                if (aliasDict.TryGetValue(name, out string? target))
+                {
+                    convertedNames.Add(target); // エイリアスなら正規名に変換
+                }
+                else
+                {
+                    convertedNames.Add(name);   // そのまま
+                }
+            }
+
+            // 4. 再結合 (DB保存 & 抽出用)
+            // 例: "A, Taka, B" -> "A, Takahiro, B"
+            string normalizedInput = string.Join(", ", convertedNames);
+
+
+            // --- ここからは変換後の normalizedInput を使う ---
+
+            // 1. 観測ログを保存 (変換後のデータで保存します)
+            _repository.AddObservation(normalizedInput);
 
             // 2. 入力文字を「ペア」に分解
-            var pairs = _extractor.ExtractFromInput(input);
+            var pairs = _extractor.ExtractFromInput(normalizedInput);
 
             if (pairs.Count == 0)
             {
@@ -74,7 +110,6 @@ public partial class MainWindow : Window
             }
 
             // 3. プレイヤーマスタへの登録
-            // (ペアに含まれる名前をリストアップして登録)
             var playerNames = pairs.Select(p => p.Predecessor)
                              .Concat(pairs.Select(p => p.Successor))
                              .Distinct();
@@ -107,7 +142,7 @@ public partial class MainWindow : Window
         {
             var allPairs = _repository.GetAllPairs();
 
-            // 修正: 戻り値が List<List<string>> になりました
+            // ソート実行 (同率グループ対応版)
             var sortedLayers = _sorter.Sort(allPairs);
 
             var displayList = new List<string>();
@@ -115,19 +150,17 @@ public partial class MainWindow : Window
 
             foreach (var group in sortedLayers)
             {
-                // グループ内の人数が1人か複数かで表示を変える
                 if (group.Count == 1)
                 {
                     displayList.Add($"{currentRank}位 : {group[0]}");
                 }
                 else
                 {
-                    // カンマ区切りで結合 (例: "B, D")
+                    // カンマ区切りで結合
                     string names = string.Join(", ", group);
                     displayList.Add($"{currentRank}位 : {names} (推定同率)");
                 }
 
-                // 次の順位へ（同率がいても次は+1ランクとするか、人数分飛ばすかは仕様次第ですが、一旦+1で）
                 currentRank++;
             }
 
@@ -145,8 +178,7 @@ public partial class MainWindow : Window
         // 1. 確認ダイアログを作成
         var dialog = new ConfirmationDialog();
 
-        // 2. ダイアログを表示し、結果を待つ (ShowDialog)
-        // MainWindow (this) の上に表示する
+        // 2. ダイアログを表示し、結果を待つ
         var result = await dialog.ShowDialog<bool>(this);
 
         // 3. 結果が true (削除する) の場合のみ実行
@@ -157,6 +189,7 @@ public partial class MainWindow : Window
                 _repository.ClearAllData();
                 StatusText.Text = "🗑️ データを全削除しました";
                 LoadRanking(); // 空になったランキングを表示
+                LoadAliases(); // エイリアス表示もクリア
             }
             catch (Exception ex)
             {
@@ -168,4 +201,87 @@ public partial class MainWindow : Window
             StatusText.Text = "キャンセルしました";
         }
     }
+
+    // --- エイリアス関連 ---
+
+    // エイリアス一覧を読み込んで表示
+    private void LoadAliases()
+    {
+        try
+        {
+            var dict = _repository.GetAliasDictionary();
+            var list = dict.Select(kv => new AliasItem
+            {
+                AliasName = kv.Key,
+                TargetName = kv.Value
+            })
+            .OrderBy(x => x.AliasName)
+            .ToList();
+
+            AliasList.ItemsSource = list;
+        }
+        catch (Exception ex)
+        {
+            AliasStatusText.Text = $"❌ 読み込みエラー: {ex.Message}";
+        }
+    }
+
+    // 「追加する」ボタン
+    private void AddAliasButton_Click(object? sender, RoutedEventArgs e)
+    {
+        string alias = AliasInput.Text?.Trim() ?? "";
+        string target = TargetInput.Text?.Trim() ?? "";
+
+        if (string.IsNullOrEmpty(alias) || string.IsNullOrEmpty(target))
+        {
+            AliasStatusText.Text = "⚠️ 両方の名前を入力してください";
+            return;
+        }
+
+        try
+        {
+            _repository.AddAlias(alias, target);
+
+            AliasStatusText.Text = $"✅ 追加しました: {alias} → {target}";
+            AliasInput.Text = "";
+            TargetInput.Text = "";
+
+            LoadAliases(); // リスト更新
+        }
+        catch (Exception ex)
+        {
+            AliasStatusText.Text = $"❌ エラー: {ex.Message}";
+        }
+    }
+
+    // リスト内の「削除」ボタン
+    private void DeleteAliasButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string aliasName)
+        {
+            try
+            {
+                _repository.DeleteAlias(aliasName);
+                LoadAliases(); // リスト更新
+            }
+            catch (Exception ex)
+            {
+                AliasStatusText.Text = $"❌ 削除エラー: {ex.Message}";
+            }
+        }
+    }
+
+    // 「更新」ボタン (エイリアスタブ)
+    private void ReloadAliases_Click(object? sender, RoutedEventArgs e)
+    {
+        LoadAliases();
+    }
+}
+
+// リスト表示用のデータクラス
+public class AliasItem
+{
+    public string AliasName { get; set; } = "";
+    public string TargetName { get; set; } = "";
+    public string DisplayText => $"{AliasName} → {TargetName}";
 }
