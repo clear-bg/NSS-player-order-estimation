@@ -51,7 +51,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // 「データを登録」ボタンが押されたとき
+    // 「データを登録」ボタン (フィードバック追加)
     private void RegisterButton_Click(object? sender, RoutedEventArgs e)
     {
         string rawInput = InputBox.Text ?? "";
@@ -64,40 +64,32 @@ public partial class MainWindow : Window
 
         try
         {
-            // 【修正2】エイリアス変換ロジックの追加
-            // 入力された文字列を一度分解し、辞書にある名前なら書き換える
-
-            // 1. 辞書の取得
+            // --- エイリアス変換ロジック ---
             var aliasDict = _repository.GetAliasDictionary();
 
-            // 2. 分解 (カンマ区切り)
             var rawNames = rawInput.Split(',')
                                    .Select(p => p.Trim())
                                    .Where(p => !string.IsNullOrEmpty(p))
                                    .ToList();
 
-            // 3. 変換 (辞書にあれば置換、なければそのまま)
             var convertedNames = new List<string>();
             foreach (var name in rawNames)
             {
                 if (aliasDict.TryGetValue(name, out string? target))
                 {
-                    convertedNames.Add(target); // エイリアスなら正規名に変換
+                    convertedNames.Add(target);
                 }
                 else
                 {
-                    convertedNames.Add(name);   // そのまま
+                    convertedNames.Add(name);
                 }
             }
 
-            // 4. 再結合 (DB保存 & 抽出用)
-            // 例: "A, Taka, B" -> "A, Takahiro, B"
             string normalizedInput = string.Join(", ", convertedNames);
-
 
             // --- ここからは変換後の normalizedInput を使う ---
 
-            // 1. 観測ログを保存 (変換後のデータで保存します)
+            // 1. 観測ログを保存
             _repository.AddObservation(normalizedInput);
 
             // 2. 入力文字を「ペア」に分解
@@ -119,7 +111,17 @@ public partial class MainWindow : Window
             _repository.UpdatePairs(pairs);
 
             // 5. 完了メッセージ & ランキング再表示
-            StatusText.Text = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
+            // ▼▼▼ 変更: 変換があったかどうかでメッセージを変える ▼▼▼
+            if (rawInput != normalizedInput)
+            {
+                StatusText.Text = $"✅ 登録完了 (変換あり): \n'{rawInput}' \n→ '{normalizedInput}'";
+            }
+            else
+            {
+                StatusText.Text = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
+            }
+            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
             InputBox.Text = ""; // 入力欄をクリア
             LoadRanking();      // ランキング更新
         }
@@ -227,7 +229,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // 「追加する」ボタン (カンマ区切り対応)
+    // 「追加する」ボタン (カンマ区切り対応 & バリデーション追加)
     private void AddAliasButton_Click(object? sender, RoutedEventArgs e)
     {
         string rawAliases = AliasInput.Text ?? "";
@@ -258,6 +260,14 @@ public partial class MainWindow : Window
 
             foreach (var alias in aliasList)
             {
+                // ▼▼▼ 追加: 自分自身へのエイリアス禁止チェック ▼▼▼
+                if (alias.Equals(target, StringComparison.OrdinalIgnoreCase))
+                {
+                    errors.Add($"{alias} (正規名と同じ)");
+                    continue; // 登録せずにスキップ
+                }
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
                 try
                 {
                     _repository.AddAlias(alias, target);
@@ -266,7 +276,7 @@ public partial class MainWindow : Window
                 catch (Exception)
                 {
                     // 重複エラーなどは個別に記録して続行
-                    errors.Add(alias);
+                    errors.Add($"{alias} (重複など)");
                 }
             }
 
@@ -275,11 +285,11 @@ public partial class MainWindow : Window
             {
                 AliasStatusText.Text = $"✅ {successCount} 件のエイリアスを追加しました";
                 AliasInput.Text = "";
-                // TargetInput.Text = ""; // 続けて登録しやすいように正規名は残す（お好みで）
+                // TargetInput.Text = ""; 
             }
             else
             {
-                AliasStatusText.Text = $"⚠️ {successCount} 件追加、{errors.Count} 件エラー (重複など): {string.Join(", ", errors)}";
+                AliasStatusText.Text = $"⚠️ {successCount} 件追加、{errors.Count} 件エラー: {string.Join(", ", errors)}";
             }
 
             LoadAliases(); // リスト更新
