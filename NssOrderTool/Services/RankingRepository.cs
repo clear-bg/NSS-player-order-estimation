@@ -1,7 +1,8 @@
-﻿using NssOrderTool.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MySqlConnector;
+using NssOrderTool.Models;    // 追加
+using NssOrderTool.Database;  // 追加 (DbManager用)
 
 namespace NssOrderTool.Services
 {
@@ -14,39 +15,9 @@ namespace NssOrderTool.Services
             _dbManager = new DbManager();
         }
 
-        // 1. テーブル作成 (アプリ起動時に呼ぶと安心)
-        public void EnsureTablesExist()
-        {
-            var sql = @"
-                CREATE TABLE IF NOT EXISTS Players (
-                    player_id VARCHAR(50) PRIMARY KEY,
-                    name VARCHAR(100),
-                    first_seen DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-                CREATE TABLE IF NOT EXISTS Observations (
-                    observation_id INT AUTO_INCREMENT PRIMARY KEY,
-                    observation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    ordered_list TEXT
-                );
-                CREATE TABLE IF NOT EXISTS Relationship (
-                    superior_player_id VARCHAR(50),
-                    inferior_player_id VARCHAR(50),
-                    frequency INT DEFAULT 0,
-                    PRIMARY KEY (superior_player_id, inferior_player_id)
-                );
-                CREATE TABLE IF NOT EXISTS Aliases (
-                    alias_name VARCHAR(50) PRIMARY KEY,
-                    target_player_id VARCHAR(50)
-                );
-                ";
+        // 削除: EnsureTablesExist は DbSchemaService に移動しました
 
-
-            using var conn = _dbManager.GetConnection();
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.ExecuteNonQuery();
-        }
-
-        // 2. 観測データの登録 (ログ保存)
+        // 2. 観測データの登録
         public void AddObservation(string rawInput)
         {
             var sql = "INSERT INTO Observations (ordered_list, observation_time) VALUES (@list, NOW());";
@@ -57,13 +28,12 @@ namespace NssOrderTool.Services
             cmd.ExecuteNonQuery();
         }
 
-        // 3. プレイヤーマスタへの登録 (存在しない場合のみ)
+        // 3. プレイヤーマスタへの登録
         public void RegisterPlayers(IEnumerable<string> players)
         {
             using var conn = _dbManager.GetConnection();
             foreach (var p in players)
             {
-                // IGNOREを使って重複エラーを無視
                 var sql = "INSERT IGNORE INTO Players (player_id) VALUES (@pid)";
                 using var cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@pid", p);
@@ -75,11 +45,10 @@ namespace NssOrderTool.Services
         public void UpdatePairs(List<OrderPair> pairs)
         {
             using var conn = _dbManager.GetConnection();
-            using var tx = conn.BeginTransaction(); // 整合性のためトランザクション使用
+            using var tx = conn.BeginTransaction();
 
             try
             {
-                // 重複していれば frequency (頻度) を +1 する
                 var sql = @"
                     INSERT INTO Relationship (superior_player_id, inferior_player_id, frequency)
                     VALUES (@sup, @inf, 1)
@@ -98,11 +67,11 @@ namespace NssOrderTool.Services
             catch
             {
                 tx.Rollback();
-                throw; // エラーを再スロー
+                throw;
             }
         }
 
-        // 5. 全ペアの取得 (ランキング計算用)
+        // 5. 全ペアの取得
         public List<OrderPair> GetAllPairs()
         {
             var list = new List<OrderPair>();
@@ -119,7 +88,7 @@ namespace NssOrderTool.Services
             return list;
         }
 
-        // 6. 全データの削除 (初期化用)
+        // 6. 全データの削除
         public void ClearAllData()
         {
             using var conn = _dbManager.GetConnection();
@@ -127,7 +96,6 @@ namespace NssOrderTool.Services
 
             try
             {
-                // 外部キー制約がある場合は順序に注意（今回は制約なし）
                 new MySqlCommand("TRUNCATE TABLE Relationship;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Players;", conn, tx).ExecuteNonQuery();
@@ -142,7 +110,7 @@ namespace NssOrderTool.Services
             }
         }
 
-        // 7. 現在の環境名を取得する (今回追加)
+        // 7. 現在の環境名を取得する
         public string GetEnvironmentName()
         {
             return _dbManager.CurrentEnvironment;
@@ -151,8 +119,6 @@ namespace NssOrderTool.Services
         // 8. エイリアスの追加
         public void AddAlias(string alias, string target)
         {
-            // 正規名と別名が同じ場合は登録不要（あるいはエラー）ですが、
-            // ここではDB制約に任せてシンプルにINSERTします。
             var sql = "INSERT INTO Aliases (alias_name, target_player_id) VALUES (@alias, @target)";
 
             using var conn = _dbManager.GetConnection();
@@ -164,7 +130,7 @@ namespace NssOrderTool.Services
             {
                 cmd.ExecuteNonQuery();
             }
-            catch (MySqlException ex) when (ex.Number == 1062) // Duplicate entry
+            catch (MySqlException ex) when (ex.Number == 1062)
             {
                 throw new InvalidOperationException($"エイリアス '{alias}' は既に登録されています。");
             }
@@ -181,10 +147,10 @@ namespace NssOrderTool.Services
             cmd.ExecuteNonQuery();
         }
 
-        // 10. 全エイリアスの取得 (変換用辞書として返す)
+        // 10. 全エイリアスの取得
         public Dictionary<string, string> GetAliasDictionary()
         {
-            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // 大文字小文字を区別しない
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var sql = "SELECT alias_name, target_player_id FROM Aliases";
 
             using var conn = _dbManager.GetConnection();
@@ -195,7 +161,6 @@ namespace NssOrderTool.Services
             {
                 var alias = reader.GetString(0);
                 var target = reader.GetString(1);
-                // 辞書に追加 (重複はDBで弾いているはずだが念のためTryAdd)
                 if (!dict.ContainsKey(alias))
                 {
                     dict.Add(alias, target);

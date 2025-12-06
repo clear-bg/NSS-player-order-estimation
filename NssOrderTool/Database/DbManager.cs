@@ -6,7 +6,7 @@ using System.Text.Json;   // 追加: JSONパース用
 using MySqlConnector;
 using DotNetEnv;
 
-namespace NssOrderTool.Services
+namespace NssOrderTool.Database
 {
     public class DbManager
     {

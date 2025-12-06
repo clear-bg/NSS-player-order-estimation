@@ -1,10 +1,12 @@
-﻿using NssOrderTool.Models;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using NssOrderTool.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NssOrderTool.Models;
+using NssOrderTool.Services;
+using NssOrderTool.Database;
 
 namespace NssOrderTool;
 
@@ -13,6 +15,7 @@ public partial class MainWindow : Window
     private readonly RankingRepository _repository;
     private readonly RelationshipExtractor _extractor;
     private readonly OrderSorter _sorter;
+    private readonly DbSchemaService _schemaService;
 
     public MainWindow()
     {
@@ -23,6 +26,7 @@ public partial class MainWindow : Window
         _repository = new RankingRepository();
         _extractor = new RelationshipExtractor();
         _sorter = new OrderSorter();
+        _schemaService = new DbSchemaService();
 
         // 環境表示の更新
         string envName = _repository.GetEnvironmentName();
@@ -42,7 +46,7 @@ public partial class MainWindow : Window
         // アプリ起動時にテーブル作成 & データ読み込み
         try
         {
-            _repository.EnsureTablesExist();
+            _schemaService.EnsureTablesExist();
             LoadRanking();
             LoadAliases();
         }
