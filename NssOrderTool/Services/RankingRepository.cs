@@ -202,5 +202,23 @@ namespace NssOrderTool.Services
             }
             return dict;
         }
+
+        // 11. 指定したターゲットのエイリアス一覧を取得
+        public List<string> GetAliasesByTarget(string targetName)
+        {
+            var list = new List<string>();
+            var sql = "SELECT alias_name FROM Aliases WHERE target_player_id = @target ORDER BY alias_name";
+
+            using var conn = _dbManager.GetConnection();
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@target", targetName);
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                list.Add(reader.GetString(0));
+            }
+            return list;
+        }
     }
 }

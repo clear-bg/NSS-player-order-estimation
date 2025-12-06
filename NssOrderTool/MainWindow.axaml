@@ -104,19 +104,26 @@
 
 					<ListBox Name="AliasList" Height="380" Background="#F0F0F0" Foreground="Black">
 						<ListBox.ItemTemplate>
-							<DataTemplate x:DataType="local:AliasItem">
-								<Grid ColumnDefinitions="*, Auto">
+							<DataTemplate x:DataType="local:AliasGroupItem">
+								<Grid ColumnDefinitions="*, Auto, Auto">
 									<TextBlock Grid.Column="0"
-                                               Text="{Binding DisplayText}"
-                                               VerticalAlignment="Center"
-                                               Foreground="Black"/>
+											   Text="{Binding DisplayText}"
+											   VerticalAlignment="Center"
+											   Foreground="Black"/>
 
 									<Button Grid.Column="1"
-                                            Content="削除"
+                                            Content="編集"
+                                            FontSize="10"
+                                            Padding="8,4"
+                                            Margin="5,0"
+                                            Background="#DDDDDD" Foreground="Black"
+                                            Click="EditGroupButton_Click"/>
+
+									<Button Grid.Column="2"
+                                            Content="全削除"
                                             FontSize="10"
                                             Padding="8,4"
                                             Background="#FFCCCC" Foreground="Red"
-                                            Tag="{Binding AliasName}"
                                             Click="DeleteAliasButton_Click"/>
 								</Grid>
 							</DataTemplate>

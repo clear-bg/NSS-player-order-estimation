@@ -210,13 +210,14 @@ public partial class MainWindow : Window
         try
         {
             var dict = _repository.GetAliasDictionary();
-            var list = dict.Select(kv => new AliasItem
-            {
-                AliasName = kv.Key,
-                TargetName = kv.Value
-            })
-            .OrderBy(x => x.AliasName)
-            .ToList();
+            var list = dict.GroupBy(kv => kv.Value) // Value = 正規名
+                           .Select(g => new AliasGroupItem
+                           {
+                               TargetName = g.Key,
+                               Aliases = g.Select(kv => kv.Key).OrderBy(a => a).ToList() // Key = 別名
+                           })
+                           .OrderBy(x => x.TargetName)
+                           .ToList();
 
             AliasList.ItemsSource = list;
         }
@@ -226,25 +227,60 @@ public partial class MainWindow : Window
         }
     }
 
-    // 「追加する」ボタン
+    // 「追加する」ボタン (カンマ区切り対応)
     private void AddAliasButton_Click(object? sender, RoutedEventArgs e)
     {
-        string alias = AliasInput.Text?.Trim() ?? "";
+        string rawAliases = AliasInput.Text ?? "";
         string target = TargetInput.Text?.Trim() ?? "";
 
-        if (string.IsNullOrEmpty(alias) || string.IsNullOrEmpty(target))
+        if (string.IsNullOrWhiteSpace(rawAliases) || string.IsNullOrEmpty(target))
         {
             AliasStatusText.Text = "⚠️ 両方の名前を入力してください";
             return;
         }
 
+        // カンマで分割し、空白を除去
+        var aliasList = rawAliases.Split(',')
+                                  .Select(a => a.Trim())
+                                  .Where(a => !string.IsNullOrEmpty(a))
+                                  .ToList();
+
+        if (aliasList.Count == 0)
+        {
+            AliasStatusText.Text = "⚠️ 有効な別名がありません";
+            return;
+        }
+
         try
         {
-            _repository.AddAlias(alias, target);
+            int successCount = 0;
+            List<string> errors = new List<string>();
 
-            AliasStatusText.Text = $"✅ 追加しました: {alias} → {target}";
-            AliasInput.Text = "";
-            TargetInput.Text = "";
+            foreach (var alias in aliasList)
+            {
+                try
+                {
+                    _repository.AddAlias(alias, target);
+                    successCount++;
+                }
+                catch (Exception)
+                {
+                    // 重複エラーなどは個別に記録して続行
+                    errors.Add(alias);
+                }
+            }
+
+            // 結果表示
+            if (errors.Count == 0)
+            {
+                AliasStatusText.Text = $"✅ {successCount} 件のエイリアスを追加しました";
+                AliasInput.Text = "";
+                // TargetInput.Text = ""; // 続けて登録しやすいように正規名は残す（お好みで）
+            }
+            else
+            {
+                AliasStatusText.Text = $"⚠️ {successCount} 件追加、{errors.Count} 件エラー (重複など): {string.Join(", ", errors)}";
+            }
 
             LoadAliases(); // リスト更新
         }
@@ -254,14 +290,24 @@ public partial class MainWindow : Window
         }
     }
 
-    // リスト内の「削除」ボタン
+    // リスト内の「削除」ボタン (グループ全削除)
     private void DeleteAliasButton_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button btn && btn.Tag is string aliasName)
+        // Tag には AliasGroupItem オブジェクトそのものを入れています (XAML側でバインディング変更が必要)
+        // あるいは、Tagに TargetName を入れるなど設計次第ですが、
+        // ここでは「表示されているグループのエイリアスを全て消す」動きにします。
+
+        if (sender is Button btn && btn.DataContext is AliasGroupItem group)
         {
             try
             {
-                _repository.DeleteAlias(aliasName);
+                // グループ内のエイリアスを1つずつ削除
+                foreach (var alias in group.Aliases)
+                {
+                    _repository.DeleteAlias(alias);
+                }
+
+                AliasStatusText.Text = $"🗑️ '{group.TargetName}' のエイリアスを削除しました";
                 LoadAliases(); // リスト更新
             }
             catch (Exception ex)
@@ -271,17 +317,36 @@ public partial class MainWindow : Window
         }
     }
 
-    // 「更新」ボタン (エイリアスタブ)
+    // 「更新」ボタン
     private void ReloadAliases_Click(object? sender, RoutedEventArgs e)
     {
         LoadAliases();
     }
+
+    // 「編集」ボタン
+    private async void EditGroupButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is AliasGroupItem group)
+        {
+            // 編集ダイアログを作成して表示
+            // 引数として「正規名」を渡す
+            var dialog = new AliasEditDialog(group.TargetName);
+
+            // ダイアログが閉じるのを待つ (ShowDialog)
+            await dialog.ShowDialog(this);
+
+            // 閉じた後にメイン画面のリストも更新する (削除が反映されるように)
+            LoadAliases();
+        }
+    }
 }
 
 // リスト表示用のデータクラス
-public class AliasItem
+public class AliasGroupItem
 {
-    public string AliasName { get; set; } = "";
     public string TargetName { get; set; } = "";
-    public string DisplayText => $"{AliasName} → {TargetName}";
+    public List<string> Aliases { get; set; } = new();
+
+    // 画面表示用: "Takahiro : Taka, T.K"
+    public string DisplayText => $"{TargetName} : {string.Join(", ", Aliases)}";
 }
