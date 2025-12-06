@@ -74,13 +74,13 @@
 					<TextBlock Text="表記揺れを正規の名前に自動変換します。" FontSize="12" Foreground="Gray"/>
 
 					<StackPanel Spacing="5">
-						<TextBlock Text="別名 (入力される名前)" FontWeight="Bold" FontSize="12"/>
-						<TextBox Name="AliasInput" Watermark="例: Taka"/>
-					</StackPanel>
-
-					<StackPanel Spacing="5">
 						<TextBlock Text="正規名 (変換後の名前)" FontWeight="Bold" FontSize="12"/>
 						<TextBox Name="TargetInput" Watermark="例: Takahiro"/>
+					</StackPanel>
+					
+					<StackPanel Spacing="5">
+						<TextBlock Text="別名 (入力される名前)" FontWeight="Bold" FontSize="12"/>
+						<TextBox Name="AliasInput" Watermark="例: Taka"/>
 					</StackPanel>
 
 					<Button Name="AddAliasButton"
