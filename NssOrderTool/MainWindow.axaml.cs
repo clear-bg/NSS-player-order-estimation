@@ -5,14 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 
 using NssOrderTool.Models;
-using NssOrderTool.Services;
 using NssOrderTool.Database;
+using NssOrderTool.Services.Domain;
+using NssOrderTool.Repositories;
 
 namespace NssOrderTool;
 
 public partial class MainWindow : Window
 {
-    private readonly RankingRepository _repository;
+    private readonly RankingRepository _rankingRepo;
+    private readonly AliasRepository _aliasRepo;
     private readonly RelationshipExtractor _extractor;
     private readonly OrderSorter _sorter;
     private readonly DbSchemaService _schemaService;
@@ -23,13 +25,14 @@ public partial class MainWindow : Window
 
         // 【修正1】初期化 (new) を必ず最初に行う
         // これを先にやらないと、下の EnsureTablesExist などでエラー(NullReference)になります
-        _repository = new RankingRepository();
+        _rankingRepo = new RankingRepository();
+        _aliasRepo = new AliasRepository();
         _extractor = new RelationshipExtractor();
         _sorter = new OrderSorter();
         _schemaService = new DbSchemaService();
 
         // 環境表示の更新
-        string envName = _repository.GetEnvironmentName();
+        string envName = _rankingRepo.GetEnvironmentName();
         EnvText.Text = envName;
 
         if (envName == "PROD")
@@ -56,7 +59,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // 「データを登録」ボタン (フィードバック追加)
+    // 「データを登録」ボタン
     private void RegisterButton_Click(object? sender, RoutedEventArgs e)
     {
         string rawInput = InputBox.Text ?? "";
@@ -69,54 +72,36 @@ public partial class MainWindow : Window
 
         try
         {
-            // --- エイリアス変換ロジック ---
-            var aliasDict = _repository.GetAliasDictionary();
+            // 1. 辞書の取得
+            var aliasDict = _aliasRepo.GetAliasDictionary(); // _repository ではなく _aliasRepo を使う
 
-            var rawNames = rawInput.Split(',')
-                                   .Select(p => p.Trim())
-                                   .Where(p => !string.IsNullOrEmpty(p))
-                                   .ToList();
+            // 2. 正規化 (ロジッククラスにお任せ！)
+            string normalizedInput = _extractor.NormalizeInput(rawInput, aliasDict);
 
-            var convertedNames = new List<string>();
-            foreach (var name in rawNames)
-            {
-                if (aliasDict.TryGetValue(name, out string? target))
-                {
-                    convertedNames.Add(target);
-                }
-                else
-                {
-                    convertedNames.Add(name);
-                }
-            }
+            // --- 以降は normalizedInput を使用 ---
 
-            string normalizedInput = string.Join(", ", convertedNames);
+            // 3. 観測ログ保存
+            _rankingRepo.AddObservation(normalizedInput); // ここは RankingRepository のまま
 
-            // --- ここからは変換後の normalizedInput を使う ---
-
-            // 1. 観測ログを保存
-            _repository.AddObservation(normalizedInput);
-
-            // 2. 入力文字を「ペア」に分解
+            // 4. ペア分解
             var pairs = _extractor.ExtractFromInput(normalizedInput);
 
             if (pairs.Count == 0)
             {
-                StatusText.Text = "⚠️ 有効なペアが見つかりませんでした (2名以上入力してください)";
+                StatusText.Text = "⚠️ 有効なペアが見つかりませんでした";
                 return;
             }
 
-            // 3. プレイヤーマスタへの登録
+            // 5. プレイヤー登録
             var playerNames = pairs.Select(p => p.Predecessor)
                              .Concat(pairs.Select(p => p.Successor))
                              .Distinct();
-            _repository.RegisterPlayers(playerNames);
+            _rankingRepo.RegisterPlayers(playerNames);
 
-            // 4. DBの関係性を更新
-            _repository.UpdatePairs(pairs);
+            // 6. 関係性更新
+            _rankingRepo.UpdatePairs(pairs);
 
-            // 5. 完了メッセージ & ランキング再表示
-            // ▼▼▼ 変更: 変換があったかどうかでメッセージを変える ▼▼▼
+            // 7. 完了メッセージ (変換有無で分岐)
             if (rawInput != normalizedInput)
             {
                 StatusText.Text = $"✅ 登録完了 (変換あり): \n'{rawInput}' \n→ '{normalizedInput}'";
@@ -125,10 +110,9 @@ public partial class MainWindow : Window
             {
                 StatusText.Text = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
             }
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-            InputBox.Text = ""; // 入力欄をクリア
-            LoadRanking();      // ランキング更新
+            InputBox.Text = "";
+            LoadRanking();
         }
         catch (Exception ex)
         {
@@ -147,7 +131,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            var allPairs = _repository.GetAllPairs();
+            var allPairs = _rankingRepo.GetAllPairs();
 
             // ソート実行 (同率グループ対応版)
             var sortedLayers = _sorter.Sort(allPairs);
@@ -193,7 +177,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                _repository.ClearAllData();
+                _rankingRepo.ClearAllData();
                 StatusText.Text = "🗑️ データを全削除しました";
                 LoadRanking(); // 空になったランキングを表示
                 LoadAliases(); // エイリアス表示もクリア
@@ -216,7 +200,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            var dict = _repository.GetAliasDictionary();
+            var dict = _aliasRepo.GetAliasDictionary();
             var list = dict.GroupBy(kv => kv.Value) // Value = 正規名
                            .Select(g => new AliasGroupItem
                            {
@@ -275,7 +259,7 @@ public partial class MainWindow : Window
 
                 try
                 {
-                    _repository.AddAlias(alias, target);
+                    _aliasRepo.AddAlias(alias, target);
                     successCount++;
                 }
                 catch (Exception)
@@ -319,7 +303,7 @@ public partial class MainWindow : Window
                 // グループ内のエイリアスを1つずつ削除
                 foreach (var alias in group.Aliases)
                 {
-                    _repository.DeleteAlias(alias);
+                    _aliasRepo.DeleteAlias(alias);
                 }
 
                 AliasStatusText.Text = $"🗑️ '{group.TargetName}' のエイリアスを削除しました";

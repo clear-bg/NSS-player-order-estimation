@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NssOrderTool.Models;
 
-namespace NssOrderTool.Services
+namespace NssOrderTool.Services.Domain
 {
     public class OrderSorter
     {

@@ -1,13 +1,13 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using NssOrderTool.Services;
+using NssOrderTool.Repositories;
 using System;
 
 namespace NssOrderTool
 {
     public partial class AliasEditDialog : Window
     {
-        private readonly RankingRepository _repository;
+        private readonly AliasRepository _repository;
         private readonly string _targetName;
 
         // コンストラクタで「誰の編集か」を受け取る
@@ -16,7 +16,7 @@ namespace NssOrderTool
             InitializeComponent();
 
             // 本当は依存性注入などが望ましいですが、簡易的にここでnewします
-            _repository = new RankingRepository();
+            _repository = new AliasRepository();
             _targetName = targetName;
 
             TargetNameText.Text = _targetName;
@@ -27,7 +27,7 @@ namespace NssOrderTool
         public AliasEditDialog()
         {
             InitializeComponent();
-            _repository = new RankingRepository();
+            _repository = new AliasRepository();
             _targetName = "Sample";
         }
 

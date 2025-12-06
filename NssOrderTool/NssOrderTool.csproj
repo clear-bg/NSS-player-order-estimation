@@ -36,7 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Domain\" />
     <Folder Include="Services\App\" />
     <Folder Include="Views\" />
   </ItemGroup>
