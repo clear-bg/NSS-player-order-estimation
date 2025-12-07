@@ -15,7 +15,7 @@ namespace NssOrderTool.Repositories
             _dbManager = dbManager;
         }
 
-        public async Task AddObservationAsync(string rawInput)
+        public virtual async Task AddObservationAsync(string rawInput)
         {
             var sql = "INSERT INTO Observations (ordered_list, observation_time) VALUES (@list, NOW());";
 
@@ -25,7 +25,7 @@ namespace NssOrderTool.Repositories
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task UpdatePairsAsync(List<OrderPair> pairs)
+        public virtual async Task UpdatePairsAsync(List<OrderPair> pairs)
         {
             using var conn = await _dbManager.GetConnectionAsync();
             using var tx = await conn.BeginTransactionAsync();
@@ -54,7 +54,7 @@ namespace NssOrderTool.Repositories
             }
         }
 
-        public async Task<List<OrderPair>> GetAllPairsAsync()
+        public virtual async Task<List<OrderPair>> GetAllPairsAsync()
         {
             var list = new List<OrderPair>();
             var sql = "SELECT predecessor_id, successor_id FROM SequencePairs";
@@ -70,7 +70,7 @@ namespace NssOrderTool.Repositories
             return list;
         }
 
-        public async Task ClearAllDataAsync()
+        public virtual async Task ClearAllDataAsync()
         {
             using var conn = await _dbManager.GetConnectionAsync();
             using var tx = await conn.BeginTransactionAsync();

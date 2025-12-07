@@ -14,7 +14,7 @@ namespace NssOrderTool.Repositories
             _dbManager = dbManager;
         }
 
-        public async Task RegisterPlayersAsync(IEnumerable<string> players)
+        public virtual async Task RegisterPlayersAsync(IEnumerable<string> players)
         {
             using var conn = await _dbManager.GetConnectionAsync();
             foreach (var p in players)
@@ -42,7 +42,7 @@ namespace NssOrderTool.Repositories
             return list;
         }
 
-        public async Task ClearAllAsync()
+        public virtual async Task ClearAllAsync()
         {
             using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand("TRUNCATE TABLE Players;", conn);

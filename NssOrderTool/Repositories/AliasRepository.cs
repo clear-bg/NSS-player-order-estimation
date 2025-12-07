@@ -34,7 +34,7 @@ namespace NssOrderTool.Repositories
             }
         }
 
-        public async Task DeleteAliasAsync(string alias)
+        public virtual async Task DeleteAliasAsync(string alias)
         {
             var sql = "DELETE FROM Aliases WHERE alias_name = @alias";
 
@@ -44,7 +44,7 @@ namespace NssOrderTool.Repositories
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<Dictionary<string, string>> GetAliasDictionaryAsync()
+        public virtual async Task<Dictionary<string, string>> GetAliasDictionaryAsync()
         {
             var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var sql = "SELECT alias_name, target_player_id FROM Aliases";
@@ -65,7 +65,7 @@ namespace NssOrderTool.Repositories
             return dict;
         }
 
-        public async Task<List<string>> GetAliasesByTargetAsync(string targetName)
+        public virtual async Task<List<string>> GetAliasesByTargetAsync(string targetName)
         {
             var list = new List<string>();
             var sql = "SELECT alias_name FROM Aliases WHERE target_player_id = @target ORDER BY alias_name";
@@ -82,7 +82,7 @@ namespace NssOrderTool.Repositories
             return list;
         }
 
-        public async Task ClearAllAsync()
+        public virtual async Task ClearAllAsync()
         {
             using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand("TRUNCATE TABLE Aliases;", conn);
