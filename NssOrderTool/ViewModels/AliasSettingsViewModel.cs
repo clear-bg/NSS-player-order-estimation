@@ -34,7 +34,11 @@ namespace NssOrderTool.ViewModels
             _ = LoadAliases();
         }
 
-        public AliasSettingsViewModel() { } // デザイナー用
+        // デザイナー用
+        public AliasSettingsViewModel()
+        {
+            _aliasRepo = null!;
+        }
 
         // --- Commands ---
 

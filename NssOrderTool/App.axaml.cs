@@ -42,6 +42,7 @@ public partial class App : Application
         collection.AddTransient<AliasRepository>();
 
         // ViewModels
+        collection.AddTransient<MainWindowViewModel>();
         collection.AddTransient<OrderEstimationViewModel>();
         collection.AddTransient<AliasSettingsViewModel>();
         // AliasEditViewModel はパラメータ(targetName)が必要なのでここには登録せず、

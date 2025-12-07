@@ -56,7 +56,16 @@ namespace NssOrderTool.ViewModels
         }
 
         // デザイナー用の空コンストラクタ（あるとVSのプレビューが動く）
-        public OrderEstimationViewModel() { /* デザイン時はnullのままで落ちるかもしれないが、一旦許容 */ }
+        public OrderEstimationViewModel()
+        {
+            /* デザイン時はnullのままで落ちるかもしれないが、一旦許容 */
+            _orderRepo = null!;
+            _playerRepo = null!;
+            _aliasRepo = null!;
+            _extractor = null!;
+            _sorter = null!;
+            _schemaService = null!;
+        }
 
         private async void InitializeAsync()
         {

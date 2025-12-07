@@ -25,7 +25,11 @@ namespace NssOrderTool.ViewModels
             _ = LoadAliasesAsync();
         }
 
-        public AliasEditViewModel() { } // デザイナー用
+        // デザイナー用
+        public AliasEditViewModel()
+        {
+            _aliasRepo = null!;
+        }
 
         [RelayCommand]
         public async Task LoadAliasesAsync()
