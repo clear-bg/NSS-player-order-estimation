@@ -1,67 +1,28 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using NssOrderTool.Repositories;
-using System;
+using NssOrderTool.ViewModels;
 
 namespace NssOrderTool.Views
 {
     public partial class AliasEditDialog : Window
     {
-        private readonly AliasRepository _repository;
-        private readonly string _targetName;
-
-        // コンストラクタで「誰の編集か」を受け取る
+        // コンストラクタでViewModelを受け取る形に変更しても良いが、
+        // 今回は呼び出し元でDataContextセット済みであることを想定、
+        // またはここでセットする
         public AliasEditDialog(string targetName)
         {
             InitializeComponent();
-
-            // 本当は依存性注入などが望ましいですが、簡易的にここでnewします
-            _repository = new AliasRepository();
-            _targetName = targetName;
-
-            TargetNameText.Text = _targetName;
-            LoadDetails();
+            // ViewModelを生成してセット
+            DataContext = new AliasEditViewModel(targetName);
         }
 
-        // プレビュー用コンストラクタ (VSデザイナ用)
+        // デザイナー用など
         public AliasEditDialog()
         {
             InitializeComponent();
-            _repository = new AliasRepository();
-            _targetName = "Sample";
         }
 
-        private void LoadDetails()
-        {
-            try
-            {
-                // Step 1で作ったメソッドを使用
-                var aliases = _repository.GetAliasesByTarget(_targetName);
-                DetailList.ItemsSource = aliases;
-            }
-            catch (Exception ex)
-            {
-                // エラー時はリストにエラーメッセージを1つ入れるなどの簡易対応
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-            }
-        }
-
-        private void DeleteOneButton_Click(object? sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Tag is string aliasToDelete)
-            {
-                try
-                {
-                    _repository.DeleteAlias(aliasToDelete);
-                    LoadDetails(); // リスト更新
-                }
-                catch
-                {
-                    // エラーハンドリング (必要ならMessageBoxなど)
-                }
-            }
-        }
-
+        // 閉じるボタンだけはViewの責務としてここに残す
         private void CloseButton_Click(object? sender, RoutedEventArgs e)
         {
             Close();
