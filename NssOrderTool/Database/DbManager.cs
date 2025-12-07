@@ -1,10 +1,11 @@
+using DotNetEnv;
+using MySqlConnector;
 using NssOrderTool.Models;
 using System;
 using System.Data;
 using System.IO;          // 追加: ファイル読み込み用
 using System.Text.Json;   // 追加: JSONパース用
-using MySqlConnector;
-using DotNetEnv;
+using System.Threading.Tasks;
 
 namespace NssOrderTool.Database
 {
@@ -99,10 +100,10 @@ namespace NssOrderTool.Database
         }
 
         /// <summary>
-        /// 新しいデータベース接続を開いて返します。
-        /// 使用後は必ず Dispose (using文など) してください。
+        /// 同期でデータベース接続を開いて返します。
         /// </summary>
-        public MySqlConnection GetConnection()
+
+        public async Task<MySqlConnection> GetConnectionAsync()
         {
             if (_connectionString == null)
             {
@@ -110,14 +111,28 @@ namespace NssOrderTool.Database
             }
 
             var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            await connection.OpenAsync(); // 非同期でオープン
 
-            // 【重要】セッションのタイムゾーンを日本時間 (JST) に設定
+            // タイムゾーン設定も非同期で
             using (var cmd = new MySqlCommand("SET time_zone = '+09:00';", connection))
             {
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
+            return connection;
+        }
+
+        public MySqlConnection GetConnection()
+        {
+            if (_connectionString == null) throw new InvalidOperationException("接続文字列エラー");
+
+            var connection = new MySqlConnection(_connectionString);
+            connection.Open(); // 同期オープン
+
+            using (var cmd = new MySqlCommand("SET time_zone = '+09:00';", connection))
+            {
+                cmd.ExecuteNonQuery(); // 同期実行
+            }
             return connection;
         }
     }

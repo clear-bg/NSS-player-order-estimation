@@ -2,10 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NssOrderTool.ViewModels"
              xmlns:models="using:NssOrderTool.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
-             x:Class="NssOrderTool.Views.AliasSettingsView">
-
+             x:Class="NssOrderTool.Views.AliasSettingsView"
+             x:DataType="vm:AliasSettingsViewModel"
+             x:Name="Root">
 	<Grid Margin="20" ColumnDefinitions="*, 20, *">
 		<StackPanel Grid.Column="0" Spacing="15">
 			<TextBlock Text="➕ エイリアス追加" FontWeight="Bold" FontSize="16"/>
@@ -13,23 +15,21 @@
 
 			<StackPanel Spacing="5">
 				<TextBlock Text="正規名 (変換後の名前)" FontWeight="Bold" FontSize="12"/>
-				<TextBox Name="TargetInput" Watermark="例: Takahiro"/>
+				<TextBox Text="{Binding TargetInput}" Watermark="例: Takahiro"/>
 			</StackPanel>
 
 			<StackPanel Spacing="5">
 				<TextBlock Text="別名 (入力される名前)" FontWeight="Bold" FontSize="12"/>
-				<TextBox Name="AliasInput" Watermark="例: Taka"/>
+				<TextBox Text="{Binding AliasInput}" Watermark="例: Taka"/>
 			</StackPanel>
 
-			<Button Name="AddAliasButton"
-                    Content="追加する"
+			<Button Content="追加する"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     Background="#007ACC" Foreground="White"
-                    Click="AddAliasButton_Click"/>
+                    Command="{Binding AddAliasCommand}"/>
 
-			<TextBlock Name="AliasStatusText"
-                       Text=""
+			<TextBlock Text="{Binding StatusText}"
                        Foreground="Green"
                        TextWrapping="Wrap"/>
 		</StackPanel>
@@ -37,10 +37,10 @@
 		<StackPanel Grid.Column="2" Spacing="10">
 			<Grid ColumnDefinitions="*, Auto">
 				<TextBlock Grid.Column="0" Text="📝 登録済みエイリアス" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-				<Button Grid.Column="1" Content="更新" Click="ReloadAliases_Click"/>
+				<Button Grid.Column="1" Content="更新" Command="{Binding LoadAliasesCommand}"/>
 			</Grid>
 
-			<ListBox Name="AliasList" Height="380" Background="#F0F0F0" Foreground="Black">
+			<ListBox ItemsSource="{Binding AliasList}" Height="380" Background="#F0F0F0" Foreground="Black">
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="models:AliasGroupItem">
 						<Grid ColumnDefinitions="*, Auto, Auto">
@@ -62,7 +62,8 @@
                                     FontSize="10"
                                     Padding="8,4"
                                     Background="#FFCCCC" Foreground="Red"
-                                    Click="DeleteAliasButton_Click"/>
+                                    Command="{Binding #Root.((vm:AliasSettingsViewModel)DataContext).DeleteGroupCommand}"
+                                    CommandParameter="{Binding}"/>
 						</Grid>
 					</DataTemplate>
 				</ListBox.ItemTemplate>

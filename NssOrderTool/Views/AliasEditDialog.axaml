@@ -2,22 +2,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:NssOrderTool.ViewModels"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
         x:Class="NssOrderTool.Views.AliasEditDialog"
+        x:DataType="vm:AliasEditViewModel"
         Title="エイリアス編集"
         Width="400" Height="300"
-        WindowStartupLocation="CenterOwner">
-
+        WindowStartupLocation="CenterOwner"
+        x:Name="DialogRoot">
 	<Grid RowDefinitions="Auto, *, Auto" Margin="15">
 		<StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,10">
 			<TextBlock Text="✏️ エイリアス個別編集" FontWeight="Bold" FontSize="16"/>
 			<StackPanel Orientation="Horizontal" Spacing="5">
 				<TextBlock Text="正規名:" FontWeight="Bold"/>
-				<TextBlock Name="TargetNameText" Text="PlayerName" Foreground="Blue"/>
+				<TextBlock Text="{Binding TargetName}" Foreground="Blue"/>
 			</StackPanel>
 		</StackPanel>
 
-		<ListBox Grid.Row="1" Name="DetailList" Background="#F0F0F0">
+		<ListBox Grid.Row="1" ItemsSource="{Binding Aliases}" Background="#F0F0F0">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Grid ColumnDefinitions="*, Auto">
@@ -26,8 +28,8 @@
 						<Button Grid.Column="1" Content="削除"
                                 FontSize="10" Background="#FFCCCC" Foreground="Red"
                                 Padding="8,4"
-                                Tag="{Binding}"
-                                Click="DeleteOneButton_Click"/>
+                                Command="{Binding #DialogRoot.((vm:AliasEditViewModel)DataContext).DeleteAliasCommand}"
+                                CommandParameter="{Binding}"/>
 					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

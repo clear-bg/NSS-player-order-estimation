@@ -6,9 +6,9 @@ namespace NssOrderTool.Database
     {
         private readonly DbManager _dbManager;
 
-        public DbSchemaService()
+        public DbSchemaService(DbManager dbManager)
         {
-            _dbManager = new DbManager();
+            _dbManager = dbManager;
         }
 
         public void EnsureTablesExist()
