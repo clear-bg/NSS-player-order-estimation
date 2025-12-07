@@ -10,20 +10,22 @@ using NssOrderTool.Models;
 
 namespace NssOrderTool.Views
 {
-    public partial class RankingView : UserControl
+    // クラス名変更
+    public partial class OrderEstimationView : UserControl
     {
-        private readonly RankingRepository _rankingRepo;
+        // フィールド名と型変更: _rankingRepo -> _orderRepo
+        private readonly OrderRepository _orderRepo;
         private readonly AliasRepository _aliasRepo;
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly DbSchemaService _schemaService;
 
-        public RankingView()
+        public OrderEstimationView()
         {
             InitializeComponent();
 
             // 初期化
-            _rankingRepo = new RankingRepository();
+            _orderRepo = new OrderRepository(); // OrderRepositoryを使用
             _aliasRepo = new AliasRepository();
             _extractor = new RelationshipExtractor();
             _sorter = new OrderSorter();
@@ -35,26 +37,21 @@ namespace NssOrderTool.Views
 
         private void UpdateEnvironmentDisplay()
         {
-            string envName = _rankingRepo.GetEnvironmentName();
+            string envName = _orderRepo.GetEnvironmentName();
             EnvText.Text = envName;
 
             if (envName == "PROD")
-            {
                 EnvBadge.Background = Avalonia.Media.Brushes.DarkRed;
-            }
             else
-            {
                 EnvBadge.Background = Avalonia.Media.Brushes.Green;
-            }
         }
 
         private void InitializeData()
         {
             try
             {
-                // テーブル作成とデータ読み込み
                 _schemaService.EnsureTablesExist();
-                LoadRanking();
+                LoadOrder(); // メソッド名も変更推奨 (LoadRanking -> LoadOrder)
             }
             catch (Exception ex)
             {
@@ -73,14 +70,12 @@ namespace NssOrderTool.Views
 
             try
             {
-                // 1. エイリアス辞書を使って正規化
                 var aliasDict = _aliasRepo.GetAliasDictionary();
                 string normalizedInput = _extractor.NormalizeInput(rawInput, aliasDict);
 
-                // 2. ログ保存
-                _rankingRepo.AddObservation(normalizedInput);
+                // _orderRepo を使用
+                _orderRepo.AddObservation(normalizedInput);
 
-                // 3. ペア分解
                 var pairs = _extractor.ExtractFromInput(normalizedInput);
                 if (pairs.Count == 0)
                 {
@@ -88,21 +83,19 @@ namespace NssOrderTool.Views
                     return;
                 }
 
-                // 4. プレイヤー登録 & 関係更新
                 var playerNames = pairs.Select(p => p.Predecessor)
                                        .Concat(pairs.Select(p => p.Successor))
                                        .Distinct();
-                _rankingRepo.RegisterPlayers(playerNames);
-                _rankingRepo.UpdatePairs(pairs);
+                _orderRepo.RegisterPlayers(playerNames);
+                _orderRepo.UpdatePairs(pairs);
 
-                // 5. 結果表示
                 if (rawInput != normalizedInput)
                     StatusText.Text = $"✅ 登録完了 (変換あり): \n'{rawInput}' \n→ '{normalizedInput}'";
                 else
                     StatusText.Text = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
 
                 InputBox.Text = "";
-                LoadRanking();
+                LoadOrder();
             }
             catch (Exception ex)
             {
@@ -112,14 +105,15 @@ namespace NssOrderTool.Views
 
         private void ReloadButton_Click(object? sender, RoutedEventArgs e)
         {
-            LoadRanking();
+            LoadOrder();
         }
 
-        private void LoadRanking()
+        // メソッド名変更: LoadRanking -> LoadOrder
+        private void LoadOrder()
         {
             try
             {
-                var allPairs = _rankingRepo.GetAllPairs();
+                var allPairs = _orderRepo.GetAllPairs();
                 var sortedLayers = _sorter.Sort(allPairs);
 
                 var displayList = new List<string>();
@@ -128,9 +122,9 @@ namespace NssOrderTool.Views
                 foreach (var group in sortedLayers)
                 {
                     if (group.Count == 1)
-                        displayList.Add($"{currentRank}位 : {group[0]}");
+                        displayList.Add($"{currentRank} : {group[0]}"); // "位" を削除しても良いかも
                     else
-                        displayList.Add($"{currentRank}位 : {string.Join(", ", group)} (推定同率)");
+                        displayList.Add($"{currentRank} : {string.Join(", ", group)} (推定同列)");
 
                     currentRank++;
                 }
@@ -144,8 +138,6 @@ namespace NssOrderTool.Views
 
         private async void ClearButton_Click(object? sender, RoutedEventArgs e)
         {
-            // ダイアログは Window なので TopLevel を探す必要があるが、
-            // UserControl 内でも ShowDialog(window) は使える（親ウィンドウを探してくれる）
             var window = TopLevel.GetTopLevel(this) as Window;
             if (window == null) return;
 
@@ -156,9 +148,9 @@ namespace NssOrderTool.Views
             {
                 try
                 {
-                    _rankingRepo.ClearAllData();
+                    _orderRepo.ClearAllData();
                     StatusText.Text = "🗑️ データを全削除しました";
-                    LoadRanking();
+                    LoadOrder();
                 }
                 catch (Exception ex)
                 {

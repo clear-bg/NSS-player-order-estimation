@@ -38,4 +38,10 @@
   <ItemGroup>
     <Folder Include="Services\App\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\OrderEstimationView.axaml.cs">
+      <DependentUpon>OrderEstimationView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

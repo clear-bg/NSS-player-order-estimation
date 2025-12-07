@@ -6,11 +6,11 @@ using NssOrderTool.Database;
 
 namespace NssOrderTool.Repositories
 {
-    public class RankingRepository
+    public class OrderRepository
     {
         private readonly DbManager _dbManager;
 
-        public RankingRepository()
+        public OrderRepository()
         {
             _dbManager = new DbManager();
         }
@@ -50,7 +50,7 @@ namespace NssOrderTool.Repositories
             try
             {
                 var sql = @"
-                    INSERT INTO Relationship (superior_player_id, inferior_player_id, frequency)
+                    INSERT INTO SequencePairs (predecessor_id, successor_id, frequency)
                     VALUES (@sup, @inf, 1)
                     ON DUPLICATE KEY UPDATE frequency = frequency + 1;";
 
@@ -75,7 +75,7 @@ namespace NssOrderTool.Repositories
         public List<OrderPair> GetAllPairs()
         {
             var list = new List<OrderPair>();
-            var sql = "SELECT superior_player_id, inferior_player_id FROM Relationship";
+            var sql = "SELECT predecessor_id, successor_id FROM SequencePairs";
 
             using var conn = _dbManager.GetConnection();
             using var cmd = new MySqlCommand(sql, conn);
@@ -96,7 +96,7 @@ namespace NssOrderTool.Repositories
 
             try
             {
-                new MySqlCommand("TRUNCATE TABLE Relationship;", conn, tx).ExecuteNonQuery();
+                new MySqlCommand("TRUNCATE TABLE SequencePairs;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Players;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Aliases;", conn, tx).ExecuteNonQuery();

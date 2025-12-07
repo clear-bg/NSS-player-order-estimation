@@ -24,11 +24,11 @@ namespace NssOrderTool.Database
                     observation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
                     ordered_list TEXT
                 );
-                CREATE TABLE IF NOT EXISTS Relationship (
-                    superior_player_id VARCHAR(50),
-                    inferior_player_id VARCHAR(50),
+                CREATE TABLE IF NOT EXISTS SequencePairs (
+                    predecessor_id VARCHAR(50),
+                    successor_id VARCHAR(50),
                     frequency INT DEFAULT 0,
-                    PRIMARY KEY (superior_player_id, inferior_player_id)
+                    PRIMARY KEY (predecessor_id, successor_id)
                 );
                 CREATE TABLE IF NOT EXISTS Aliases (
                     alias_name VARCHAR(50) PRIMARY KEY,
