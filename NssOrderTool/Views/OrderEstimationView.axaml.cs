@@ -30,7 +30,7 @@ namespace NssOrderTool.Views
             // OKならViewModelの削除処理を実行
             if (result)
             {
-                vm.PerformClear();
+                await vm.PerformClearAsync();
             }
         }
     }

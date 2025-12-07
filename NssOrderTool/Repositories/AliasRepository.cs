@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks; // 追加
 using MySqlConnector;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
 
 namespace NssOrderTool.Repositories
 {
@@ -15,19 +15,18 @@ namespace NssOrderTool.Repositories
             _dbManager = new DbManager();
         }
 
-        // 1. エイリアスの追加
-        public void AddAlias(string alias, string target)
+        public async Task AddAliasAsync(string alias, string target)
         {
             var sql = "INSERT INTO Aliases (alias_name, target_player_id) VALUES (@alias, @target)";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@alias", alias);
             cmd.Parameters.AddWithValue("@target", target);
 
             try
             {
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
             catch (MySqlException ex) when (ex.Number == 1062)
             {
@@ -35,28 +34,26 @@ namespace NssOrderTool.Repositories
             }
         }
 
-        // 2. エイリアスの削除
-        public void DeleteAlias(string alias)
+        public async Task DeleteAliasAsync(string alias)
         {
             var sql = "DELETE FROM Aliases WHERE alias_name = @alias";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@alias", alias);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
         }
 
-        // 3. 全エイリアスの取得
-        public Dictionary<string, string> GetAliasDictionary()
+        public async Task<Dictionary<string, string>> GetAliasDictionaryAsync()
         {
             var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var sql = "SELECT alias_name, target_player_id FROM Aliases";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
-            using var reader = cmd.ExecuteReader();
+            using var reader = await cmd.ExecuteReaderAsync();
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 var alias = reader.GetString(0);
                 var target = reader.GetString(1);
@@ -68,29 +65,28 @@ namespace NssOrderTool.Repositories
             return dict;
         }
 
-        // 4. 指定したターゲットのエイリアス一覧を取得
-        public List<string> GetAliasesByTarget(string targetName)
+        public async Task<List<string>> GetAliasesByTargetAsync(string targetName)
         {
             var list = new List<string>();
             var sql = "SELECT alias_name FROM Aliases WHERE target_player_id = @target ORDER BY alias_name";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@target", targetName);
-            using var reader = cmd.ExecuteReader();
+            using var reader = await cmd.ExecuteReaderAsync();
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 list.Add(reader.GetString(0));
             }
             return list;
         }
 
-        // 5. エイリアスデータの全削除
-        public void ClearAll()
+        public async Task ClearAllAsync()
         {
-            using var conn = _dbManager.GetConnection();
-            new MySqlCommand("TRUNCATE TABLE Aliases;", conn).ExecuteNonQuery();
+            using var conn = await _dbManager.GetConnectionAsync();
+            using var cmd = new MySqlCommand("TRUNCATE TABLE Aliases;", conn);
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }

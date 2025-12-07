@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NssOrderTool.Models;
@@ -30,17 +31,19 @@ namespace NssOrderTool.ViewModels
         public AliasSettingsViewModel()
         {
             _aliasRepo = new AliasRepository();
-            LoadAliases();
+            // 初期表示のために非同期読み込み (Fire-and-forget)
+            _ = LoadAliases();
         }
 
         // --- Commands ---
 
         [RelayCommand]
-        public void LoadAliases()
+        public async Task LoadAliases()
         {
             try
             {
-                var dict = _aliasRepo.GetAliasDictionary();
+                var dict = await _aliasRepo.GetAliasDictionaryAsync();
+
                 var list = dict.GroupBy(kv => kv.Value)
                                .Select(g => new AliasGroupItem
                                {
@@ -63,7 +66,7 @@ namespace NssOrderTool.ViewModels
         }
 
         [RelayCommand]
-        private void AddAlias()
+        private async Task AddAlias()
         {
             if (string.IsNullOrWhiteSpace(AliasInput) || string.IsNullOrEmpty(TargetInput))
             {
@@ -94,7 +97,7 @@ namespace NssOrderTool.ViewModels
 
                     try
                     {
-                        _aliasRepo.AddAlias(alias, TargetInput);
+                        await _aliasRepo.AddAliasAsync(alias, TargetInput);
                         successCount++;
                     }
                     catch
@@ -107,13 +110,15 @@ namespace NssOrderTool.ViewModels
                 {
                     StatusText = $"✅ {successCount} 件追加しました";
                     AliasInput = "";
-                    // TargetInput = ""; // 連続登録のために残すのが一般的
+                    // TargetInput = ""; // 連続登録しやすくするため残す
                 }
                 else
                 {
                     StatusText = $"⚠️ {successCount} 件追加, エラー: {string.Join(", ", errors)}";
                 }
-                LoadAliases();
+
+                // 一覧更新
+                await LoadAliases();
             }
             catch (Exception ex)
             {
@@ -123,7 +128,7 @@ namespace NssOrderTool.ViewModels
 
         // リスト内の「全削除」ボタンから呼ばれる
         [RelayCommand]
-        private void DeleteGroup(AliasGroupItem group)
+        private async Task DeleteGroup(AliasGroupItem group)
         {
             if (group == null) return;
 
@@ -131,10 +136,11 @@ namespace NssOrderTool.ViewModels
             {
                 foreach (var alias in group.Aliases)
                 {
-                    _aliasRepo.DeleteAlias(alias);
+                    await _aliasRepo.DeleteAliasAsync(alias);
                 }
                 StatusText = $"🗑️ '{group.TargetName}' のエイリアスを削除しました";
-                LoadAliases();
+
+                await LoadAliases();
             }
             catch (Exception ex)
             {

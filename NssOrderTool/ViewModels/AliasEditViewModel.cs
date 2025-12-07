@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NssOrderTool.Repositories;
@@ -20,7 +21,9 @@ namespace NssOrderTool.ViewModels
         {
             _targetName = targetName;
             _aliasRepo = new AliasRepository();
-            LoadAliases();
+
+            // 非同期読み込み開始
+            _ = LoadAliasesAsync();
         }
 
         // 引数なしコンストラクタ（デザイナー用）
@@ -30,12 +33,12 @@ namespace NssOrderTool.ViewModels
         }
 
         [RelayCommand]
-        public void LoadAliases()
+        public async Task LoadAliasesAsync()
         {
             try
             {
                 Aliases.Clear();
-                var list = _aliasRepo.GetAliasesByTarget(TargetName);
+                var list = await _aliasRepo.GetAliasesByTargetAsync(TargetName);
                 foreach (var alias in list)
                 {
                     Aliases.Add(alias);
@@ -43,17 +46,17 @@ namespace NssOrderTool.ViewModels
             }
             catch (Exception)
             {
-                // エラーハンドリング（必要ならStatusTextなどを追加）
+                // エラー時は何もしないか、必要ならプロパティで通知
             }
         }
 
         [RelayCommand]
-        public void DeleteAlias(string alias)
+        public async Task DeleteAlias(string alias)
         {
             try
             {
-                _aliasRepo.DeleteAlias(alias);
-                LoadAliases(); // リスト更新
+                await _aliasRepo.DeleteAliasAsync(alias);
+                await LoadAliasesAsync(); // リスト更新
             }
             catch (Exception)
             {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks; // 追加
 using MySqlConnector;
 using NssOrderTool.Database;
 
@@ -13,41 +14,39 @@ namespace NssOrderTool.Repositories
             _dbManager = new DbManager();
         }
 
-        // プレイヤーの登録 (重複無視)
-        public void RegisterPlayers(IEnumerable<string> players)
+        public async Task RegisterPlayersAsync(IEnumerable<string> players)
         {
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             foreach (var p in players)
             {
                 var sql = "INSERT IGNORE INTO Players (player_id) VALUES (@pid)";
                 using var cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@pid", p);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        // 全プレイヤーIDの取得 (将来の機能用)
-        public List<string> GetAllPlayers()
+        public async Task<List<string>> GetAllPlayersAsync()
         {
             var list = new List<string>();
             var sql = "SELECT player_id FROM Players ORDER BY player_id";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
-            using var reader = cmd.ExecuteReader();
+            using var reader = await cmd.ExecuteReaderAsync();
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 list.Add(reader.GetString(0));
             }
             return list;
         }
 
-        // プレイヤーデータの全削除
-        public void ClearAll()
+        public async Task ClearAllAsync()
         {
-            using var conn = _dbManager.GetConnection();
-            new MySqlCommand("TRUNCATE TABLE Players;", conn).ExecuteNonQuery();
+            using var conn = await _dbManager.GetConnectionAsync();
+            using var cmd = new MySqlCommand("TRUNCATE TABLE Players;", conn);
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }

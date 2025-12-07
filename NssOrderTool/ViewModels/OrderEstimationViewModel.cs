@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,28 +23,23 @@ namespace NssOrderTool.ViewModels
 
         // --- Bindings (画面と同期するプロパティ) ---
 
-        // 入力欄
         [ObservableProperty]
         private string _inputText = "";
 
-        // ステータスメッセージ
         [ObservableProperty]
         private string _statusText = "準備完了";
 
-        // 環境名 (TEST / PROD)
         [ObservableProperty]
         private string _envText = "";
 
-        // 環境バッジの色
         [ObservableProperty]
         private IBrush _envBadgeColor = Brushes.Gray;
 
-        // ランキングリスト
         public ObservableCollection<string> RankingList { get; } = new();
 
         public OrderEstimationViewModel()
         {
-            // 初期化
+            // インスタンス生成
             _orderRepo = new OrderRepository();
             _playerRepo = new PlayerRepository();
             _aliasRepo = new AliasRepository();
@@ -52,17 +47,21 @@ namespace NssOrderTool.ViewModels
             _sorter = new OrderSorter();
             _schemaService = new DbSchemaService();
 
-            Initialize();
+            // 非同期初期化を開始 (Fire-and-forget)
+            InitializeAsync();
         }
 
-        private void Initialize()
+        private async void InitializeAsync()
         {
             try
             {
-                // テーブル作成 & 環境表示更新
+                // テーブル作成 (ここは同期メソッドのままだが、高速なので許容)
                 _schemaService.EnsureTablesExist();
+
                 UpdateEnvironmentDisplay();
-                LoadOrder();
+
+                // 初回読み込み (非同期)
+                await LoadOrderAsync();
             }
             catch (Exception ex)
             {
@@ -72,6 +71,7 @@ namespace NssOrderTool.ViewModels
 
         private void UpdateEnvironmentDisplay()
         {
+            // 環境名はメモリ上の設定を読むだけなので同期でOK
             string envName = _orderRepo.GetEnvironmentName();
             EnvText = envName;
             EnvBadgeColor = (envName == "PROD") ? Brushes.DarkRed : Brushes.Green;
@@ -79,9 +79,8 @@ namespace NssOrderTool.ViewModels
 
         // --- Commands (ボタン処理) ---
 
-        // [RelayCommand]をつけると、自動的に「RegisterCommand」という名前でBindingできるようになります
         [RelayCommand]
-        private void Register()
+        private async Task Register()
         {
             if (string.IsNullOrWhiteSpace(InputText))
             {
@@ -91,13 +90,14 @@ namespace NssOrderTool.ViewModels
 
             try
             {
-                // 1. 正規化
-                var aliasDict = _aliasRepo.GetAliasDictionary();
+                // 1. エイリアス辞書を非同期で取得して正規化
+                var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
                 string normalizedInput = _extractor.NormalizeInput(InputText, aliasDict);
 
-                // 2. 登録プロセス
-                _orderRepo.AddObservation(normalizedInput);
+                // 2. 観測ログ保存
+                await _orderRepo.AddObservationAsync(normalizedInput);
 
+                // 3. ペア分解
                 var pairs = _extractor.ExtractFromInput(normalizedInput);
                 if (pairs.Count == 0)
                 {
@@ -105,12 +105,13 @@ namespace NssOrderTool.ViewModels
                     return;
                 }
 
+                // 4. プレイヤー登録 & 関係更新
                 var playerNames = pairs.Select(p => p.Predecessor)
                                        .Concat(pairs.Select(p => p.Successor))
                                        .Distinct();
 
-                _playerRepo.RegisterPlayers(playerNames);
-                _orderRepo.UpdatePairs(pairs);
+                await _playerRepo.RegisterPlayersAsync(playerNames);
+                await _orderRepo.UpdatePairsAsync(pairs);
 
                 // メッセージ更新
                 if (InputText != normalizedInput)
@@ -119,7 +120,9 @@ namespace NssOrderTool.ViewModels
                     StatusText = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
 
                 InputText = ""; // 入力欄クリア
-                LoadOrder();    // リスト更新
+
+                // リスト再読み込み
+                await LoadOrderAsync();
             }
             catch (Exception ex)
             {
@@ -128,22 +131,22 @@ namespace NssOrderTool.ViewModels
         }
 
         [RelayCommand]
-        private void Reload()
+        private async Task Reload()
         {
-            LoadOrder();
+            await LoadOrderAsync();
         }
 
-        // ダイアログ表示はViewの責務とするため、このメソッドは「削除実行」のみを担当
-        public void PerformClear()
+        // Viewのコードビハインドから呼ばれるメソッド (全削除)
+        public async Task PerformClearAsync()
         {
             try
             {
-                _orderRepo.ClearAllData();
-                _playerRepo.ClearAll();
-                _aliasRepo.ClearAll();
+                await _orderRepo.ClearAllDataAsync();
+                await _playerRepo.ClearAllAsync();
+                await _aliasRepo.ClearAllAsync();
 
                 StatusText = "🗑️ データを全削除しました";
-                LoadOrder();
+                await LoadOrderAsync();
             }
             catch (Exception ex)
             {
@@ -151,11 +154,14 @@ namespace NssOrderTool.ViewModels
             }
         }
 
-        private void LoadOrder()
+        private async Task LoadOrderAsync()
         {
             try
             {
-                var allPairs = _orderRepo.GetAllPairs();
+                // DBから全ペアを非同期取得
+                var allPairs = await _orderRepo.GetAllPairsAsync();
+
+                // ソート計算 (オンメモリ処理)
                 var sortedLayers = _sorter.Sort(allPairs);
 
                 RankingList.Clear();
