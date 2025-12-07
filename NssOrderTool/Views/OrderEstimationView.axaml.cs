@@ -16,6 +16,7 @@ namespace NssOrderTool.Views
         // フィールド名と型変更: _rankingRepo -> _orderRepo
         private readonly OrderRepository _orderRepo;
         private readonly AliasRepository _aliasRepo;
+        private readonly PlayerRepository _playerRepo;
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly DbSchemaService _schemaService;
@@ -25,8 +26,9 @@ namespace NssOrderTool.Views
             InitializeComponent();
 
             // 初期化
-            _orderRepo = new OrderRepository(); // OrderRepositoryを使用
+            _orderRepo = new OrderRepository();
             _aliasRepo = new AliasRepository();
+            _playerRepo = new PlayerRepository();
             _extractor = new RelationshipExtractor();
             _sorter = new OrderSorter();
             _schemaService = new DbSchemaService();
@@ -86,7 +88,7 @@ namespace NssOrderTool.Views
                 var playerNames = pairs.Select(p => p.Predecessor)
                                        .Concat(pairs.Select(p => p.Successor))
                                        .Distinct();
-                _orderRepo.RegisterPlayers(playerNames);
+                _playerRepo.RegisterPlayers(playerNames);
                 _orderRepo.UpdatePairs(pairs);
 
                 if (rawInput != normalizedInput)
@@ -149,6 +151,9 @@ namespace NssOrderTool.Views
                 try
                 {
                     _orderRepo.ClearAllData();
+                    _playerRepo.ClearAll();
+                    _aliasRepo.ClearAll();
+
                     StatusText.Text = "🗑️ データを全削除しました";
                     LoadOrder();
                 }

@@ -28,20 +28,7 @@ namespace NssOrderTool.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        // 3. プレイヤーマスタへの登録
-        public void RegisterPlayers(IEnumerable<string> players)
-        {
-            using var conn = _dbManager.GetConnection();
-            foreach (var p in players)
-            {
-                var sql = "INSERT IGNORE INTO Players (player_id) VALUES (@pid)";
-                using var cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@pid", p);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        // 4. 順序ペアの保存/更新
+        // 3. 順序ペアの保存/更新
         public void UpdatePairs(List<OrderPair> pairs)
         {
             using var conn = _dbManager.GetConnection();
@@ -71,7 +58,7 @@ namespace NssOrderTool.Repositories
             }
         }
 
-        // 5. 全ペアの取得
+        // 4. 全ペアの取得
         public List<OrderPair> GetAllPairs()
         {
             var list = new List<OrderPair>();
@@ -88,7 +75,7 @@ namespace NssOrderTool.Repositories
             return list;
         }
 
-        // 6. 全データの削除
+        // 5. 全データの削除
         public void ClearAllData()
         {
             using var conn = _dbManager.GetConnection();
@@ -96,10 +83,9 @@ namespace NssOrderTool.Repositories
 
             try
             {
+                // Players と Aliases の TRUNCATE を削除
                 new MySqlCommand("TRUNCATE TABLE SequencePairs;", conn, tx).ExecuteNonQuery();
                 new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx).ExecuteNonQuery();
-                new MySqlCommand("TRUNCATE TABLE Players;", conn, tx).ExecuteNonQuery();
-                new MySqlCommand("TRUNCATE TABLE Aliases;", conn, tx).ExecuteNonQuery();
 
                 tx.Commit();
             }

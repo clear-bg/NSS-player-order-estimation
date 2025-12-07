@@ -85,5 +85,12 @@ namespace NssOrderTool.Repositories
             }
             return list;
         }
+
+        // 5. エイリアスデータの全削除
+        public void ClearAll()
+        {
+            using var conn = _dbManager.GetConnection();
+            new MySqlCommand("TRUNCATE TABLE Aliases;", conn).ExecuteNonQuery();
+        }
     }
 }
