@@ -10,9 +10,9 @@ namespace NssOrderTool.Repositories
     {
         private readonly DbManager _dbManager;
 
-        public AliasRepository()
+        public AliasRepository(DbManager dbManager)
         {
-            _dbManager = new DbManager();
+            _dbManager = dbManager;
         }
 
         public async Task AddAliasAsync(string alias, string target)

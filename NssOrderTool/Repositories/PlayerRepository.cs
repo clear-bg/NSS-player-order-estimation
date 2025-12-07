@@ -9,9 +9,9 @@ namespace NssOrderTool.Repositories
     {
         private readonly DbManager _dbManager;
 
-        public PlayerRepository()
+        public PlayerRepository(DbManager dbManager)
         {
-            _dbManager = new DbManager();
+            _dbManager = dbManager;
         }
 
         public async Task RegisterPlayersAsync(IEnumerable<string> players)

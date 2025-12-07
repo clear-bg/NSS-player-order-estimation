@@ -37,19 +37,26 @@ namespace NssOrderTool.ViewModels
 
         public ObservableCollection<string> RankingList { get; } = new();
 
-        public OrderEstimationViewModel()
+        public OrderEstimationViewModel(
+            OrderRepository orderRepo,
+            PlayerRepository playerRepo,
+            AliasRepository aliasRepo,
+            RelationshipExtractor extractor,
+            OrderSorter sorter,
+            DbSchemaService schemaService)
         {
-            // インスタンス生成
-            _orderRepo = new OrderRepository();
-            _playerRepo = new PlayerRepository();
-            _aliasRepo = new AliasRepository();
-            _extractor = new RelationshipExtractor();
-            _sorter = new OrderSorter();
-            _schemaService = new DbSchemaService();
+            _orderRepo = orderRepo;
+            _playerRepo = playerRepo;
+            _aliasRepo = aliasRepo;
+            _extractor = extractor;
+            _sorter = sorter;
+            _schemaService = schemaService;
 
-            // 非同期初期化を開始 (Fire-and-forget)
             InitializeAsync();
         }
+
+        // デザイナー用の空コンストラクタ（あるとVSのプレビューが動く）
+        public OrderEstimationViewModel() { /* デザイン時はnullのままで落ちるかもしれないが、一旦許容 */ }
 
         private async void InitializeAsync()
         {

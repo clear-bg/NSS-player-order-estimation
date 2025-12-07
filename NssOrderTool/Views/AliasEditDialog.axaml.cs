@@ -1,19 +1,17 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using NssOrderTool.ViewModels;
+using NssOrderTool.Repositories;
 
 namespace NssOrderTool.Views
 {
     public partial class AliasEditDialog : Window
     {
-        // コンストラクタでViewModelを受け取る形に変更しても良いが、
-        // 今回は呼び出し元でDataContextセット済みであることを想定、
-        // またはここでセットする
-        public AliasEditDialog(string targetName)
+        public AliasEditDialog(string targetName, AliasRepository repo)
         {
             InitializeComponent();
-            // ViewModelを生成してセット
-            DataContext = new AliasEditViewModel(targetName);
+            // ViewModelに渡す
+            DataContext = new AliasEditViewModel(targetName, repo);
         }
 
         // デザイナー用など

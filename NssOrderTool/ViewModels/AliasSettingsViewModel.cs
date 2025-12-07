@@ -28,12 +28,13 @@ namespace NssOrderTool.ViewModels
         // 一覧データ
         public ObservableCollection<AliasGroupItem> AliasList { get; } = new();
 
-        public AliasSettingsViewModel()
+        public AliasSettingsViewModel(AliasRepository aliasRepo)
         {
-            _aliasRepo = new AliasRepository();
-            // 初期表示のために非同期読み込み (Fire-and-forget)
+            _aliasRepo = aliasRepo;
             _ = LoadAliases();
         }
+
+        public AliasSettingsViewModel() { } // デザイナー用
 
         // --- Commands ---
 

@@ -10,9 +10,9 @@ namespace NssOrderTool.Repositories
     {
         private readonly DbManager _dbManager;
 
-        public OrderRepository()
+        public OrderRepository(DbManager dbManager)
         {
-            _dbManager = new DbManager();
+            _dbManager = dbManager;
         }
 
         public async Task AddObservationAsync(string rawInput)

@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree; // TopLevel検索用
+using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.ViewModels;
 
 namespace NssOrderTool.Views
@@ -10,8 +11,12 @@ namespace NssOrderTool.Views
         public OrderEstimationView()
         {
             InitializeComponent();
-            // DataContext に ViewModel をセット
-            DataContext = new OrderEstimationViewModel();
+
+            // DIコンテナからViewModelを取得 (依存関係も自動解決される)
+            if (!Design.IsDesignMode) // デザイナーモード除外
+            {
+                DataContext = App.Services.GetRequiredService<OrderEstimationViewModel>();
+            }
         }
 
         // ダイアログ表示はViewの仕事

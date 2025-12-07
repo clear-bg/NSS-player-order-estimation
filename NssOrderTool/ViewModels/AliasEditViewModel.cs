@@ -17,20 +17,15 @@ namespace NssOrderTool.ViewModels
         // エイリアス一覧（文字列のリスト）
         public ObservableCollection<string> Aliases { get; } = new();
 
-        public AliasEditViewModel(string targetName)
+        public AliasEditViewModel(string targetName, AliasRepository aliasRepo)
         {
             _targetName = targetName;
-            _aliasRepo = new AliasRepository();
+            _aliasRepo = aliasRepo; // 注入されたものを使う
 
-            // 非同期読み込み開始
             _ = LoadAliasesAsync();
         }
 
-        // 引数なしコンストラクタ（デザイナー用）
-        public AliasEditViewModel()
-        {
-            _aliasRepo = new AliasRepository();
-        }
+        public AliasEditViewModel() { } // デザイナー用
 
         [RelayCommand]
         public async Task LoadAliasesAsync()
