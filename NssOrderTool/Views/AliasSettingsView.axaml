@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:NssOrderTool.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             x:Class="NssOrderTool.Views.AliasSettingsView">
+
+	<Grid Margin="20" ColumnDefinitions="*, 20, *">
+		<StackPanel Grid.Column="0" Spacing="15">
+			<TextBlock Text="➕ エイリアス追加" FontWeight="Bold" FontSize="16"/>
+			<TextBlock Text="表記揺れを正規の名前に自動変換します。" FontSize="12" Foreground="Gray"/>
+
+			<StackPanel Spacing="5">
+				<TextBlock Text="正規名 (変換後の名前)" FontWeight="Bold" FontSize="12"/>
+				<TextBox Name="TargetInput" Watermark="例: Takahiro"/>
+			</StackPanel>
+
+			<StackPanel Spacing="5">
+				<TextBlock Text="別名 (入力される名前)" FontWeight="Bold" FontSize="12"/>
+				<TextBox Name="AliasInput" Watermark="例: Taka"/>
+			</StackPanel>
+
+			<Button Name="AddAliasButton"
+                    Content="追加する"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Background="#007ACC" Foreground="White"
+                    Click="AddAliasButton_Click"/>
+
+			<TextBlock Name="AliasStatusText"
+                       Text=""
+                       Foreground="Green"
+                       TextWrapping="Wrap"/>
+		</StackPanel>
+
+		<StackPanel Grid.Column="2" Spacing="10">
+			<Grid ColumnDefinitions="*, Auto">
+				<TextBlock Grid.Column="0" Text="📝 登録済みエイリアス" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+				<Button Grid.Column="1" Content="更新" Click="ReloadAliases_Click"/>
+			</Grid>
+
+			<ListBox Name="AliasList" Height="380" Background="#F0F0F0" Foreground="Black">
+				<ListBox.ItemTemplate>
+					<DataTemplate x:DataType="models:AliasGroupItem">
+						<Grid ColumnDefinitions="*, Auto, Auto">
+							<TextBlock Grid.Column="0"
+                                       Text="{Binding DisplayText}"
+                                       VerticalAlignment="Center"
+                                       Foreground="Black"/>
+
+							<Button Grid.Column="1"
+                                    Content="編集"
+                                    FontSize="10"
+                                    Padding="8,4"
+                                    Margin="5,0"
+                                    Background="#DDDDDD" Foreground="Black"
+                                    Click="EditGroupButton_Click"/>
+
+							<Button Grid.Column="2"
+                                    Content="全削除"
+                                    FontSize="10"
+                                    Padding="8,4"
+                                    Background="#FFCCCC" Foreground="Red"
+                                    Click="DeleteAliasButton_Click"/>
+						</Grid>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</StackPanel>
+	</Grid>
+</UserControl>

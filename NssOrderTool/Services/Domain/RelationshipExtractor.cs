@@ -1,15 +1,44 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NssOrderTool.Models;
 
-namespace NssOrderTool.Services
+namespace NssOrderTool.Services.Domain
 {
     // 順序関係を表すレコード
     // Predecessor: 順序が先のプレイヤー
     // Successor: 順序が後のプレイヤー
-    public record OrderPair(string Predecessor, string Successor);
 
     public class RelationshipExtractor
     {
+        public string NormalizeInput(string inputLine, Dictionary<string, string> aliasDict)
+        {
+            if (string.IsNullOrWhiteSpace(inputLine)) return "";
+
+            // 1. 分解
+            var rawNames = inputLine.Split(',')
+                                    .Select(p => p.Trim())
+                                    .Where(p => !string.IsNullOrEmpty(p))
+                                    .ToList();
+
+            // 2. 変換
+            var convertedNames = new List<string>();
+            foreach (var name in rawNames)
+            {
+                // 辞書にあれば変換、なければそのまま
+                if (aliasDict.TryGetValue(name, out string? target))
+                {
+                    convertedNames.Add(target);
+                }
+                else
+                {
+                    convertedNames.Add(name);
+                }
+            }
+
+            // 3. 再結合
+            return string.Join(", ", convertedNames);
+        }
+
         /// <summary>
         /// カンマ区切りのプレイヤーリストから、順序ペアを抽出する
         /// 例: "A, B, C" -> (A,B), (A,C), (B,C)

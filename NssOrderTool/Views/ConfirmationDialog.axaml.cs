@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace NssOrderTool
+namespace NssOrderTool.Views
 {
     public partial class ConfirmationDialog : Window
     {

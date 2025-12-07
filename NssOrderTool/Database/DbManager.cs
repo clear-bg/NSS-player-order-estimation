@@ -1,3 +1,4 @@
+using NssOrderTool.Models;
 using System;
 using System.Data;
 using System.IO;          // 追加: ファイル読み込み用
@@ -5,7 +6,7 @@ using System.Text.Json;   // 追加: JSONパース用
 using MySqlConnector;
 using DotNetEnv;
 
-namespace NssOrderTool.Services
+namespace NssOrderTool.Database
 {
     public class DbManager
     {

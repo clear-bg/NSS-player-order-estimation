@@ -6,6 +6,9 @@ using NssOrderTool.Services;
 using System;
 using System.Diagnostics;
 
+using NssOrderTool.Database;
+using NssOrderTool.Views;
+
 namespace NssOrderTool;
 
 public partial class App : Application
