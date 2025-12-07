@@ -1,0 +1,35 @@
+name: .NET Core Build and Test
+
+# トリガー: いつ実行するか
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    # 実行環境: 最新のUbuntu (コストが安く起動が早いため一般的)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリのコードをチェックアウト (持ってくる)
+      - uses: actions/checkout@v4
+
+      # 2. .NET 9.0 環境のセットアップ
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # 3. 依存ライブラリの復元 (dotnet restore)
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. ビルド (dotnet build)
+      - name: Build
+        run: dotnet build --no-restore
+
+      # 5. テスト実行 (dotnet test)
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
