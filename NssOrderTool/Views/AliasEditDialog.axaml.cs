@@ -3,7 +3,7 @@ using Avalonia.Interactivity;
 using NssOrderTool.Repositories;
 using System;
 
-namespace NssOrderTool
+namespace NssOrderTool.Views
 {
     public partial class AliasEditDialog : Window
     {
