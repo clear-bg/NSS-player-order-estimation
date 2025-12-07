@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             x:Class="NssOrderTool.Views.RankingView">
+
+	<Grid Margin="10" ColumnDefinitions="*, 20, *">
+		<StackPanel Grid.Column="0" Spacing="10">
+			<StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+				<TextBlock Text="✏️ 入力" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+				<Border Name="EnvBadge" CornerRadius="4" Padding="8,2" Background="Gray">
+					<TextBlock Name="EnvText" Text="LOADING" Foreground="White" FontWeight="Bold" FontSize="12"/>
+				</Border>
+			</StackPanel>
+
+			<TextBlock Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" FontSize="12" Foreground="Gray"/>
+
+			<TextBox Name="InputBox"
+                     Watermark="例: Player1, Player2, Player3"
+                     Height="100"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"/>
+
+			<Button Name="RegisterButton"
+                    Content="データを登録"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Background="#007ACC" Foreground="White"
+                    Click="RegisterButton_Click"/>
+
+			<TextBlock Name="StatusText"
+                       Text="準備完了"
+                       Foreground="Green"
+                       TextWrapping="Wrap"/>
+		</StackPanel>
+
+		<StackPanel Grid.Column="2" Spacing="10">
+			<Grid ColumnDefinitions="*, Auto, Auto">
+				<TextBlock Grid.Column="0" Text="🏆 推定ランキング" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+
+				<Button Grid.Column="1" Name="ReloadButton" Content="更新" Click="ReloadButton_Click" Margin="0,0,5,0"/>
+
+				<Button Grid.Column="2" Name="ClearButton" Content="🗑️ 初期化"
+                        Background="#FFCCCC" Foreground="Red"
+                        Click="ClearButton_Click"/>
+			</Grid>
+
+			<ListBox Name="RankingList" Height="380" Background="#F0F0F0" Foreground="Black">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding}" Padding="5" Foreground="Black"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</StackPanel>
+	</Grid>
+</UserControl>

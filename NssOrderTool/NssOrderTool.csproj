@@ -37,6 +37,5 @@
 
   <ItemGroup>
     <Folder Include="Services\App\" />
-    <Folder Include="Views\" />
   </ItemGroup>
 </Project>
