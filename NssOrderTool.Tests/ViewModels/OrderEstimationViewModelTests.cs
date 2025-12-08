@@ -8,6 +8,7 @@ using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
 using NssOrderTool.ViewModels;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 namespace NssOrderTool.Tests.ViewModels
 {
@@ -23,6 +24,7 @@ namespace NssOrderTool.Tests.ViewModels
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly Mock<DbSchemaService> _mockSchemaService;
+        private readonly Mock<ILogger<OrderEstimationViewModel>> _mockLogger;
 
         public OrderEstimationViewModelTests()
         {
@@ -31,6 +33,7 @@ namespace NssOrderTool.Tests.ViewModels
             _mockPlayerRepo = new Mock<PlayerRepository>((DbManager)null!);
             _mockAliasRepo = new Mock<AliasRepository>((DbManager)null!);
             _mockSchemaService = new Mock<DbSchemaService>((DbManager)null!);
+            _mockLogger = new Mock<ILogger<OrderEstimationViewModel>>();
 
             // ロジッククラスは本物を使用
             _extractor = new RelationshipExtractor();
@@ -62,7 +65,8 @@ namespace NssOrderTool.Tests.ViewModels
                 _mockAliasRepo.Object,
                 _extractor,
                 _sorter,
-                _mockSchemaService.Object
+                _mockSchemaService.Object,
+                _mockLogger.Object
             );
 
             // 画面入力のシミュレーション

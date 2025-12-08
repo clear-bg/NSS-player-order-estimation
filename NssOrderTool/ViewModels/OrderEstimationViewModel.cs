@@ -70,6 +70,7 @@ namespace NssOrderTool.ViewModels
             _extractor = null!;
             _sorter = null!;
             _schemaService = null!;
+            _logger = null!;
         }
 
         private async void InitializeAsync()
@@ -117,6 +118,8 @@ namespace NssOrderTool.ViewModels
 
                 // ログ出力例: 操作の開始を記録
                 _logger.LogInformation("登録処理を開始します。入力値: {InputText}", InputText);
+
+                await _orderRepo.AddObservationAsync(normalizedInput);
 
                 // 3. ペア分解
                 var pairs = _extractor.ExtractFromInput(normalizedInput);

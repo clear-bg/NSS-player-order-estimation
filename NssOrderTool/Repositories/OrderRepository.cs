@@ -89,7 +89,7 @@ namespace NssOrderTool.Repositories
             }
         }
 
-        public string GetEnvironmentName()
+        public virtual string GetEnvironmentName()
         {
             return _dbManager.CurrentEnvironment;
         }
