@@ -99,10 +99,6 @@ namespace NssOrderTool.Database
             return builder.ConnectionString;
         }
 
-        /// <summary>
-        /// 同期でデータベース接続を開いて返します。
-        /// </summary>
-
         public async Task<MySqlConnection> GetConnectionAsync()
         {
             if (_connectionString == null)
@@ -119,20 +115,6 @@ namespace NssOrderTool.Database
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return connection;
-        }
-
-        public MySqlConnection GetConnection()
-        {
-            if (_connectionString == null) throw new InvalidOperationException("接続文字列エラー");
-
-            var connection = new MySqlConnection(_connectionString);
-            connection.Open(); // 同期オープン
-
-            using (var cmd = new MySqlCommand("SET time_zone = '+09:00';", connection))
-            {
-                cmd.ExecuteNonQuery(); // 同期実行
-            }
             return connection;
         }
     }
