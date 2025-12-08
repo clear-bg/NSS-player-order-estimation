@@ -1,4 +1,5 @@
-﻿using MySqlConnector;
+﻿using System.Threading.Tasks;
+using MySqlConnector;
 
 namespace NssOrderTool.Database
 {
@@ -11,7 +12,7 @@ namespace NssOrderTool.Database
             _dbManager = dbManager;
         }
 
-        public void EnsureTablesExist()
+        public virtual async Task EnsureTablesExistAsync()
         {
             var sql = @"
                 CREATE TABLE IF NOT EXISTS Players (
@@ -35,7 +36,7 @@ namespace NssOrderTool.Database
                     target_player_id VARCHAR(50)
                 );";
 
-            using var conn = _dbManager.GetConnection();
+            using var conn = await _dbManager.GetConnectionAsync();
             using var cmd = new MySqlCommand(sql, conn);
             cmd.ExecuteNonQuery();
         }

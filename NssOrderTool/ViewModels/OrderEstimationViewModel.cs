@@ -78,7 +78,7 @@ namespace NssOrderTool.ViewModels
             try
             {
                 // テーブル作成 (ここは同期メソッドのままだが、高速なので許容)
-                _schemaService.EnsureTablesExist();
+                _schemaService.EnsureTablesExistAsync();
 
                 UpdateEnvironmentDisplay();
 
@@ -88,6 +88,7 @@ namespace NssOrderTool.ViewModels
             catch (Exception ex)
             {
                 StatusText = $"❌ 初期化エラー: {ex.Message}";
+                _logger.LogError(ex, "初期化処理中にエラーが発生しました。");
             }
         }
 

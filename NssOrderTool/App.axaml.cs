@@ -24,7 +24,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override void OnFrameworkInitializationCompleted()
+    public override async void OnFrameworkInitializationCompleted()
     {
         // 1.Serilog の設定(ログの出力先などを定義)
         Log.Logger = new LoggerConfiguration()
@@ -72,7 +72,8 @@ public partial class App : Application
             try
             {
                 var db = Services.GetRequiredService<DbManager>();
-                using (var conn = db.GetConnection())
+
+                using (var conn = await db.GetConnectionAsync())
                 {
                     Log.Information("✅ DB接続成功！(起動時チェック)");
                 }
