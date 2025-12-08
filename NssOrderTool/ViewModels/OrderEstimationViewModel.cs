@@ -70,6 +70,7 @@ namespace NssOrderTool.ViewModels
             _extractor = null!;
             _sorter = null!;
             _schemaService = null!;
+            _logger = null!;
         }
 
         private async void InitializeAsync()
