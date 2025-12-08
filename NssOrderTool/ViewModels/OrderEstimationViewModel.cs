@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using NssOrderTool.Database;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
@@ -37,13 +38,16 @@ namespace NssOrderTool.ViewModels
 
         public ObservableCollection<string> RankingList { get; } = new();
 
+        private readonly ILogger<OrderEstimationViewModel> _logger;
+
         public OrderEstimationViewModel(
             OrderRepository orderRepo,
             PlayerRepository playerRepo,
             AliasRepository aliasRepo,
             RelationshipExtractor extractor,
             OrderSorter sorter,
-            DbSchemaService schemaService)
+            DbSchemaService schemaService,
+            ILogger<OrderEstimationViewModel> logger)
         {
             _orderRepo = orderRepo;
             _playerRepo = playerRepo;
@@ -51,6 +55,7 @@ namespace NssOrderTool.ViewModels
             _extractor = extractor;
             _sorter = sorter;
             _schemaService = schemaService;
+            _logger = logger;
 
             InitializeAsync();
         }
@@ -110,8 +115,8 @@ namespace NssOrderTool.ViewModels
                 var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
                 string normalizedInput = _extractor.NormalizeInput(InputText, aliasDict);
 
-                // 2. 観測ログ保存
-                await _orderRepo.AddObservationAsync(normalizedInput);
+                // ログ出力例: 操作の開始を記録
+                _logger.LogInformation("登録処理を開始します。入力値: {InputText}", InputText);
 
                 // 3. ペア分解
                 var pairs = _extractor.ExtractFromInput(normalizedInput);
@@ -139,10 +144,16 @@ namespace NssOrderTool.ViewModels
 
                 // リスト再読み込み
                 await LoadOrderAsync();
+
+                // 完了ログ
+                _logger.LogInformation("登録処理が完了しました。");
             }
             catch (Exception ex)
             {
                 StatusText = $"❌ エラー: {ex.Message}";
+
+                // エラーログ出力
+                _logger.LogError(ex, "登録処理中にエラーが発生しました。入力値: {InputText}", InputText);
             }
         }
 
