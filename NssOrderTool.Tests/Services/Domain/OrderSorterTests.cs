@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NssOrderTool.Models;
 using NssOrderTool.Services.Domain;
 using Xunit;
@@ -9,10 +11,12 @@ namespace NssOrderTool.Tests.Services.Domain
     public class OrderSorterTests
     {
         private readonly OrderSorter _sorter;
+        private readonly Mock<ILogger<OrderSorter>> _mockLogger;
 
         public OrderSorterTests()
         {
-            _sorter = new OrderSorter();
+            _mockLogger = new Mock<ILogger<OrderSorter>>();
+            _sorter = new OrderSorter(_mockLogger.Object);
         }
 
         [Fact]

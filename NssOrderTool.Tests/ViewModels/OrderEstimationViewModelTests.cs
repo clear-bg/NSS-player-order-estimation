@@ -25,6 +25,7 @@ namespace NssOrderTool.Tests.ViewModels
         private readonly OrderSorter _sorter;
         private readonly Mock<DbSchemaService> _mockSchemaService;
         private readonly Mock<ILogger<OrderEstimationViewModel>> _mockLogger;
+        private readonly Mock<ILogger<OrderSorter>> _mockSorterLogger;
 
         public OrderEstimationViewModelTests()
         {
@@ -34,10 +35,11 @@ namespace NssOrderTool.Tests.ViewModels
             _mockAliasRepo = new Mock<AliasRepository>((DbManager)null!);
             _mockSchemaService = new Mock<DbSchemaService>((DbManager)null!);
             _mockLogger = new Mock<ILogger<OrderEstimationViewModel>>();
+            _mockSorterLogger = new Mock<ILogger<OrderSorter>>();
 
             // ロジッククラスは本物を使用
             _extractor = new RelationshipExtractor();
-            _sorter = new OrderSorter();
+            _sorter = new OrderSorter(_mockSorterLogger.Object);
         }
 
         [Fact]

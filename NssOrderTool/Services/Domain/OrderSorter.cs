@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using NssOrderTool.Models;
 
 namespace NssOrderTool.Services.Domain
 {
     public class OrderSorter
     {
+        private readonly ILogger<OrderSorter> _logger;
+
+        // DIでロガーを受け取る
+        public OrderSorter(ILogger<OrderSorter> logger)
+        {
+            _logger = logger;
+        }
+
         /// <summary>
         /// 順序ペアのリストから、階層構造（同率含む）を持つランキングを計算する
         /// 戻り値: 1位グループ, 2位グループ... のリスト
@@ -82,7 +91,7 @@ namespace NssOrderTool.Services.Domain
             // 閉路検出
             if (processedCount != nodes.Count)
             {
-                System.Diagnostics.Debug.WriteLine("⚠️ 順序矛盾（閉路）が検出されました。");
+                _logger.LogWarning("⚠️ 順序矛盾（閉路）が検出されました。処理されたノード数: {Processed}, 全ノード数: {Total}", processedCount, nodes.Count);
                 return new List<List<string>>();
             }
 
