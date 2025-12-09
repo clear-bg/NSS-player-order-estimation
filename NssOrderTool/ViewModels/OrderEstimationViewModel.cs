@@ -57,7 +57,7 @@ namespace NssOrderTool.ViewModels
             _schemaService = schemaService;
             _logger = logger;
 
-            InitializeAsync();
+            _ = InitializeAsync();
         }
 
         // デザイナー用の空コンストラクタ（あるとVSのプレビューが動く）
@@ -73,12 +73,12 @@ namespace NssOrderTool.ViewModels
             _logger = null!;
         }
 
-        private async void InitializeAsync()
+        private async Task InitializeAsync()
         {
             try
             {
                 // テーブル作成 (ここは同期メソッドのままだが、高速なので許容)
-                _schemaService.EnsureTablesExistAsync();
+                await _schemaService.EnsureTablesExistAsync(); // 👈 await を追加
 
                 UpdateEnvironmentDisplay();
 
@@ -187,31 +187,32 @@ namespace NssOrderTool.ViewModels
 
         private async Task LoadOrderAsync()
         {
-            try
-            {
-                // DBから全ペアを非同期取得
-                var allPairs = await _orderRepo.GetAllPairsAsync();
+      try
+      {
+        // DBから全ペアを非同期取得
+        var allPairs = await _orderRepo.GetAllPairsAsync();
 
-                // ソート計算 (オンメモリ処理)
-                var sortedLayers = _sorter.Sort(allPairs);
+        // ソート計算 (オンメモリ処理)
+        var sortedLayers = _sorter.Sort(allPairs);
 
-                RankingList.Clear();
-                int currentRank = 1;
+        RankingList.Clear();
+        int currentRank = 1;
 
-                foreach (var group in sortedLayers)
-                {
-                    string line = (group.Count == 1)
-                        ? $"{currentRank} : {group[0]}"
-                        : $"{currentRank} : {string.Join(", ", group)} (推定同列)";
+        foreach (var group in sortedLayers)
+        {
+          string line = (group.Count == 1)
+              ? $"{currentRank} : {group[0]}"
+              : $"{currentRank} : {string.Join(", ", group)} (推定同列)";
 
-                    RankingList.Add(line);
-                    currentRank++;
-                }
-            }
-            catch (Exception ex)
-            {
-                StatusText = $"❌ 読み込みエラー: {ex.Message}";
-            }
+          RankingList.Add(line);
+          currentRank++;
+        }
+        StatusText = "";
+      }
+          catch (Exception ex)
+      {
+        StatusText = $"❌ 読み込みエラー: {ex.Message}";
+      }
         }
     }
 }
