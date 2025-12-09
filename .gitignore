@@ -36,3 +36,6 @@ Thumbs.db
 
 # よく使われるIDEやエディタの一時設定ファイル
 *.iml
+
+# ログファイル (Mac)
+NssOrderTool/logs
