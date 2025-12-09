@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NssOrderTool.Models;
 
-namespace NssOrderTool.Services
+namespace NssOrderTool.Services.Infrastructure
 {
     public class SsmTunnelService : IDisposable
     {
