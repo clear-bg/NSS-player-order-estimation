@@ -35,5 +35,4 @@ obj/
 Thumbs.db
 
 # よく使われるIDEやエディタの一時設定ファイル
-.vscode/
 *.iml

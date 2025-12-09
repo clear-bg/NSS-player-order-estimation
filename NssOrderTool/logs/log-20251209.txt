@@ -1,0 +1,18 @@
+2025-12-09 18:03:55.359 +09:00 [FTL] ❌ DB接続失敗: アプリ起動時の接続チェックでエラーが発生しました。
+MySqlConnector.MySqlException (0x80004005): Unable to connect to any of the specified MySQL hosts.
+   at MySqlConnector.Core.ServerSession.OpenTcpSocketAsync(ConnectionSettings cs, ILoadBalancer loadBalancer, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ServerSession.cs:line 1327
+   at MySqlConnector.Core.ServerSession.ConnectAsync(ConnectionSettings cs, MySqlConnection connection, Int64 startingTimestamp, ILoadBalancer loadBalancer, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ServerSession.cs:line 433
+   at MySqlConnector.Core.ServerSession.ConnectAndRedirectAsync(ILogger connectionLogger, ILogger poolLogger, IConnectionPoolMetadata pool, ConnectionSettings cs, ILoadBalancer loadBalancer, MySqlConnection connection, Action`4 logMessage, Int64 startingTimestamp, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ServerSession.cs:line 720
+   at MySqlConnector.Core.ServerSession.ConnectAndRedirectAsync(ILogger connectionLogger, ILogger poolLogger, IConnectionPoolMetadata pool, ConnectionSettings cs, ILoadBalancer loadBalancer, MySqlConnection connection, Action`4 logMessage, Int64 startingTimestamp, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ServerSession.cs:line 725
+   at MySqlConnector.Core.ConnectionPool.GetSessionAsync(MySqlConnection connection, Int64 startingTimestamp, Int32 timeoutMilliseconds, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ConnectionPool.cs:line 116
+   at MySqlConnector.Core.ConnectionPool.GetSessionAsync(MySqlConnection connection, Int64 startingTimestamp, Int32 timeoutMilliseconds, Activity activity, IOBehavior ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/Core/ConnectionPool.cs:line 150
+   at MySqlConnector.MySqlConnection.CreateSessionAsync(ConnectionPool pool, Int64 startingTimestamp, Activity activity, Nullable`1 ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/MySqlConnection.cs:line 1089
+   at MySqlConnector.MySqlConnection.OpenAsync(Nullable`1 ioBehavior, CancellationToken cancellationToken) in /_/src/MySqlConnector/MySqlConnection.cs:line 562
+   at NssOrderTool.Database.DbManager.GetConnectionAsync() in /Users/bandailab/Projects/Order-Estimator/NssOrderTool/Database/DbManager.cs:line 110
+   at NssOrderTool.App.OnFrameworkInitializationCompleted() in /Users/bandailab/Projects/Order-Estimator/NssOrderTool/App.axaml.cs:line 76
+2025-12-09 18:06:17.313 +09:00 [INF] ✅ DB接続成功！(起動時チェック)
+2025-12-09 18:06:17.508 +09:00 [WRN] ⚠️ 順序矛盾（閉路）が検出されました。処理されたノード数: 1, 全ノード数: 3
+2025-12-09 18:06:52.844 +09:00 [INF] ✅ DB接続成功！(起動時チェック)
+2025-12-09 18:06:53.179 +09:00 [WRN] ⚠️ 順序矛盾（閉路）が検出されました。処理されたノード数: 1, 全ノード数: 3
+2025-12-09 18:07:12.763 +09:00 [INF] 登録処理を開始します。入力値: a, b, c
+2025-12-09 18:07:15.421 +09:00 [INF] 登録処理が完了しました。
