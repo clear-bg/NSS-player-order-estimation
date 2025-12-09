@@ -5,7 +5,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection; // 追加
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Microsoft.Extensions.Logging;
 using NssOrderTool.Services.Domain;
@@ -28,7 +29,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         // 1.Serilog の設定(ログの出力先などを定義)
         Log.Logger = new LoggerConfiguration()
@@ -79,13 +80,11 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
-
             // SSMトンネルの開始
             try
             {
                 var ssmService = Services.GetRequiredService<SsmTunnelService>();
-                await ssmService.StartAsync(); // トンネル掘削
+                Task.Run(() => ssmService.StartAsync()).GetAwaiter().GetResult();
 
                 // アプリ終了時にSSMを切断するように登録
                 desktop.Exit += (sender, args) => ssmService.Dispose();
@@ -93,23 +92,24 @@ public partial class App : Application
             catch (Exception ex)
             {
                 Log.Fatal(ex, "AWS SSM接続の初期化に失敗しました。");
-                // 必要ならここでreturnして起動を中断
             }
 
-            // 起動時のDB接続確認 (DIから取得して実行)
-      try
-      {
-        var db = Services.GetRequiredService<DbManager>();
+            desktop.MainWindow = new MainWindow();
 
-        using (var conn = await db.GetConnectionAsync())
-        {
-          Log.Information("✅ DB接続成功！(起動時チェック)");
-        }
-      }
-      catch (Exception ex)
-      {
-        Log.Fatal(ex, "❌ DB接続失敗: アプリ起動時の接続チェックでエラーが発生しました。");
-      }
+            // 起動時のDB接続確認 (DIから取得して実行)
+            try
+            {
+              var db = Services.GetRequiredService<DbManager>();
+
+              using (var conn = Task.Run(() => db.GetConnectionAsync()).GetAwaiter().GetResult())
+              {
+                Log.Information("✅ DB接続成功！(起動時チェック)");
+              }
+            }
+            catch (Exception ex)
+            {
+              Log.Fatal(ex, "❌ DB接続失敗: アプリ起動時の接続チェックでエラーが発生しました。");
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
