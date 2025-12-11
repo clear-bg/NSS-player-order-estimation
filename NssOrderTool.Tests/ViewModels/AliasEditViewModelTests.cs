@@ -19,9 +19,9 @@ namespace NssOrderTool.Tests.ViewModels
             var targetName = "Takahiro";
             var expectedAliases = new List<string> { "Taka", "Tak", "T.K" };
 
-            // Mockの作成: AliasRepositoryのニセモノを作る
-            // コンストラクタ引数の DbManager は使わないので null を渡しておく
-            var mockRepo = new Mock<AliasRepository>((DbManager)null!);
+            // Mockの作成
+            // コンストラクタ引数が AppDbContext に変わったので、(AppDbContext)null! を渡します
+            var mockRepo = new Mock<AliasRepository>((AppDbContext)null!);
 
             // Setup: 「GetAliasesByTargetAsync("Takahiro") が呼ばれたら、expectedAliases を返せ」と教える
             mockRepo.Setup(r => r.GetAliasesByTargetAsync(targetName))
@@ -30,15 +30,10 @@ namespace NssOrderTool.Tests.ViewModels
             // ViewModelにモックを渡して生成
             var viewModel = new AliasEditViewModel(targetName, mockRepo.Object);
 
-            // コンストラクタで走っている非同期処理(LoadAliasesAsync)の完了を待つために、
-            // 手動でもう一度呼ぶか、あるいは少し待つ必要があるが、
-            // 設計上、LoadAliasesAsync は public なのでテスト内で明示的に呼んで待機するのが確実。
-
             // --- 2. Act (実行) ---
             await viewModel.LoadAliasesAsync();
 
             // --- 3. Assert (検証) ---
-            // ViewModelのAliasesリストに、モックが返したデータが入っているか？
             viewModel.Aliases.Should().HaveCount(3);
             viewModel.Aliases.Should().ContainInOrder(expectedAliases);
         }
@@ -50,7 +45,8 @@ namespace NssOrderTool.Tests.ViewModels
             var targetName = "Takahiro";
             var aliasToDelete = "BadAlias";
 
-            var mockRepo = new Mock<AliasRepository>((DbManager)null!);
+            // コンストラクタ引数を AppDbContext に修正
+            var mockRepo = new Mock<AliasRepository>((AppDbContext)null!);
 
             // Setup: 削除後の再読み込みで空リストを返すようにしておく
             mockRepo.Setup(r => r.GetAliasesByTargetAsync(targetName))
