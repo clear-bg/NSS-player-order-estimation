@@ -1,97 +1,102 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks; // 追加
-using MySqlConnector;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
 using NssOrderTool.Models;
+using NssOrderTool.Models.Entities; // Entityを使う
 
 namespace NssOrderTool.Repositories
 {
     public class OrderRepository
     {
-        private readonly DbManager _dbManager;
+        private readonly AppDbContext _context;
+        private readonly AppConfig _config; // 環境名取得用
 
-        public OrderRepository(DbManager dbManager)
+        // DbManagerの代わりに AppDbContext と AppConfig を受け取る
+        public OrderRepository(AppDbContext context, AppConfig config)
         {
-            _dbManager = dbManager;
+            _context = context;
+            _config = config;
         }
 
         public virtual async Task AddObservationAsync(string rawInput)
         {
-            var sql = "INSERT INTO Observations (ordered_list, observation_time) VALUES (@list, NOW());";
+            var entity = new ObservationEntity
+            {
+                OrderedList = rawInput,
+                ObservationTime = DateTime.Now
+            };
 
-            using var conn = await _dbManager.GetConnectionAsync();
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@list", rawInput);
-            await cmd.ExecuteNonQueryAsync();
+            // SQL: INSERT INTO Observations ...
+            _context.Observations.Add(entity);
+            await _context.SaveChangesAsync();
         }
 
         public virtual async Task UpdatePairsAsync(List<OrderPair> pairs)
         {
-            using var conn = await _dbManager.GetConnectionAsync();
-            using var tx = await conn.BeginTransactionAsync();
+            if (pairs == null || !pairs.Any()) return;
 
-            try
+            // --- Upsertロジック (EF Core版) ---
+            // SQLの ON DUPLICATE KEY UPDATE を使わず、
+            // 「読み込んでチェックして、あれば更新/なければ追加」を行います。
+
+            // 1. 検索効率化のため、対象のIDリストを作成
+            var preds = pairs.Select(p => p.Predecessor).Distinct().ToList();
+            var succs = pairs.Select(p => p.Successor).Distinct().ToList();
+
+            // 2. 該当しそうな既存データをまとめて取得
+            var existingEntities = await _context.SequencePairs
+                .Where(p => preds.Contains(p.PredecessorId) && succs.Contains(p.SuccessorId))
+                .ToListAsync();
+
+            // 3. メモリ上で照合して処理
+            foreach (var pair in pairs)
             {
-                var sql = @"
-                    INSERT INTO SequencePairs (predecessor_id, successor_id, frequency)
-                    VALUES (@pred, @succ, 1)
-                    ON DUPLICATE KEY UPDATE frequency = frequency + 1;";
+                var entity = existingEntities.FirstOrDefault(e =>
+                    e.PredecessorId == pair.Predecessor &&
+                    e.SuccessorId == pair.Successor);
 
-                foreach (var pair in pairs)
+                if (entity != null)
                 {
-                    using var cmd = new MySqlCommand(sql, conn, tx);
-                    cmd.Parameters.AddWithValue("@pred", pair.Predecessor);
-                    cmd.Parameters.AddWithValue("@succ", pair.Successor);
-                    await cmd.ExecuteNonQueryAsync();
+                    // 既存ならカウントアップ
+                    entity.Frequency++;
                 }
+                else
+                {
+                    // 新規なら追加
+                    _context.SequencePairs.Add(new SequencePairEntity
+                    {
+                        PredecessorId = pair.Predecessor,
+                        SuccessorId = pair.Successor,
+                        Frequency = 1
+                    });
+                }
+            }
 
-                await tx.CommitAsync();
-            }
-            catch
-            {
-                await tx.RollbackAsync();
-                throw;
-            }
+            // 4. 一括保存
+            await _context.SaveChangesAsync();
         }
 
         public virtual async Task<List<OrderPair>> GetAllPairsAsync()
         {
-            var list = new List<OrderPair>();
-            var sql = "SELECT predecessor_id, successor_id FROM SequencePairs";
-
-            using var conn = await _dbManager.GetConnectionAsync();
-            using var cmd = new MySqlCommand(sql, conn);
-            using var reader = await cmd.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
-            {
-                list.Add(new OrderPair(reader.GetString(0), reader.GetString(1)));
-            }
-            return list;
+            return await _context.SequencePairs
+                .Select(p => new OrderPair(p.PredecessorId, p.SuccessorId))
+                .ToListAsync();
         }
 
         public virtual async Task ClearAllDataAsync()
         {
-            using var conn = await _dbManager.GetConnectionAsync();
-            using var tx = await conn.BeginTransactionAsync();
-
-            try
-            {
-                using (var cmd = new MySqlCommand("TRUNCATE TABLE SequencePairs;", conn, tx)) await cmd.ExecuteNonQueryAsync();
-                using (var cmd = new MySqlCommand("TRUNCATE TABLE Observations;", conn, tx)) await cmd.ExecuteNonQueryAsync();
-
-                await tx.CommitAsync();
-            }
-            catch
-            {
-                await tx.RollbackAsync();
-                throw;
-            }
+            // 一括削除
+            await _context.SequencePairs.ExecuteDeleteAsync();
+            await _context.Observations.ExecuteDeleteAsync();
         }
 
         public virtual string GetEnvironmentName()
         {
-            return _dbManager.CurrentEnvironment;
+            // DbManager経由ではなく、設定クラスから直接取得
+            return _config.AppSettings?.Environment ?? "UNKNOWN";
         }
     }
 }

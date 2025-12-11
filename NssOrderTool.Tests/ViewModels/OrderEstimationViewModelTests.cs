@@ -18,9 +18,6 @@ namespace NssOrderTool.Tests.ViewModels
         private readonly Mock<OrderRepository> _mockOrderRepo;
         private readonly Mock<PlayerRepository> _mockPlayerRepo;
         private readonly Mock<AliasRepository> _mockAliasRepo;
-        // ロジッククラスは本物を使う（計算が正しいかも含めてテストしたい場合）
-        // または、ロジッククラスもインターフェース化してモックにすることも可能ですが、
-        // 今回は「計算ロジック」のテストは済んでいるので本物を使います。
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly Mock<DbSchemaService> _mockSchemaService;
@@ -29,11 +26,10 @@ namespace NssOrderTool.Tests.ViewModels
 
         public OrderEstimationViewModelTests()
         {
-            // モックの初期化 (DbManagerは使わないのでnull)
-            _mockOrderRepo = new Mock<OrderRepository>((DbManager)null!);
-            _mockPlayerRepo = new Mock<PlayerRepository>((DbManager)null!);
-            _mockAliasRepo = new Mock<AliasRepository>((DbManager)null!);
-            _mockSchemaService = new Mock<DbSchemaService>((DbManager)null!);
+            _mockOrderRepo = new Mock<OrderRepository>((AppDbContext)null!, (AppConfig)null!);
+            _mockPlayerRepo = new Mock<PlayerRepository>((AppDbContext)null!);
+            _mockAliasRepo = new Mock<AliasRepository>((AppDbContext)null!);
+            _mockSchemaService = new Mock<DbSchemaService>((AppDbContext)null!);
             _mockLogger = new Mock<ILogger<OrderEstimationViewModel>>();
             _mockSorterLogger = new Mock<ILogger<OrderSorter>>();
 
