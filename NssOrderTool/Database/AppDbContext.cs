@@ -13,7 +13,7 @@ namespace NssOrderTool.Database
         // テーブルとの紐づけ
         public DbSet<PlayerEntity> Players { get; set; }
         public DbSet<SequencePairEntity> SequencePairs { get; set; }
-        // public DbSet<AliasEntity> Aliases { get; set; } // 後で作る
-        // public DbSet<ObservationEntity> Observations { get; set; } // 後で作る
+        public DbSet<AliasEntity> Aliases { get; set; }
+        public DbSet<ObservationEntity> Observations { get; set; }
     }
 }
