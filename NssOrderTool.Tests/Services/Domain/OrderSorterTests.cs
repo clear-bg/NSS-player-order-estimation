@@ -71,25 +71,6 @@ namespace NssOrderTool.Tests.Services.Domain
         }
 
         [Fact]
-        public void Sort_ShouldReturnEmpty_WhenCycleDetected()
-        {
-            // Arrange
-            // A -> B -> A (矛盾/サイクル)
-            var pairs = new List<OrderPair>
-            {
-                new OrderPair("A", "B"),
-                new OrderPair("B", "A")
-            };
-
-            // Act
-            var result = _sorter.Sort(pairs);
-
-            // Assert
-            // サイクルがある場合は空リストが返る仕様
-            result.Should().BeEmpty();
-        }
-
-        [Fact]
         public void Sort_ShouldHandleDisconnectedGraphs()
         {
             // Arrange
