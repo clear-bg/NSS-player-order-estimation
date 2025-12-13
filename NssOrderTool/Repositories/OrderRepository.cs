@@ -38,44 +38,51 @@ namespace NssOrderTool.Repositories
         {
             if (pairs == null || !pairs.Any()) return;
 
-            // --- Upsertロジック (EF Core版) ---
-            // SQLの ON DUPLICATE KEY UPDATE を使わず、
-            // 「読み込んでチェックして、あれば更新/なければ追加」を行います。
+            // 1. 入力リスト内で同じペアを集約する。
+            var inputCounts = pairs
+                .GroupBy(p => new { p.Predecessor, p.Successor })
+                .Select(g => new
+                {
+                    g.Key.Predecessor,
+                    g.Key.Successor,
+                    Count = g.Count()
+                })
+                .ToList();
 
-            // 1. 検索効率化のため、対象のIDリストを作成
-            var preds = pairs.Select(p => p.Predecessor).Distinct().ToList();
-            var succs = pairs.Select(p => p.Successor).Distinct().ToList();
+            // 2. 検索効率化のため、対象のIDリストを作成
+            var preds = inputCounts.Select(x => x.Predecessor).Distinct().ToList();
+            var succs = inputCounts.Select(x => x.Successor).Distinct().ToList();
 
-            // 2. 該当しそうな既存データをまとめて取得
+            // 3. 該当しそうな既存データをまとめて取得
             var existingEntities = await _context.SequencePairs
                 .Where(p => preds.Contains(p.PredecessorId) && succs.Contains(p.SuccessorId))
                 .ToListAsync();
 
-            // 3. メモリ上で照合して処理
-            foreach (var pair in pairs)
+            // 4. メモリ上で照合して処理
+            foreach (var item in inputCounts)
             {
                 var entity = existingEntities.FirstOrDefault(e =>
-                    e.PredecessorId == pair.Predecessor &&
-                    e.SuccessorId == pair.Successor);
+                    e.PredecessorId == item.Predecessor &&
+                    e.SuccessorId == item.Successor);
 
                 if (entity != null)
                 {
-                    // 既存ならカウントアップ
-                    entity.Frequency++;
+                    // 既存ならカウントアップ（集計した分を足す）
+                    entity.Frequency += item.Count;
                 }
                 else
                 {
-                    // 新規なら追加
+                    // 新規なら追加（Frequencyは入力された回数分）
                     _context.SequencePairs.Add(new SequencePairEntity
                     {
-                        PredecessorId = pair.Predecessor,
-                        SuccessorId = pair.Successor,
-                        Frequency = 1
+                        PredecessorId = item.Predecessor,
+                        SuccessorId = item.Successor,
+                        Frequency = item.Count
                     });
                 }
             }
 
-            // 4. 一括保存
+            // 5. 一括保存
             await _context.SaveChangesAsync();
         }
 

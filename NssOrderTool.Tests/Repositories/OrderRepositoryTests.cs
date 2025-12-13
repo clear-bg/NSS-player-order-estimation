@@ -177,5 +177,74 @@ namespace NssOrderTool.Tests.Repositories
                 pair.Frequency.Should().Be(1);
             }
         }
+
+        [Fact]
+        public async Task MergePlayerIdsAsync_ShouldMergeFrequencies_WhenTargetExists()
+        {
+            // Arrange
+            var dbName = "TestDb_Merge_Exist";
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                var repo = new OrderRepository(context, new AppConfig());
+                // 1. データ準備
+                // 旧: Taka -> Kazu (2回)
+                // 新: Takahiro -> Kazu (3回)
+                await repo.UpdatePairsAsync(new List<OrderPair> { new OrderPair("Taka", "Kazu"), new OrderPair("Taka", "Kazu") });
+                await repo.UpdatePairsAsync(new List<OrderPair> { new OrderPair("Takahiro", "Kazu"), new OrderPair("Takahiro", "Kazu"), new OrderPair("Takahiro", "Kazu") });
+            }
+
+            // Act
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                var repo = new OrderRepository(context, new AppConfig());
+                // Taka を Takahiro に統合
+                await repo.MergePlayerIdsAsync("Taka", "Takahiro");
+            }
+
+            // Assert
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                // 旧レコード(Taka)は消えているべき
+                var oldExists = await context.SequencePairs.AnyAsync(p => p.PredecessorId == "Taka");
+                oldExists.Should().BeFalse();
+
+                // 新レコード(Takahiro)は Frequency が 2+3=5 になっているべき
+                var merged = await context.SequencePairs.FirstAsync(p => p.PredecessorId == "Takahiro" && p.SuccessorId == "Kazu");
+                merged.Frequency.Should().Be(5);
+            }
+        }
+
+        [Fact]
+        public async Task MergePlayerIdsAsync_ShouldRename_WhenTargetDoesNotExist()
+        {
+            // Arrange
+            var dbName = "TestDb_Merge_New";
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                var repo = new OrderRepository(context, new AppConfig());
+                // 旧: OldName -> B (1回)
+                // 新: NewName -> B (まだ存在しない)
+                await repo.UpdatePairsAsync(new List<OrderPair> { new OrderPair("OldName", "B") });
+            }
+
+            // Act
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                var repo = new OrderRepository(context, new AppConfig());
+                await repo.MergePlayerIdsAsync("OldName", "NewName");
+            }
+
+            // Assert
+            using (var context = CreateInMemoryContext(dbName))
+            {
+                // 旧レコード消失
+                (await context.SequencePairs.AnyAsync(p => p.PredecessorId == "OldName")).Should().BeFalse();
+
+                // 新レコード作成 (Frequency=1)
+                var ren = await context.SequencePairs.FirstAsync(p => p.PredecessorId == "NewName");
+                ren.SuccessorId.Should().Be("B");
+                ren.Frequency.Should().Be(1);
+            }
+        }
     }
 }

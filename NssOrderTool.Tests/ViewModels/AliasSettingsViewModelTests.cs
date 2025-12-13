@@ -65,5 +65,23 @@ namespace NssOrderTool.Tests.ViewModels
             // 成功メッセージが出ているか確認
             _viewModel.StatusText.Should().Contain("追加しました");
         }
+
+        [Fact]
+        public async Task AddAliasCommand_ShouldCallMergePlayerIds()
+        {
+            // Arrange
+            _viewModel.TargetInput = "Takahiro";
+            _viewModel.AliasInput = "Taka";
+
+            // Act
+            await _viewModel.AddAliasCommand.ExecuteAsync(null);
+
+            // Assert
+            // AliasRepositoryへの追加呼び出し確認
+            _mockRepo.Verify(r => r.AddAliasAsync("Taka", "Takahiro"), Times.Once);
+
+            // 【重要】OrderRepositoryのMergePlayerIdsAsyncが呼ばれたか確認
+            _mockOrderRepo.Verify(r => r.MergePlayerIdsAsync("Taka", "Takahiro"), Times.Once);
+        }
     }
 }
