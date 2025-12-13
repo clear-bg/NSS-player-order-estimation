@@ -61,5 +61,10 @@ namespace NssOrderTool.Repositories
             // EF Core 7+ の新機能: ExecuteDeleteAsync (高速に全削除)
             await _context.Players.ExecuteDeleteAsync();
         }
+
+        public virtual void ResetTracking()
+        {
+            _context.ChangeTracker.Clear();
+        }
     }
 }

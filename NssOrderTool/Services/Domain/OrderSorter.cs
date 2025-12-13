@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks; // 追加
 using Microsoft.Extensions.Logging;
 using NssOrderTool.Models;
 
@@ -10,23 +11,22 @@ namespace NssOrderTool.Services.Domain
     {
         private readonly ILogger<OrderSorter> _logger;
 
-        // DIでロガーを受け取る
         public OrderSorter(ILogger<OrderSorter> logger)
         {
             _logger = logger;
         }
 
+        // ▼▼▼ ここから下を既存の Sort メソッドと置き換えてください ▼▼▼
+
         /// <summary>
-        /// 順序ペアのリストから、階層構造（同率含む）を持つランキングを計算する
-        /// 戻り値: 1位グループ, 2位グループ... のリスト
+        /// 強連結成分分解(SCC)を用いて、サイクルを含むグラフの順序を推定する
         /// </summary>
         public List<List<string>> Sort(List<OrderPair> pairs)
         {
-            var inDegree = new Dictionary<string, int>();
+            // 1. ノードと隣接リストの構築
             var adj = new Dictionary<string, List<string>>();
             var nodes = new HashSet<string>();
 
-            // 1. グラフ構築
             foreach (var pair in pairs)
             {
                 nodes.Add(pair.Predecessor);
@@ -35,67 +35,247 @@ namespace NssOrderTool.Services.Domain
                 if (!adj.ContainsKey(pair.Predecessor)) adj[pair.Predecessor] = new List<string>();
                 if (!adj.ContainsKey(pair.Successor)) adj[pair.Successor] = new List<string>();
 
-                if (!inDegree.ContainsKey(pair.Predecessor)) inDegree[pair.Predecessor] = 0;
-                if (!inDegree.ContainsKey(pair.Successor)) inDegree[pair.Successor] = 0;
-
                 adj[pair.Predecessor].Add(pair.Successor);
-                inDegree[pair.Successor]++;
             }
 
-            // 2. 階層的トポロジカルソート
-            // 入次数0のノードを全てキューに入れる
-            var queue = new Queue<string>();
-            foreach (var node in nodes)
+            // 2. Tarjanのアルゴリズムで強連結成分(SCC)を抽出
+            var sccComponents = TarjanSCC(nodes.ToList(), adj);
+
+            // 3. 成分グラフの構築 (成分を1つのノードとみなす)
+            var componentMap = new Dictionary<int, List<string>>();
+            var nodeToComponentId = new Dictionary<string, int>();
+
+            for (int i = 0; i < sccComponents.Count; i++)
             {
-                if (!inDegree.ContainsKey(node) || inDegree[node] == 0)
+                componentMap[i] = sccComponents[i];
+                foreach (var node in sccComponents[i])
                 {
-                    queue.Enqueue(node);
+                    nodeToComponentId[node] = i;
                 }
             }
 
+            var sccAdj = new Dictionary<int, HashSet<int>>();
+            var sccInDegree = new Dictionary<int, int>();
+
+            for (int i = 0; i < sccComponents.Count; i++)
+            {
+                sccAdj[i] = new HashSet<int>();
+                sccInDegree[i] = 0;
+            }
+
+            foreach (var u in nodes)
+            {
+                if (!adj.ContainsKey(u)) continue;
+                int uComp = nodeToComponentId[u];
+
+                foreach (var v in adj[u])
+                {
+                    int vComp = nodeToComponentId[v];
+                    if (uComp != vComp)
+                    {
+                        if (!sccAdj[uComp].Contains(vComp))
+                        {
+                            sccAdj[uComp].Add(vComp);
+                            sccInDegree[vComp]++;
+                        }
+                    }
+                }
+            }
+
+            // 4. 成分グラフの階層的トポロジカルソート
             var resultLayers = new List<List<string>>();
-            int processedCount = 0;
+            var queue = new Queue<int>();
+
+            foreach (var key in sccInDegree.Keys)
+            {
+                if (sccInDegree[key] == 0) queue.Enqueue(key);
+            }
 
             while (queue.Count > 0)
             {
-                // 現在のキューに入っているノードは、すべて「現時点で前提条件がない」ノードたち。
-                // つまり、これらは互いに順序がつかない「同率グループ」とみなせる。
-                var currentLayer = new List<string>();
+                var currentLayerNodes = new List<string>();
                 int layerSize = queue.Count;
 
-                // 現在のレイヤー分だけループを回して取り出す
                 for (int i = 0; i < layerSize; i++)
                 {
-                    var u = queue.Dequeue();
-                    currentLayer.Add(u);
-                    processedCount++;
+                    var uComp = queue.Dequeue();
+                    var members = componentMap[uComp];
+                    members.Sort();
+                    currentLayerNodes.AddRange(members);
 
-                    if (adj.ContainsKey(u))
+                    if (sccAdj.ContainsKey(uComp))
                     {
-                        foreach (var v in adj[u])
+                        foreach (var vComp in sccAdj[uComp])
                         {
-                            inDegree[v]--;
-                            if (inDegree[v] == 0)
-                            {
-                                queue.Enqueue(v);
-                            }
+                            sccInDegree[vComp]--;
+                            if (sccInDegree[vComp] == 0) queue.Enqueue(vComp);
+                        }
+                    }
+                }
+                if (currentLayerNodes.Count > 0) resultLayers.Add(currentLayerNodes);
+            }
+
+            return resultLayers;
+        }
+
+        /// <summary>
+        /// グラフ内の閉路（矛盾）を1つ検出し、そのパス（例: A -> B -> C -> A）を返す。
+        /// </summary>
+        public List<string>? FindCyclePath(IEnumerable<OrderPair> pairs)
+        {
+            var adj = new Dictionary<string, List<string>>();
+            foreach (var p in pairs)
+            {
+                if (!adj.ContainsKey(p.Predecessor)) adj[p.Predecessor] = new List<string>();
+                if (!adj.ContainsKey(p.Successor)) adj[p.Successor] = new List<string>();
+                adj[p.Predecessor].Add(p.Successor);
+            }
+
+            var visited = new HashSet<string>();
+            var recursionStack = new HashSet<string>();
+            var pathStack = new List<string>();
+
+            foreach (var node in adj.Keys)
+            {
+                if (Dfs(node, adj, visited, recursionStack, pathStack))
+                {
+                    var cycleEndNode = pathStack.Last();
+                    var cycleStartIndex = pathStack.IndexOf(cycleEndNode);
+                    // サイクル部分のみを抽出して返す
+                    return pathStack.Skip(cycleStartIndex).ToList();
+                }
+            }
+            return null;
+        }
+
+        // 指定した始点から終点への経路が存在するか探索し、経路リストを返す。
+        public List<string>? FindPath(IEnumerable<OrderPair> pairs, string start, string end)
+        {
+            // 隣接リスト構築
+            var adj = new Dictionary<string, List<string>>();
+            foreach (var p in pairs)
+            {
+                if (!adj.ContainsKey(p.Predecessor)) adj[p.Predecessor] = new List<string>();
+                if (!adj.ContainsKey(p.Successor)) adj[p.Successor] = new List<string>();
+                adj[p.Predecessor].Add(p.Successor);
+            }
+
+            if (!adj.ContainsKey(start)) return null;
+
+            // BFS (幅優先探索) 用キュー
+            var queue = new Queue<List<string>>();
+            queue.Enqueue(new List<string> { start });
+
+            var visited = new HashSet<string> { start };
+
+            while (queue.Count > 0)
+            {
+                var currentPath = queue.Dequeue();
+                var node = currentPath.Last();
+
+                if (node == end)
+                {
+                    return currentPath;
+                }
+
+                if (adj.ContainsKey(node))
+                {
+                    foreach (var neighbor in adj[node])
+                    {
+                        if (!visited.Contains(neighbor))
+                        {
+                            visited.Add(neighbor);
+                            var newPath = new List<string>(currentPath) { neighbor };
+                            queue.Enqueue(newPath);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private bool Dfs(string current, Dictionary<string, List<string>> adj,
+                         HashSet<string> visited, HashSet<string> recursionStack, List<string> pathStack)
+        {
+            visited.Add(current);
+            recursionStack.Add(current);
+            pathStack.Add(current);
+
+            if (adj.ContainsKey(current))
+            {
+                foreach (var neighbor in adj[current])
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        if (Dfs(neighbor, adj, visited, recursionStack, pathStack)) return true;
+                    }
+                    else if (recursionStack.Contains(neighbor))
+                    {
+                        pathStack.Add(neighbor); // 閉路完成
+                        return true;
+                    }
+                }
+            }
+
+            recursionStack.Remove(current);
+            pathStack.RemoveAt(pathStack.Count - 1);
+            return false;
+        }
+
+        // --- Tarjan's Algorithm (SCC用) ---
+        private List<List<string>> TarjanSCC(List<string> nodes, Dictionary<string, List<string>> adj)
+        {
+            var index = 0;
+            var indices = new Dictionary<string, int>();
+            var lowLink = new Dictionary<string, int>();
+            var onStack = new HashSet<string>();
+            var stack = new Stack<string>();
+            var result = new List<List<string>>();
+
+            foreach (var node in nodes)
+            {
+                if (!indices.ContainsKey(node)) StrongConnect(node);
+            }
+
+            void StrongConnect(string v)
+            {
+                indices[v] = index;
+                lowLink[v] = index;
+                index++;
+                stack.Push(v);
+                onStack.Add(v);
+
+                if (adj.ContainsKey(v))
+                {
+                    foreach (var w in adj[v])
+                    {
+                        if (!indices.ContainsKey(w))
+                        {
+                            StrongConnect(w);
+                            lowLink[v] = Math.Min(lowLink[v], lowLink[w]);
+                        }
+                        else if (onStack.Contains(w))
+                        {
+                            lowLink[v] = Math.Min(lowLink[v], indices[w]);
                         }
                     }
                 }
 
-                // 名前順などで整列しておくと見やすい
-                currentLayer.Sort();
-                resultLayers.Add(currentLayer);
+                if (lowLink[v] == indices[v])
+                {
+                    var component = new List<string>();
+                    string w;
+                    do
+                    {
+                        w = stack.Pop();
+                        onStack.Remove(w);
+                        component.Add(w);
+                    } while (w != v);
+                    result.Add(component);
+                }
             }
-
-            // 閉路検出
-            if (processedCount != nodes.Count)
-            {
-                _logger.LogWarning("⚠️ 順序矛盾（閉路）が検出されました。処理されたノード数: {Processed}, 全ノード数: {Total}", processedCount, nodes.Count);
-                return new List<List<string>>();
-            }
-
-            return resultLayers;
+            return result;
         }
     }
 }

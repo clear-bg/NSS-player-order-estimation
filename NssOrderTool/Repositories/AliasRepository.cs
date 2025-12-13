@@ -72,5 +72,10 @@ namespace NssOrderTool.Repositories
         {
             await _context.Aliases.ExecuteDeleteAsync();
         }
+
+        public virtual void ResetTracking()
+        {
+            _context.ChangeTracker.Clear();
+        }
     }
 }

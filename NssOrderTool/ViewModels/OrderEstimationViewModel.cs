@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace NssOrderTool.ViewModels
         private IBrush _envBadgeColor = Brushes.Gray;
 
         public ObservableCollection<string> RankingList { get; } = new();
+        public Func<string, List<string>, Task<bool>>? ConfirmCycleCallback { get; set; }
 
         private readonly ILogger<OrderEstimationViewModel> _logger;
 
@@ -105,11 +107,7 @@ namespace NssOrderTool.ViewModels
         [RelayCommand]
         private async Task Register()
         {
-            if (string.IsNullOrWhiteSpace(InputText))
-            {
-                StatusText = "⚠️ 入力が空です";
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(InputText)) return;
 
             try
             {
@@ -117,32 +115,58 @@ namespace NssOrderTool.ViewModels
                 var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
                 string normalizedInput = _extractor.NormalizeInput(InputText, aliasDict);
 
-                // ログ出力例: 操作の開始を記録
-                _logger.LogInformation("登録処理を開始します。入力値: {InputText}", InputText);
-
-                await _orderRepo.AddObservationAsync(normalizedInput);
-
-                // 3. ペア分解
-                var pairs = _extractor.ExtractFromInput(normalizedInput);
-                if (pairs.Count == 0)
+                // 2. ペア分解
+                var newPairs = _extractor.ExtractFromInput(normalizedInput);
+                if (newPairs.Count == 0)
                 {
                     StatusText = "⚠️ 有効なペアが見つかりませんでした";
                     return;
                 }
 
+
+                // 3. OrderSorterに追加したメソッドで閉路を探す
+                var existingPairs = await _orderRepo.GetAllPairsAsync();
+
+                foreach (var pair in newPairs)
+                {
+                    // 「A -> B」を追加しようとしているとき、既に「B -> ... -> A」という道があるか？
+                    // あるなら、今回の追加によって閉路が完成してしまうことになる。
+                    var reversePath = _sorter.FindPath(existingPairs, pair.Successor, pair.Predecessor);
+
+                    if (reversePath != null)
+                    {
+                        // 閉路完成！ (例: B -> C -> A) に、今回の A (始点) を足して B -> C -> A -> B と表示する
+                        reversePath.Add(pair.Successor);
+
+                        if (ConfirmCycleCallback != null)
+                        {
+                            bool proceed = await ConfirmCycleCallback(normalizedInput, reversePath);
+                            if (!proceed)
+                            {
+                                StatusText = "🚫 登録をキャンセルしました";
+                                return;
+                            }
+                        }
+                        // 1つでも矛盾が見つかってユーザーが許可したら、他のペアのチェックは省略して進む（または全件チェックも可）
+                        break;
+                    }
+                }
+
+                await _orderRepo.AddObservationAsync(normalizedInput);
+
                 // 4. プレイヤー登録 & 関係更新
-                var playerNames = pairs.Select(p => p.Predecessor)
-                                       .Concat(pairs.Select(p => p.Successor))
+                var playerNames = newPairs.Select(p => p.Predecessor)
+                                       .Concat(newPairs.Select(p => p.Successor))
                                        .Distinct();
 
                 await _playerRepo.RegisterPlayersAsync(playerNames);
-                await _orderRepo.UpdatePairsAsync(pairs);
+                await _orderRepo.UpdatePairsAsync(newPairs);
 
                 // メッセージ更新
                 if (InputText != normalizedInput)
                     StatusText = $"✅ 登録完了 (変換あり): \n'{InputText}' \n→ '{normalizedInput}'";
                 else
-                    StatusText = $"✅ 登録完了: {pairs.Count} 件の関係を更新しました";
+                    StatusText = $"✅ 登録完了: {newPairs.Count} 件の関係を更新しました";
 
                 InputText = ""; // 入力欄クリア
 
@@ -176,6 +200,10 @@ namespace NssOrderTool.ViewModels
                 await _playerRepo.ClearAllAsync();
                 await _aliasRepo.ClearAllAsync();
 
+                _orderRepo.ResetTracking();
+                _playerRepo.ResetTracking();
+                _aliasRepo.ResetTracking();
+
                 StatusText = "🗑️ データを全削除しました";
                 await LoadOrderAsync();
             }
@@ -187,32 +215,32 @@ namespace NssOrderTool.ViewModels
 
         private async Task LoadOrderAsync()
         {
-      try
-      {
-        // DBから全ペアを非同期取得
-        var allPairs = await _orderRepo.GetAllPairsAsync();
+          try
+          {
+            // DBから全ペアを非同期取得
+            var allPairs = await _orderRepo.GetAllPairsAsync();
 
-        // ソート計算 (オンメモリ処理)
-        var sortedLayers = _sorter.Sort(allPairs);
+            // ソート計算 (オンメモリ処理)
+            var sortedLayers = _sorter.Sort(allPairs);
 
-        RankingList.Clear();
-        int currentRank = 1;
+            RankingList.Clear();
+            int currentRank = 1;
 
-        foreach (var group in sortedLayers)
-        {
-          string line = (group.Count == 1)
-              ? $"{currentRank} : {group[0]}"
-              : $"{currentRank} : {string.Join(", ", group)} (推定同列)";
+            foreach (var group in sortedLayers)
+            {
+              string line = (group.Count == 1)
+                  ? $"{currentRank} : {group[0]}"
+                  : $"{currentRank} : {string.Join(", ", group)} (推定同列)";
 
-          RankingList.Add(line);
-          currentRank++;
-        }
-        StatusText = "";
-      }
-          catch (Exception ex)
-      {
-        StatusText = $"❌ 読み込みエラー: {ex.Message}";
-      }
+              RankingList.Add(line);
+              currentRank++;
+            }
+            StatusText = "";
+          }
+              catch (Exception ex)
+          {
+            StatusText = $"❌ 読み込みエラー: {ex.Message}";
+          }
         }
     }
 }
