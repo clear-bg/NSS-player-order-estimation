@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NssOrderTool.Database;
+using NssOrderTool.Models;
 using NssOrderTool.Repositories;
 using NssOrderTool.ViewModels;
 using Xunit;
@@ -12,6 +13,7 @@ namespace NssOrderTool.Tests.ViewModels
     public class AliasSettingsViewModelTests
     {
         private readonly Mock<AliasRepository> _mockRepo;
+        private readonly Mock<OrderRepository> _mockOrderRepo;
         private readonly AliasSettingsViewModel _viewModel;
 
         public AliasSettingsViewModelTests()
@@ -22,8 +24,10 @@ namespace NssOrderTool.Tests.ViewModels
             _mockRepo.Setup(r => r.GetAliasDictionaryAsync())
                      .ReturnsAsync(new Dictionary<string, string>());
 
+            _mockOrderRepo = new Mock<OrderRepository>((AppDbContext)null!, (AppConfig)null!);
+
             // ViewModelの初期化
-            _viewModel = new AliasSettingsViewModel(_mockRepo.Object); 
+            _viewModel = new AliasSettingsViewModel(_mockRepo.Object, _mockOrderRepo.Object);
         }
 
         [Fact]
