@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NssOrderTool.Database;
+using NssOrderTool.Models;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NssOrderTool.ViewModels
 {
@@ -39,6 +40,7 @@ namespace NssOrderTool.ViewModels
 
         public ObservableCollection<string> RankingList { get; } = new();
         public Func<string, List<string>, Task<bool>>? ConfirmCycleCallback { get; set; }
+        public ObservableCollection<HistoryItem> HistoryList { get; } = new();
 
         private readonly ILogger<OrderEstimationViewModel> _logger;
 
@@ -86,6 +88,7 @@ namespace NssOrderTool.ViewModels
 
                 // 初回読み込み (非同期)
                 await LoadOrderAsync();
+                await LoadHistoryAsync();
             }
             catch (Exception ex)
             {
@@ -172,6 +175,7 @@ namespace NssOrderTool.ViewModels
 
                 // リスト再読み込み
                 await LoadOrderAsync();
+                await LoadHistoryAsync();
 
                 // 完了ログ
                 _logger.LogInformation("登録処理が完了しました。");
@@ -182,6 +186,54 @@ namespace NssOrderTool.ViewModels
 
                 // エラーログ出力
                 _logger.LogError(ex, "登録処理中にエラーが発生しました。入力値: {InputText}", InputText);
+            }
+        }
+
+        private async Task LoadHistoryAsync()
+        {
+            try
+            {
+                var entities = await _orderRepo.GetRecentObservationsAsync();
+                HistoryList.Clear();
+                foreach (var e in entities)
+                {
+                    HistoryList.Add(new HistoryItem
+                    {
+                        Id = e.Id,
+                        Timestamp = e.ObservationTime,
+                        Content = e.OrderedList
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "履歴読み込みに失敗しました");
+            }
+        }
+
+        [RelayCommand]
+        private async Task DeleteHistory(HistoryItem item)
+        {
+            if (item == null) return;
+
+            try
+            {
+                // 1. この履歴によって増えたはずのペアを再計算 (マイナスするため)
+                var pairsToDecrement = _extractor.ExtractFromInput(item.Content);
+
+                // 2. リポジトリで「減算＆削除」を実行
+                await _orderRepo.UndoObservationAsync(item.Id, pairsToDecrement);
+
+                StatusText = $"✅ 履歴を取り消しました: {item.Content}";
+
+                // 3. 画面更新
+                await LoadOrderAsync();
+                await LoadHistoryAsync();
+            }
+            catch (Exception ex)
+            {
+                StatusText = $"❌ 取り消しエラー: {ex.Message}";
+                _logger.LogError(ex, "履歴削除に失敗しました");
             }
         }
 
