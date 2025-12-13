@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -129,6 +130,31 @@ namespace NssOrderTool.ViewModels
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private void RestartApplication()
+        {
+            try
+            {
+                // 1. 現在の実行ファイルのパスを取得
+                var processModule = Process.GetCurrentProcess().MainModule;
+                var fileName = processModule?.FileName;
+
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    // 2. 新しいプロセスとして自分自身を起動
+                    Process.Start(fileName);
+
+                    // 3. 現在のアプリを終了
+                    System.Environment.Exit(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"❌ 再起動に失敗しました: {ex.Message}";
+                IsSuccess = false;
             }
         }
 
