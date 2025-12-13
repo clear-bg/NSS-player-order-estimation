@@ -94,5 +94,29 @@ namespace NssOrderTool.Tests.Services.Domain
             result[0].Should().Contain(new[] { "A", "C" });
             result[1].Should().Contain(new[] { "B", "D" });
         }
+
+        [Fact]
+        public void Sort_ShouldGroupNodes_WhenCycleExists()
+        {
+            // Arrange
+            // A -> B -> C -> A (3すくみのループ)
+            // この場合、論理的に順序が付けられないため、SCCアルゴリズムはこれらを1つのグループにまとめるはず
+            var pairs = new List<OrderPair>
+            {
+                new OrderPair("A", "B"),
+                new OrderPair("B", "C"),
+                new OrderPair("C", "A")
+            };
+
+            // Act
+            var result = _sorter.Sort(pairs);
+
+            // Assert
+            // 期待値:
+            // 全体が1つのグループ（同順位）になる
+            result.Should().HaveCount(1);
+            result[0].Should().HaveCount(3);
+            result[0].Should().Contain(new[] { "A", "B", "C" });
+        }
     }
 }
