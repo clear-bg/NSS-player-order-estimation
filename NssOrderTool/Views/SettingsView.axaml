@@ -61,13 +61,18 @@
 				<TextBlock Text="{Binding StatusMessage}"
                            Foreground="{Binding StatusBrush}"
                            TextWrapping="Wrap" FontWeight="Bold"/>
-				<Grid ColumnDefinitions="*, 10, *">
+				<Grid ColumnDefinitions="*, 10, *, 10, *">
+
 					<Button Grid.Column="0" Content="🔄 接続テスト" Command="{Binding TestConnectionCommand}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
 
 					<Button Grid.Column="2" Content="💾 設定を保存" Command="{Binding SaveSettingsCommand}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Background="#007ACC" Foreground="White" FontWeight="Bold"/>
+
+					<Button Grid.Column="4" Content="🚀 アプリを再起動" Command="{Binding RestartApplicationCommand}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Background="#DDDDDD" Foreground="Black"/>
 				</Grid>
 			</StackPanel>
 
