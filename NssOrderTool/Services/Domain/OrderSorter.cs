@@ -148,6 +148,53 @@ namespace NssOrderTool.Services.Domain
             return null;
         }
 
+        // 指定した始点から終点への経路が存在するか探索し、経路リストを返す。
+        public List<string>? FindPath(IEnumerable<OrderPair> pairs, string start, string end)
+        {
+            // 隣接リスト構築
+            var adj = new Dictionary<string, List<string>>();
+            foreach (var p in pairs)
+            {
+                if (!adj.ContainsKey(p.Predecessor)) adj[p.Predecessor] = new List<string>();
+                if (!adj.ContainsKey(p.Successor)) adj[p.Successor] = new List<string>();
+                adj[p.Predecessor].Add(p.Successor);
+            }
+
+            if (!adj.ContainsKey(start)) return null;
+
+            // BFS (幅優先探索) 用キュー
+            var queue = new Queue<List<string>>();
+            queue.Enqueue(new List<string> { start });
+
+            var visited = new HashSet<string> { start };
+
+            while (queue.Count > 0)
+            {
+                var currentPath = queue.Dequeue();
+                var node = currentPath.Last();
+
+                if (node == end)
+                {
+                    return currentPath;
+                }
+
+                if (adj.ContainsKey(node))
+                {
+                    foreach (var neighbor in adj[node])
+                    {
+                        if (!visited.Contains(neighbor))
+                        {
+                            visited.Add(neighbor);
+                            var newPath = new List<string>(currentPath) { neighbor };
+                            queue.Enqueue(newPath);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private bool Dfs(string current, Dictionary<string, List<string>> adj,
                          HashSet<string> visited, HashSet<string> recursionStack, List<string> pathStack)
         {

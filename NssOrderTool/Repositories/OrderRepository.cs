@@ -98,5 +98,10 @@ namespace NssOrderTool.Repositories
             // DbManager経由ではなく、設定クラスから直接取得
             return _config.AppSettings?.Environment ?? "UNKNOWN";
         }
+
+        public void ResetTracking()
+        {
+            _context.ChangeTracker.Clear();
+        }
     }
 }
