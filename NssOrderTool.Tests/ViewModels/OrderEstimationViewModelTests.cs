@@ -103,5 +103,48 @@ namespace NssOrderTool.Tests.ViewModels
             // F. 入力欄がクリアされたか？
             viewModel.InputText.Should().BeEmpty();
         }
+
+        [Fact]
+        public async Task RegisterCommand_ShouldToggleIsBusy_WhileExecuting()
+        {
+            // Arrange
+            // エイリアス辞書は空でOK
+            _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync())
+                          .ReturnsAsync(new Dictionary<string, string>());
+
+            // 重い処理をシミュレート: GetAllPairsAsync が呼ばれたら 500ms 待機して空リストを返す
+            _mockOrderRepo.Setup(r => r.GetAllPairsAsync())
+                          .Returns(async () =>
+                          {
+                              await Task.Delay(500);
+                              return new List<OrderPair>();
+                          });
+
+            var viewModel = new OrderEstimationViewModel(
+                _mockOrderRepo.Object,
+                _mockPlayerRepo.Object,
+                _mockAliasRepo.Object,
+                _extractor,
+                _sorter,
+                _mockSchemaService.Object,
+                _mockLogger.Object
+            );
+
+            // 入力値をセット（バリデーション回避）
+            viewModel.InputText = "A, B";
+
+            // Act
+            // コマンド実行開始（awaitせずにタスクを保持）
+            var executionTask = viewModel.RegisterCommand.ExecuteAsync(null);
+
+            // Assert 1: 実行中は IsBusy が true であること
+            viewModel.IsBusy.Should().BeTrue("非同期処理中はIsBusyがtrueになるべき");
+
+            // 完了まで待機
+            await executionTask;
+
+            // Assert 2: 完了後は IsBusy が false に戻ること
+            viewModel.IsBusy.Should().BeFalse("処理完了後はIsBusyがfalseに戻るべき");
+        }
     }
 }
