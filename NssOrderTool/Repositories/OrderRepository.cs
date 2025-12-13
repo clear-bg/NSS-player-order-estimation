@@ -99,6 +99,64 @@ namespace NssOrderTool.Repositories
             return _config.AppSettings?.Environment ?? "UNKNOWN";
         }
 
+        public virtual async Task<List<ObservationEntity>> GetRecentObservationsAsync(int limit = 50)
+        {
+            return await _context.Observations
+                .OrderByDescending(o => o.ObservationTime)
+                .Take(limit)
+                .ToListAsync();
+        }
+
+        public virtual async Task UndoObservationAsync(int observationId, List<OrderPair> pairsToDecrement)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. ペアのFrequencyを減算 (存在チェック含む)
+                if (pairsToDecrement != null && pairsToDecrement.Any())
+                {
+                    var preds = pairsToDecrement.Select(p => p.Predecessor).Distinct().ToList();
+                    var succs = pairsToDecrement.Select(p => p.Successor).Distinct().ToList();
+
+                    var entities = await _context.SequencePairs
+                        .Where(p => preds.Contains(p.PredecessorId) && succs.Contains(p.SuccessorId))
+                        .ToListAsync();
+
+                    foreach (var pair in pairsToDecrement)
+                    {
+                        var entity = entities.FirstOrDefault(e =>
+                            e.PredecessorId == pair.Predecessor &&
+                            e.SuccessorId == pair.Successor);
+
+                        if (entity != null)
+                        {
+                            entity.Frequency--;
+                            // 0以下になったらレコード削除 (ゴミ掃除)
+                            if (entity.Frequency <= 0)
+                            {
+                                _context.SequencePairs.Remove(entity);
+                            }
+                        }
+                    }
+                }
+
+                // 2. 履歴ログ(Observation)を削除
+                var obs = await _context.Observations.FindAsync(observationId);
+                if (obs != null)
+                {
+                    _context.Observations.Remove(obs);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
         public virtual void ResetTracking()
         {
             _context.ChangeTracker.Clear();
