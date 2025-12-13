@@ -1,106 +1,61 @@
-# NSS Player Order Estimation Tool (Desktop App)
-Nintendo Switch Sports（サッカー）などのゲームにおけるプレイヤーの並び順（観測データ）を基に、内部的なソートキー（Hidden ID）によるプレイヤー間の順序関係を推定・管理するためのデスクトップアプリケーションです。
+# NSS Player Order Estimation Tool
 
-バックエンドに AWS RDS (MySQL) を使用し、フロントエンドは C# (Avalonia UI) で構築されているため、Windows と macOS の両方で動作します。
+本ツールは、マッチング時の観測データに基づき、プレイヤーの内部ソート順（Hidden ID）を推定するソフトウェアである。トポロジカルソートおよび強連結成分分解（SCC）を用い、循環参照を含む順序関係の特定を行う。
 
----
+## Features
 
-## 1. 開発環境のセットアップ
-開発および実行には以下の環境が必要です。
+* **順序推定**: 相対的な観測データからの絶対順序計算
+* **履歴管理**: 入力履歴の表示およびデータベース整合性を維持した取り消し（Undo）機能
+* **グラフ可視化**: 推定された順序構造のMermaid記法によるエクスポート
+* **設定管理**: GUI上でのデータベース接続先および環境設定（TEST/PROD）の変更
 
-### 1.1. ランタイム & SDK
-* **.NET SDK 9.0 (または 8.0)**
-  * アプリケーションのビルドと実行に必要です。
-  * [Microsoft公式サイト](https://dotnet.microsoft.com/ja-jp/download/dotnet) からインストールしてください。
-* **Python 3.10+** (オプション)
-  * AWSのセキュリティグループ自動更新スクリプト (`scripts/update_security_group.py`) を使用する場合のみ必要です。
+## Download
 
-### 1.2. 開発ツール（IDE）
-* **Windows**: Visual Studio 2026 (推奨) または 2022
-    * ワークロード: 「.NET デスクトップ開発」
-* **macOS**: Visual Studio Code
-    * 拡張機能: [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
+Windows、macOS、Linux向けのバイナリパッケージはReleasesページより入手可能。
 
-### 1.3. インフラ
-* **AWS RDS (MySQL)**
-    * 稼働中の MySQL データベースが必要です。
+[Download Latest Release](../../releases)
 
----
+## Build
 
-## 2. セットアップ手順
+### Prerequisites
 
-### 2.1. リポジトリのクローン
+* .NET 9.0 SDK
+* MySQL Server (またはRDSへのSSHトンネル接続)
+
+### Linux / macOS
 
 ```bash
-git clone <repository-url>
-cd NSS-Order_Estimator
+dotnet build -c Release
+dotnet run --project NssOrderTool
 ```
 
-### 2.2. 環境変数の設定(.env)
+### Windows
 
-データベース接続情報を含む`.env`ファイルを作成し、`NssOrderTool`プロジェクトフォルダの直下に配置します。
-
-`NssOrderTool.env`
-
-```TOML
-# AWS RDS 接続情報
-DB_HOST=your-db-endpoint.rds.amazonaws.com
-DB_PORT=3306
-DB_NAME=order_ranking_db
-DB_USER=app_user
-DB_PASSWORD=your_password
-
-# AWS IP自動更新用 (Pythonスクリプト用)
-AWS_REGION=ap-southeast-2
-AWS_SECURITY_GROUP_ID=sg-xxxxxxxxxxxxxxxxx
-```
-
-### 2.3. AWS接続許可（IP自動更新）
-AWS RDS はセキュリティグループによりアクセスが制限されています。開発を始める前に、現在の場所（IPアドレス）からの接続を許可する必要があります。
-
-付属の Python スクリプトを使用すると、現在のグローバルIPを自動的に AWS の許可リストに追加できます。
+Visual Studio 2022でのソリューションファイル（`NssOrderTool.sln`）のオープン、またはコマンドラインの使用。
 
 ```bash
-# 初回のみライブラリインストール
-pip install boto3 requests python-dotenv
-
-# スクリプト実行 (プロジェクトルートから)
-python scripts/update_security_group.py
+dotnet build -c Release
+dotnet run --project NssOrderTool
 ```
 
----
+## Usage
 
-# 3. アプリケーションの実行
+### データの登録
 
-**Windows (Visual Studio)**
-1. `NssOrderTool/NssOrderTool.csproj`（またはソリューションファイル）をVisual Studioで開きます。
-2. 上部の「開始」ボタン(▶) をクリックしてデバッグ実行します。
+1. アプリケーションの起動
+2. 入力欄へのプレイヤー名の入力（カンマ区切り。例: `PlayerA, PlayerB, PlayerC`）
+3. 登録ボタンの押下による順序更新
 
-**macOS (VS Code/Terminal)**
-ターミナルでプロジェクトフォルダに移動し、`dotnet run` コマンドを実行します。
+### グラフの可視化
 
-```bash
-cd NssOrderTool
-dotnet run
-```
+推定された順序構造のグラフエクスポート。
 
-# 4. プロジェクト構成
+1. **Graph** ボタン押下によるグラフ定義のクリップボードへのコピー
+2. Mermaid記法対応ビューアへのペーストおよび構造確認
 
-```Plaintext
-.
-├── NssOrderTool/           # C# アプリケーション本体 (Avalonia UI)
-│   ├── Services/           # DB接続や計算ロジック
-│   ├── ViewModels/         # 画面とデータの橋渡し
-│   ├── Views/              # 画面レイアウト (XAML)
-│   ├── Program.cs          # エントリーポイント
-│   └── .env                # 設定ファイル (手動作成/Git対象外)
-│
-├── scripts/                # ユーティリティスクリプト
-│   └── update_security_group.py  # AWS IP許可ツール (Python)
-│
-└── .gitignore              # Git除外設定 (C# / Python 両対応)
-```
+推奨ビューア:
+https://mermaid.live/edit
 
-# 5. 開発フロー
-* **main ブランチ**: C# (Avalonia) 版の最新コード
-* **Python_CLI ブランチ**: 旧Python CLI 版のアーカイブ
+### 設定
+
+**設定 (Settings)** タブでのデータベース接続情報および環境モード（TEST/PROD）の変更（反映にはアプリケーションの再起動が必要）。
