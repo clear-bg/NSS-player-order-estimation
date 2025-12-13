@@ -20,6 +20,7 @@ namespace NssOrderTool.Tests.ViewModels
         private readonly Mock<AliasRepository> _mockAliasRepo;
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
+        private readonly GraphVizService _graphViz;
         private readonly Mock<DbSchemaService> _mockSchemaService;
         private readonly Mock<ILogger<OrderEstimationViewModel>> _mockLogger;
         private readonly Mock<ILogger<OrderSorter>> _mockSorterLogger;
@@ -36,6 +37,7 @@ namespace NssOrderTool.Tests.ViewModels
             // ロジッククラスは本物を使用
             _extractor = new RelationshipExtractor();
             _sorter = new OrderSorter(_mockSorterLogger.Object);
+            _graphViz = new GraphVizService();
         }
 
         [Fact]
@@ -64,6 +66,7 @@ namespace NssOrderTool.Tests.ViewModels
                 _extractor,
                 _sorter,
                 _mockSchemaService.Object,
+                _graphViz,
                 _mockLogger.Object
             );
 
@@ -127,6 +130,7 @@ namespace NssOrderTool.Tests.ViewModels
                 _extractor,
                 _sorter,
                 _mockSchemaService.Object,
+                _graphViz,
                 _mockLogger.Object
             );
 
@@ -145,6 +149,40 @@ namespace NssOrderTool.Tests.ViewModels
 
             // Assert 2: 完了後は IsBusy が false に戻ること
             viewModel.IsBusy.Should().BeFalse("処理完了後はIsBusyがfalseに戻るべき");
+        }
+
+        [Fact]
+        public async Task ReloadCommand_ShouldUpdateStatsText()
+        {
+            // Arrange
+            // 3つのペア、4人のプレイヤー (A->B, B->C, C->D)
+            var pairs = new List<OrderPair>
+            {
+                new OrderPair("A", "B"),
+                new OrderPair("B", "C"),
+                new OrderPair("C", "D")
+            };
+
+            _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(pairs);
+
+            var viewModel = new OrderEstimationViewModel(
+                _mockOrderRepo.Object,
+                _mockPlayerRepo.Object,
+                _mockAliasRepo.Object,
+                _extractor,
+                _sorter,
+                _mockSchemaService.Object,
+                _graphViz,
+                _mockLogger.Object
+            );
+
+            // Act
+            await viewModel.ReloadCommand.ExecuteAsync(null);
+
+            // Assert
+            // StatsText が "(4 players, 3 pairs)" のようになっているか確認
+            viewModel.StatsText.Should().Contain("4 players");
+            viewModel.StatsText.Should().Contain("3 pairs");
         }
     }
 }
