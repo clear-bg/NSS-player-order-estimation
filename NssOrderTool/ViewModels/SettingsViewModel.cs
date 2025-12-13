@@ -26,6 +26,7 @@ namespace NssOrderTool.ViewModels
 
         [ObservableProperty]
         private string _environment = "TEST";
+        public string[] EnvironmentList { get; } = { "TEST", "PROD" };
 
         [ObservableProperty]
         private bool _useSsm;
@@ -70,7 +71,13 @@ namespace NssOrderTool.ViewModels
         private void LoadSettings()
         {
             // 現在のメモリ上の設定をUIに反映
-            Environment = _currentConfig.AppSettings?.Environment ?? "TEST";
+            var env = _currentConfig.AppSettings?.Environment;
+
+            if (env != "TEST" && env != "PROD")
+            {
+                env = "TEST";
+            }
+            Environment = env;
 
             if (_currentConfig.SsmSettings != null)
             {
