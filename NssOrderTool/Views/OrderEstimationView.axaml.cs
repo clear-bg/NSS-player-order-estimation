@@ -55,5 +55,24 @@ namespace NssOrderTool.Views
                 await vm.PerformClearAsync();
             }
         }
+
+        private async void CopyGraphButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is OrderEstimationViewModel vm)
+            {
+                // ViewModelにテキストを作らせる
+                string graphText = await vm.GenerateGraphTextAsync();
+
+                if (!string.IsNullOrEmpty(graphText))
+                {
+                    // View層(TopLevel)の機能を使ってクリップボードにコピー
+                    var topLevel = TopLevel.GetTopLevel(this);
+                    if (topLevel?.Clipboard != null)
+                    {
+                        await topLevel.Clipboard.SetTextAsync(graphText);
+                    }
+                }
+            }
+        }
     }
 }

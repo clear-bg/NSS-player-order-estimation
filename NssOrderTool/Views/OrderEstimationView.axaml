@@ -59,12 +59,16 @@
 		</StackPanel>
 
 		<StackPanel Grid.Column="2" Spacing="10">
-			<Grid ColumnDefinitions="*, Auto, Auto">
+			<Grid ColumnDefinitions="*, Auto, Auto, Auto">
 				<TextBlock Grid.Column="0" Text="📊 推定順序 (Sequence)" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
 
-				<Button Grid.Column="1" Content="更新" Command="{Binding ReloadCommand}" Margin="0,0,5,0"/>
+				<Button Grid.Column="1" Content="📋 Graph" Margin="0,0,5,0"
+                        Click="CopyGraphButton_Click"
+                        ToolTip.Tip="Mermaid形式でグラフをコピー"/>
 
-				<Button Grid.Column="2" Name="ClearButton" Content="🗑️ 初期化"
+				<Button Grid.Column="2" Content="更新" Command="{Binding ReloadCommand}" Margin="0,0,5,0"/>
+
+				<Button Grid.Column="3" Name="ClearButton" Content="🗑️ 初期化"
                         Background="#FFCCCC" Foreground="Red"
                         Click="ClearButton_Click"/>
 			</Grid>

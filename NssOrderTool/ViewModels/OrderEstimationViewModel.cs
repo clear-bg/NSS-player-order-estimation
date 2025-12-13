@@ -23,6 +23,7 @@ namespace NssOrderTool.ViewModels
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly DbSchemaService _schemaService;
+        private readonly GraphVizService _graphViz;
 
         // --- Bindings (画面と同期するプロパティ) ---
 
@@ -51,6 +52,7 @@ namespace NssOrderTool.ViewModels
             RelationshipExtractor extractor,
             OrderSorter sorter,
             DbSchemaService schemaService,
+            GraphVizService graphViz,
             ILogger<OrderEstimationViewModel> logger)
         {
             _orderRepo = orderRepo;
@@ -59,6 +61,7 @@ namespace NssOrderTool.ViewModels
             _extractor = extractor;
             _sorter = sorter;
             _schemaService = schemaService;
+            _graphViz = graphViz;
             _logger = logger;
 
             _ = InitializeAsync();
@@ -315,6 +318,33 @@ namespace NssOrderTool.ViewModels
           {
             StatusText = $"❌ 読み込みエラー: {ex.Message}";
           }
+        }
+
+        public async Task<string> GenerateGraphTextAsync()
+        {
+            if (IsBusy) return "";
+            IsBusy = true;
+            try
+            {
+                // 最新データを取得して計算
+                var allPairs = await _orderRepo.GetAllPairsAsync();
+                var sortedLayers = _sorter.Sort(allPairs);
+
+                // テキスト生成
+                var text = _graphViz.GenerateMermaid(allPairs, sortedLayers);
+
+                StatusText = "📋 グラフ定義をクリップボードにコピーしました (Notion等に貼り付け可能)";
+                return text;
+            }
+            catch (Exception ex)
+            {
+                StatusText = $"❌ グラフ生成エラー: {ex.Message}";
+                return "";
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }
