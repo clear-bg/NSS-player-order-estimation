@@ -17,7 +17,7 @@ namespace NssOrderTool.Repositories
             _context = context;
         }
 
-        public async Task AddAliasAsync(string alias, string target)
+        public virtual async Task AddAliasAsync(string alias, string target)
         {
             // 1. 重複チェック (MySQLのエラーコード判定ではなく、アプリ側で事前にチェックする)
             // これにより SQLite など他のDBでも同じ挙動になります。
