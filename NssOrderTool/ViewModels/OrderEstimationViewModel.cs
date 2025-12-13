@@ -39,6 +39,9 @@ namespace NssOrderTool.ViewModels
         [ObservableProperty]
         private IBrush _envBadgeColor = Brushes.Gray;
 
+        [ObservableProperty]
+        private string _statsText = "";
+
         public ObservableCollection<string> RankingList { get; } = new();
         public Func<string, List<string>, Task<bool>>? ConfirmCycleCallback { get; set; }
         public ObservableCollection<HistoryItem> HistoryList { get; } = new();
@@ -77,6 +80,7 @@ namespace NssOrderTool.ViewModels
             _extractor = null!;
             _sorter = null!;
             _schemaService = null!;
+            _graphViz = null!;
             _logger = null!;
         }
 
@@ -300,7 +304,12 @@ namespace NssOrderTool.ViewModels
             // ソート計算 (オンメモリ処理)
             var sortedLayers = _sorter.Sort(allPairs);
 
-            RankingList.Clear();
+            // 統計情報更新
+            int totalPlayers = sortedLayers.Sum(layer => layer.Count);
+            int totalPairs = allPairs.Count;
+            StatsText = $"({totalPlayers} players, {totalPairs} pairs)";
+
+                RankingList.Clear();
             int currentRank = 1;
 
             foreach (var group in sortedLayers)
