@@ -23,6 +23,7 @@ namespace NssOrderTool.ViewModels
         private readonly RelationshipExtractor _extractor;
         private readonly OrderSorter _sorter;
         private readonly DbSchemaService _schemaService;
+        private readonly GraphVizService _graphViz;
 
         // --- Bindings (画面と同期するプロパティ) ---
 
@@ -38,6 +39,9 @@ namespace NssOrderTool.ViewModels
         [ObservableProperty]
         private IBrush _envBadgeColor = Brushes.Gray;
 
+        [ObservableProperty]
+        private string _statsText = "";
+
         public ObservableCollection<string> RankingList { get; } = new();
         public Func<string, List<string>, Task<bool>>? ConfirmCycleCallback { get; set; }
         public ObservableCollection<HistoryItem> HistoryList { get; } = new();
@@ -51,6 +55,7 @@ namespace NssOrderTool.ViewModels
             RelationshipExtractor extractor,
             OrderSorter sorter,
             DbSchemaService schemaService,
+            GraphVizService graphViz,
             ILogger<OrderEstimationViewModel> logger)
         {
             _orderRepo = orderRepo;
@@ -59,6 +64,7 @@ namespace NssOrderTool.ViewModels
             _extractor = extractor;
             _sorter = sorter;
             _schemaService = schemaService;
+            _graphViz = graphViz;
             _logger = logger;
 
             _ = InitializeAsync();
@@ -74,6 +80,7 @@ namespace NssOrderTool.ViewModels
             _extractor = null!;
             _sorter = null!;
             _schemaService = null!;
+            _graphViz = null!;
             _logger = null!;
         }
 
@@ -297,7 +304,12 @@ namespace NssOrderTool.ViewModels
             // ソート計算 (オンメモリ処理)
             var sortedLayers = _sorter.Sort(allPairs);
 
-            RankingList.Clear();
+            // 統計情報更新
+            int totalPlayers = sortedLayers.Sum(layer => layer.Count);
+            int totalPairs = allPairs.Count;
+            StatsText = $"({totalPlayers} players, {totalPairs} pairs)";
+
+                RankingList.Clear();
             int currentRank = 1;
 
             foreach (var group in sortedLayers)
@@ -315,6 +327,33 @@ namespace NssOrderTool.ViewModels
           {
             StatusText = $"❌ 読み込みエラー: {ex.Message}";
           }
+        }
+
+        public async Task<string> GenerateGraphTextAsync()
+        {
+            if (IsBusy) return "";
+            IsBusy = true;
+            try
+            {
+                // 最新データを取得して計算
+                var allPairs = await _orderRepo.GetAllPairsAsync();
+                var sortedLayers = _sorter.Sort(allPairs);
+
+                // テキスト生成
+                var text = _graphViz.GenerateMermaid(allPairs, sortedLayers);
+
+                StatusText = "📋 グラフ定義をクリップボードにコピーしました (Notion等に貼り付け可能)";
+                return text;
+            }
+            catch (Exception ex)
+            {
+                StatusText = $"❌ グラフ生成エラー: {ex.Message}";
+                return "";
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }
