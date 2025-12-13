@@ -105,6 +105,7 @@ public partial class App : Application
         collection.AddTransient<MainWindowViewModel>();
         collection.AddTransient<OrderEstimationViewModel>();
         collection.AddTransient<AliasSettingsViewModel>();
+        collection.AddTransient<SettingsViewModel>();
 
         // 3. プロバイダのビルド
         Services = collection.BuildServiceProvider();

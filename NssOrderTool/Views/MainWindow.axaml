@@ -16,8 +16,12 @@
 			<views:OrderEstimationView />
 		</TabItem>
 
-		<TabItem Header="設定" FontSize="16">
+		<TabItem Header="エイリアス" FontSize="16">
 			<views:AliasSettingsView />
+		</TabItem>
+
+		<TabItem Header="設定" FontSize="16">
+			<views:SettingsView />
 		</TabItem>
 	</TabControl>
 </Window>
