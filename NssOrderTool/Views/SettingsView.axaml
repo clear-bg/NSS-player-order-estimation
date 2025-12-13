@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NssOrderTool.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             x:Class="NssOrderTool.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+	<Grid Margin="20" IsEnabled="{Binding !IsBusy}">
+		<StackPanel Spacing="20" MaxWidth="500" HorizontalAlignment="Left">
+
+			<StackPanel Spacing="5">
+				<TextBlock Text="⚙️ アプリケーション設定" FontSize="20" FontWeight="Bold"/>
+				<TextBlock Text="変更を反映するには保存後にアプリを再起動してください。" FontSize="12" Foreground="Gray"/>
+			</StackPanel>
+
+			<ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Height="2"/>
+
+			<Border BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="5" Padding="15">
+				<StackPanel Spacing="15">
+					<TextBlock Text="基本設定" FontWeight="Bold"/>
+
+					<Grid ColumnDefinitions="120, *">
+						<TextBlock Grid.Column="0" Text="環境 (Environment)" VerticalAlignment="Center"/>
+						<ComboBox Grid.Column="1" SelectedIndex="0" SelectedValue="{Binding Environment}" HorizontalAlignment="Stretch">
+							<ComboBoxItem Content="TEST"/>
+							<ComboBoxItem Content="PROD"/>
+						</ComboBox>
+					</Grid>
+				</StackPanel>
+			</Border>
+
+			<Border BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="5" Padding="15">
+				<StackPanel Spacing="15">
+					<CheckBox Content="AWS SSM (Session Manager) を使用する" IsChecked="{Binding UseSsm}" FontWeight="Bold"/>
+
+					<StackPanel Spacing="10" IsEnabled="{Binding UseSsm}">
+						<Grid ColumnDefinitions="120, *">
+							<TextBlock Grid.Column="0" Text="Instance ID" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Text="{Binding InstanceId}" Watermark="i-xxxxxxxxxxxxxxxxx"/>
+						</Grid>
+
+						<Grid ColumnDefinitions="120, *">
+							<TextBlock Grid.Column="0" Text="Remote Host" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Text="{Binding RemoteHost}" Watermark="RDS Endpoint"/>
+						</Grid>
+
+						<Grid ColumnDefinitions="120, *, 20, 120, *">
+							<TextBlock Grid.Column="0" Text="Remote Port" VerticalAlignment="Center"/>
+							<NumericUpDown Grid.Column="1" Value="{Binding RemotePort}" FormatString="0"/>
+
+							<TextBlock Grid.Column="3" Text="Local Port" VerticalAlignment="Center"/>
+							<NumericUpDown Grid.Column="4" Value="{Binding LocalPort}" FormatString="0"/>
+						</Grid>
+					</StackPanel>
+				</StackPanel>
+			</Border>
+
+			<StackPanel Spacing="10">
+				<TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{Binding StatusBrush}"
+                           TextWrapping="Wrap" FontWeight="Bold"/>
+				<Grid ColumnDefinitions="*, 10, *">
+					<Button Grid.Column="0" Content="🔄 接続テスト" Command="{Binding TestConnectionCommand}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+
+					<Button Grid.Column="2" Content="💾 設定を保存" Command="{Binding SaveSettingsCommand}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Background="#007ACC" Foreground="White" FontWeight="Bold"/>
+				</Grid>
+			</StackPanel>
+
+		</StackPanel>
+	</Grid>
+</UserControl>
