@@ -21,7 +21,7 @@
 				<StackPanel Spacing="15">
 					<TextBlock Text="基本設定" FontWeight="Bold"/>
 
-					<Grid ColumnDefinitions="120, *">
+					<Grid ColumnDefinitions="180, *">
 						<TextBlock Grid.Column="0" Text="環境 (Environment)" VerticalAlignment="Center"/>
 						<ComboBox Grid.Column="1" SelectedIndex="0" SelectedValue="{Binding Environment}" HorizontalAlignment="Stretch">
 							<ComboBoxItem Content="TEST"/>
@@ -36,17 +36,17 @@
 					<CheckBox Content="AWS SSM (Session Manager) を使用する" IsChecked="{Binding UseSsm}" FontWeight="Bold"/>
 
 					<StackPanel Spacing="10" IsEnabled="{Binding UseSsm}">
-						<Grid ColumnDefinitions="120, *">
+						<Grid ColumnDefinitions="180, *">
 							<TextBlock Grid.Column="0" Text="Instance ID" VerticalAlignment="Center"/>
 							<TextBox Grid.Column="1" Text="{Binding InstanceId}" Watermark="i-xxxxxxxxxxxxxxxxx"/>
 						</Grid>
 
-						<Grid ColumnDefinitions="120, *">
+						<Grid ColumnDefinitions="180, *">
 							<TextBlock Grid.Column="0" Text="Remote Host" VerticalAlignment="Center"/>
 							<TextBox Grid.Column="1" Text="{Binding RemoteHost}" Watermark="RDS Endpoint"/>
 						</Grid>
 
-						<Grid ColumnDefinitions="120, *, 20, 120, *">
+						<Grid ColumnDefinitions="180, *, 20, 180, *">
 							<TextBlock Grid.Column="0" Text="Remote Port" VerticalAlignment="Center"/>
 							<NumericUpDown Grid.Column="1" Value="{Binding RemotePort}" FormatString="0"/>
 
