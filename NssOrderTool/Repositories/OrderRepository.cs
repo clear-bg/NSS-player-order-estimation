@@ -99,7 +99,7 @@ namespace NssOrderTool.Repositories
             return _config.AppSettings?.Environment ?? "UNKNOWN";
         }
 
-        public void ResetTracking()
+        public virtual void ResetTracking()
         {
             _context.ChangeTracker.Clear();
         }

@@ -152,6 +152,8 @@ namespace NssOrderTool.ViewModels
                     }
                 }
 
+                await _orderRepo.AddObservationAsync(normalizedInput);
+
                 // 4. プレイヤー登録 & 関係更新
                 var playerNames = newPairs.Select(p => p.Predecessor)
                                        .Concat(newPairs.Select(p => p.Successor))

@@ -62,7 +62,7 @@ namespace NssOrderTool.Repositories
             await _context.Players.ExecuteDeleteAsync();
         }
 
-        public void ResetTracking()
+        public virtual void ResetTracking()
         {
             _context.ChangeTracker.Clear();
         }
