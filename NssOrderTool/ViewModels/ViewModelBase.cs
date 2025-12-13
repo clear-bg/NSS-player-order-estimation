@@ -2,7 +2,9 @@
 
 namespace NssOrderTool.ViewModels
 {
-    public class ViewModelBase : ObservableObject
+    public partial class ViewModelBase : ObservableObject
     {
+        [ObservableProperty]
+        private bool _isBusy;
     }
 }

@@ -111,7 +111,9 @@ namespace NssOrderTool.ViewModels
         private async Task Register()
         {
             if (string.IsNullOrWhiteSpace(InputText)) return;
+            if (IsBusy) return;
 
+            IsBusy = true;
             try
             {
                 // 1. エイリアス辞書を非同期で取得して正規化
@@ -183,9 +185,11 @@ namespace NssOrderTool.ViewModels
             catch (Exception ex)
             {
                 StatusText = $"❌ エラー: {ex.Message}";
-
-                // エラーログ出力
                 _logger.LogError(ex, "登録処理中にエラーが発生しました。入力値: {InputText}", InputText);
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 
@@ -214,19 +218,16 @@ namespace NssOrderTool.ViewModels
         [RelayCommand]
         private async Task DeleteHistory(HistoryItem item)
         {
-            if (item == null) return;
+            if (item == null || IsBusy) return;
 
+            IsBusy = true;
             try
             {
-                // 1. この履歴によって増えたはずのペアを再計算 (マイナスするため)
                 var pairsToDecrement = _extractor.ExtractFromInput(item.Content);
-
-                // 2. リポジトリで「減算＆削除」を実行
                 await _orderRepo.UndoObservationAsync(item.Id, pairsToDecrement);
 
                 StatusText = $"✅ 履歴を取り消しました: {item.Content}";
 
-                // 3. 画面更新
                 await LoadOrderAsync();
                 await LoadHistoryAsync();
             }
@@ -235,17 +236,33 @@ namespace NssOrderTool.ViewModels
                 StatusText = $"❌ 取り消しエラー: {ex.Message}";
                 _logger.LogError(ex, "履歴削除に失敗しました");
             }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]
         private async Task Reload()
         {
-            await LoadOrderAsync();
+            if (IsBusy) return;
+            IsBusy = true;
+            try
+            {
+                await LoadOrderAsync();
+                await LoadHistoryAsync();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         // Viewのコードビハインドから呼ばれるメソッド (全削除)
         public async Task PerformClearAsync()
         {
+            if (IsBusy) return;
+            IsBusy = true;
             try
             {
                 await _orderRepo.ClearAllDataAsync();
@@ -258,10 +275,15 @@ namespace NssOrderTool.ViewModels
 
                 StatusText = "🗑️ データを全削除しました";
                 await LoadOrderAsync();
+                await LoadHistoryAsync();
             }
             catch (Exception ex)
             {
                 StatusText = $"❌ 削除エラー: {ex.Message}";
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 

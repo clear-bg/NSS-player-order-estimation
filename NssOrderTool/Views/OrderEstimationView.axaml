@@ -7,15 +7,17 @@
              x:Class="NssOrderTool.Views.OrderEstimationView"
              x:DataType="vm:OrderEstimationViewModel">
 
-	<Grid Margin="10" ColumnDefinitions="*, 20, *">
+	<Grid Margin="10" ColumnDefinitions="*, 20, *" IsEnabled="{Binding !IsBusy}">
 
 		<StackPanel Grid.Column="0" Spacing="10">
-			<StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-				<TextBlock Text="✏️ 入力" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-				<Border CornerRadius="4" Padding="8,2" Background="{Binding EnvBadgeColor}">
-					<TextBlock Text="{Binding EnvText}" Foreground="White" FontWeight="Bold" FontSize="12"/>
-				</Border>
-			</StackPanel>
+			<ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}"
+                         HorizontalAlignment="Stretch" Height="4" Margin="0,0,0,5"/>
+				<StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+					<TextBlock Text="✏️ 入力" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+					<Border CornerRadius="4" Padding="8,2" Background="{Binding EnvBadgeColor}">
+						<TextBlock Text="{Binding EnvText}" Foreground="White" FontWeight="Bold" FontSize="12"/>
+					</Border>
+				</StackPanel>
 
 			<TextBlock Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" FontSize="12" Foreground="Gray"/>
 
