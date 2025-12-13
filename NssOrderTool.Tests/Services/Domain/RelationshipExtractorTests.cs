@@ -90,5 +90,55 @@ namespace NssOrderTool.Tests.Services.Domain
             // Assert
             pairs.Should().BeEmpty(); // 1人だけならペアは生まれない
         }
+
+        [Fact]
+        public void ExtractFromInput_ShouldIgnoreEmptyEntries()
+        {
+            // Arrange
+            // "A, , B" のように、間に空要素があるケース
+            var input = "A, , B";
+
+            // Act
+            var pairs = _extractor.ExtractFromInput(input);
+
+            // Assert
+            // 空要素は無視され、AとBのペアのみが生成されるべき
+            pairs.Should().HaveCount(1);
+            pairs[0].Predecessor.Should().Be("A");
+            pairs[0].Successor.Should().Be("B");
+        }
+
+        [Fact]
+        public void ExtractFromInput_ShouldReturnEmpty_WhenInputIsOnlyCommas()
+        {
+            // Arrange
+            // カンマだけの入力
+            var input = ", , ";
+
+            // Act
+            var pairs = _extractor.ExtractFromInput(input);
+
+            // Assert
+            // ペアは生成されないべき
+            pairs.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ExtractFromInput_ShouldHandleDuplicateNames_AsIs()
+        {
+            // Arrange
+            // "A, A" のような重複入力
+            // ※現状の仕様では、そのまま (A, A) というペアが生成される挙動を確認する
+            // (将来的に重複排除を入れる場合の基準となるテスト)
+            var input = "A, A";
+
+            // Act
+            var pairs = _extractor.ExtractFromInput(input);
+
+            // Assert
+            pairs.Should().HaveCount(1);
+            pairs[0].Predecessor.Should().Be("A");
+            pairs[0].Successor.Should().Be("A");
+        }
     }
 }
