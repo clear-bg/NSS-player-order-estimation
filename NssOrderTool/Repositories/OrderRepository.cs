@@ -38,44 +38,51 @@ namespace NssOrderTool.Repositories
         {
             if (pairs == null || !pairs.Any()) return;
 
-            // --- Upsertロジック (EF Core版) ---
-            // SQLの ON DUPLICATE KEY UPDATE を使わず、
-            // 「読み込んでチェックして、あれば更新/なければ追加」を行います。
+            // 1. 入力リスト内で同じペアを集約する。
+            var inputCounts = pairs
+                .GroupBy(p => new { p.Predecessor, p.Successor })
+                .Select(g => new
+                {
+                    g.Key.Predecessor,
+                    g.Key.Successor,
+                    Count = g.Count()
+                })
+                .ToList();
 
-            // 1. 検索効率化のため、対象のIDリストを作成
-            var preds = pairs.Select(p => p.Predecessor).Distinct().ToList();
-            var succs = pairs.Select(p => p.Successor).Distinct().ToList();
+            // 2. 検索効率化のため、対象のIDリストを作成
+            var preds = inputCounts.Select(x => x.Predecessor).Distinct().ToList();
+            var succs = inputCounts.Select(x => x.Successor).Distinct().ToList();
 
-            // 2. 該当しそうな既存データをまとめて取得
+            // 3. 該当しそうな既存データをまとめて取得
             var existingEntities = await _context.SequencePairs
                 .Where(p => preds.Contains(p.PredecessorId) && succs.Contains(p.SuccessorId))
                 .ToListAsync();
 
-            // 3. メモリ上で照合して処理
-            foreach (var pair in pairs)
+            // 4. メモリ上で照合して処理
+            foreach (var item in inputCounts)
             {
                 var entity = existingEntities.FirstOrDefault(e =>
-                    e.PredecessorId == pair.Predecessor &&
-                    e.SuccessorId == pair.Successor);
+                    e.PredecessorId == item.Predecessor &&
+                    e.SuccessorId == item.Successor);
 
                 if (entity != null)
                 {
-                    // 既存ならカウントアップ
-                    entity.Frequency++;
+                    // 既存ならカウントアップ（集計した分を足す）
+                    entity.Frequency += item.Count;
                 }
                 else
                 {
-                    // 新規なら追加
+                    // 新規なら追加（Frequencyは入力された回数分）
                     _context.SequencePairs.Add(new SequencePairEntity
                     {
-                        PredecessorId = pair.Predecessor,
-                        SuccessorId = pair.Successor,
-                        Frequency = 1
+                        PredecessorId = item.Predecessor,
+                        SuccessorId = item.Successor,
+                        Frequency = item.Count
                     });
                 }
             }
 
-            // 4. 一括保存
+            // 5. 一括保存
             await _context.SaveChangesAsync();
         }
 
@@ -145,6 +152,128 @@ namespace NssOrderTool.Repositories
                 if (obs != null)
                 {
                     _context.Observations.Remove(obs);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public virtual async Task MergePlayerIdsAsync(string oldName, string newName)
+        {
+            // 大文字小文字の違いだけであれば統合不要（同一IDとみなされるため）
+            // ただし、DB照合順序によっては区別される場合もあるので、念のためIDが完全に一致しない場合のみ実行
+            if (string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase)) return;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // --- 1. SequencePairs (順序データ) の統合 ---
+
+                // A. oldName が Predecessor (勝ち側) の場合
+                var predOldPairs = await _context.SequencePairs
+                    .Where(p => p.PredecessorId == oldName)
+                    .ToListAsync();
+
+                foreach (var oldPair in predOldPairs)
+                {
+                    // 移行先 (newName -> sameSuccessor) があるか確認
+                    var targetPair = await _context.SequencePairs
+                        .FirstOrDefaultAsync(p => p.PredecessorId == newName && p.SuccessorId == oldPair.SuccessorId);
+
+                    if (targetPair != null)
+                    {
+                        // 既に存在する場合はカウントを加算して、古い方を削除
+                        targetPair.Frequency += oldPair.Frequency;
+                        _context.SequencePairs.Remove(oldPair);
+                    }
+                    else
+                    {
+                        // 存在しない場合は、新しいキーで作り直して追加し、古い方を削除
+                        _context.SequencePairs.Add(new SequencePairEntity
+                        {
+                            PredecessorId = newName,
+                            SuccessorId = oldPair.SuccessorId,
+                            Frequency = oldPair.Frequency
+                        });
+                        _context.SequencePairs.Remove(oldPair);
+                    }
+                }
+
+                // B. oldName が Successor (負け側) の場合
+                var succOldPairs = await _context.SequencePairs
+                    .Where(p => p.SuccessorId == oldName)
+                    .ToListAsync();
+
+                foreach (var oldPair in succOldPairs)
+                {
+                    var targetPair = await _context.SequencePairs
+                        .FirstOrDefaultAsync(p => p.PredecessorId == oldPair.PredecessorId && p.SuccessorId == newName);
+
+                    if (targetPair != null)
+                    {
+                        targetPair.Frequency += oldPair.Frequency;
+                        _context.SequencePairs.Remove(oldPair);
+                    }
+                    else
+                    {
+                        _context.SequencePairs.Add(new SequencePairEntity
+                        {
+                            PredecessorId = oldPair.PredecessorId,
+                            SuccessorId = newName,
+                            Frequency = oldPair.Frequency
+                        });
+                        _context.SequencePairs.Remove(oldPair);
+                    }
+                }
+
+                // --- 2. Players (プレイヤーマスタ) の統合 ---
+                var oldPlayer = await _context.Players.FindAsync(oldName);
+                var newPlayer = await _context.Players.FindAsync(newName);
+
+                if (oldPlayer != null)
+                {
+                    if (newPlayer != null)
+                    {
+                        // 両方いる場合: 古い方のFirstSeenが古ければ採用し、古いレコードは消す
+                        if (oldPlayer.FirstSeen < newPlayer.FirstSeen)
+                        {
+                            newPlayer.FirstSeen = oldPlayer.FirstSeen;
+                        }
+                        _context.Players.Remove(oldPlayer);
+                    }
+                    else
+                    {
+                        // 新しい方がまだいない場合: IDを書き換えた新しいレコードを作成
+                        _context.Players.Add(new PlayerEntity
+                        {
+                            Id = newName,
+                            Name = newName,
+                            FirstSeen = oldPlayer.FirstSeen
+                        });
+                        _context.Players.Remove(oldPlayer);
+                    }
+                }
+
+                // --- 3. Observations (履歴ログ) の置換 ---
+                // ログ内の文字列も置換する
+                var observations = await _context.Observations
+                    .Where(o => o.OrderedList.Contains(oldName))
+                    .ToListAsync();
+
+                foreach (var obs in observations)
+                {
+                    // カンマ区切りで分解して正確に置換
+                    var names = obs.OrderedList.Split(',')
+                        .Select(n => n.Trim())
+                        .Select(n => n.Equals(oldName, StringComparison.OrdinalIgnoreCase) ? newName : n);
+
+                    obs.OrderedList = string.Join(", ", names);
                 }
 
                 await _context.SaveChangesAsync();

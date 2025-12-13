@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NssOrderTool.Database;
+using NssOrderTool.Models;
 using NssOrderTool.Repositories;
 using NssOrderTool.ViewModels;
 using Xunit;
@@ -12,6 +13,7 @@ namespace NssOrderTool.Tests.ViewModels
     public class AliasSettingsViewModelTests
     {
         private readonly Mock<AliasRepository> _mockRepo;
+        private readonly Mock<OrderRepository> _mockOrderRepo;
         private readonly AliasSettingsViewModel _viewModel;
 
         public AliasSettingsViewModelTests()
@@ -22,8 +24,10 @@ namespace NssOrderTool.Tests.ViewModels
             _mockRepo.Setup(r => r.GetAliasDictionaryAsync())
                      .ReturnsAsync(new Dictionary<string, string>());
 
+            _mockOrderRepo = new Mock<OrderRepository>((AppDbContext)null!, (AppConfig)null!);
+
             // ViewModelの初期化
-            _viewModel = new AliasSettingsViewModel(_mockRepo.Object); 
+            _viewModel = new AliasSettingsViewModel(_mockRepo.Object, _mockOrderRepo.Object);
         }
 
         [Fact]
@@ -60,6 +64,24 @@ namespace NssOrderTool.Tests.ViewModels
 
             // 成功メッセージが出ているか確認
             _viewModel.StatusText.Should().Contain("追加しました");
+        }
+
+        [Fact]
+        public async Task AddAliasCommand_ShouldCallMergePlayerIds()
+        {
+            // Arrange
+            _viewModel.TargetInput = "Takahiro";
+            _viewModel.AliasInput = "Taka";
+
+            // Act
+            await _viewModel.AddAliasCommand.ExecuteAsync(null);
+
+            // Assert
+            // AliasRepositoryへの追加呼び出し確認
+            _mockRepo.Verify(r => r.AddAliasAsync("Taka", "Takahiro"), Times.Once);
+
+            // 【重要】OrderRepositoryのMergePlayerIdsAsyncが呼ばれたか確認
+            _mockOrderRepo.Verify(r => r.MergePlayerIdsAsync("Taka", "Takahiro"), Times.Once);
         }
     }
 }

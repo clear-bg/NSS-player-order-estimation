@@ -13,6 +13,7 @@ namespace NssOrderTool.ViewModels
     public partial class AliasSettingsViewModel : ViewModelBase
     {
         private readonly AliasRepository _aliasRepo;
+        private readonly OrderRepository _orderRepo;
 
         // --- Bindings ---
 
@@ -28,9 +29,10 @@ namespace NssOrderTool.ViewModels
         // 一覧データ
         public ObservableCollection<AliasGroupItem> AliasList { get; } = new();
 
-        public AliasSettingsViewModel(AliasRepository aliasRepo)
+        public AliasSettingsViewModel(AliasRepository aliasRepo, OrderRepository orderRepo)
         {
             _aliasRepo = aliasRepo;
+            _orderRepo = orderRepo;
             _ = LoadAliases();
         }
 
@@ -38,6 +40,7 @@ namespace NssOrderTool.ViewModels
         public AliasSettingsViewModel()
         {
             _aliasRepo = null!;
+            _orderRepo = null!;
         }
 
         // --- Commands ---
@@ -103,6 +106,7 @@ namespace NssOrderTool.ViewModels
                     try
                     {
                         await _aliasRepo.AddAliasAsync(alias, TargetInput);
+                        await _orderRepo.MergePlayerIdsAsync(alias, TargetInput);
                         successCount++;
                     }
                     catch
