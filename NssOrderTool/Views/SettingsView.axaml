@@ -23,7 +23,7 @@
 
 					<Grid ColumnDefinitions="180, *">
 						<TextBlock Grid.Column="0" Text="環境 (Environment)" VerticalAlignment="Center"/>
-						<ComboBox Grid.Column="1" SelectedIndex="0" SelectedValue="{Binding Environment}" HorizontalAlignment="Stretch">
+						<ComboBox Grid.Column="1" ItemsSource="{Binding EnvironmentList}"  SelectedValue="{Binding Environment}" HorizontalAlignment="Stretch">
 							<ComboBoxItem Content="TEST"/>
 							<ComboBoxItem Content="PROD"/>
 						</ComboBox>
