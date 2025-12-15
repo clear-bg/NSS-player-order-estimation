@@ -16,6 +16,10 @@
 			<views:OrderEstimationView />
 		</TabItem>
 
+		<TabItem Header="シミュレーター" FontSize="16">
+			<views:SimulationView />
+		</TabItem>
+
 		<TabItem Header="エイリアス" FontSize="16">
 			<views:AliasSettingsView />
 		</TabItem>
