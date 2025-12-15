@@ -193,11 +193,46 @@ namespace NssOrderTool.ViewModels
                     SimulationResults.Add(item);
                 }
 
+                AssignTiedGroupColors();
+
                 StatusText = "✅ シミュレーション完了";
             }
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        private void AssignTiedGroupColors()
+        {
+            // 同率(IsTied=true)のアイテムを、ランクごとにグループ化
+            var tiedGroups = SimulationResults
+                .Where(r => r.IsTied)
+                .GroupBy(r => r.Rank)
+                .OrderBy(g => g.Key) // ランク上位(数字が小さい順)
+                .ToList();
+
+            // 指定のカラーパレット (スカイブルー, 黄緑, 青)
+            var colors = new[]
+            {
+                SolidColorBrush.Parse("#00BFFF"), // 1組目: DeepSkyBlue (視認性のため少し濃いめ)
+                SolidColorBrush.Parse("#9ACD32"), // 2組目: YellowGreen
+                SolidColorBrush.Parse("#0000FF")  // 3組目: Blue
+            };
+
+            int groupIndex = 0;
+            foreach (var group in tiedGroups)
+            {
+                // 4組目以降は黒(デフォルト)のまま
+                if (groupIndex < colors.Length)
+                {
+                    var color = colors[groupIndex];
+                    foreach (var item in group)
+                    {
+                        item.RankColor = color;
+                    }
+                    groupIndex++;
+                }
             }
         }
 
@@ -224,10 +259,8 @@ namespace NssOrderTool.ViewModels
 
     public partial class SimulationResultItem : ObservableObject
     {
-        // 2. 自動プロパティをやめ、フィールドに属性をつける形に変更
-
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(RankText))] // Rankが変わったらRankTextも更新
+        [NotifyPropertyChangedFor(nameof(RankText))]
         private int _rank;
 
         [ObservableProperty]
@@ -240,14 +273,17 @@ namespace NssOrderTool.ViewModels
         private bool _isHost;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(RankColor))]  // IsTiedが変わったらRankColorも更新
-        [NotifyPropertyChangedFor(nameof(RankWeight))] // IsTiedが変わったらRankWeightも更新
+        [NotifyPropertyChangedFor(nameof(RankWeight))]
         private bool _isTied;
 
-        // View側で使いやすいプロパティ (これらは計算プロパティなのでそのままでOK)
+        // RankColorを計算ではなく、直接セット可能なプロパティに変更
+        [ObservableProperty]
+        private IBrush _rankColor = Brushes.Black;
+
         public string RankText => $"{Rank}.";
 
-        public IBrush RankColor => IsTied ? SolidColorBrush.Parse("#D50000") : Brushes.Black;
+        // 色指定ロジックは削除し、プロパティ (_rankColor) を直接使う
+
         public FontWeight RankWeight => IsTied ? FontWeight.Bold : FontWeight.Normal;
     }
 
