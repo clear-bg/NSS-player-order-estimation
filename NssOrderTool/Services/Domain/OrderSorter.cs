@@ -21,7 +21,7 @@ namespace NssOrderTool.Services.Domain
         /// <summary>
         /// 強連結成分分解(SCC)を用いて、サイクルを含むグラフの順序を推定する
         /// </summary>
-        public List<List<string>> Sort(List<OrderPair> pairs)
+        public virtual List<List<string>> Sort(List<OrderPair> pairs)
         {
             // 1. ノードと隣接リストの構築
             var adj = new Dictionary<string, List<string>>();
@@ -121,7 +121,7 @@ namespace NssOrderTool.Services.Domain
         /// <summary>
         /// グラフ内の閉路（矛盾）を1つ検出し、そのパス（例: A -> B -> C -> A）を返す。
         /// </summary>
-        public List<string>? FindCyclePath(IEnumerable<OrderPair> pairs)
+        public virtual List<string>? FindCyclePath(IEnumerable<OrderPair> pairs)
         {
             var adj = new Dictionary<string, List<string>>();
             foreach (var p in pairs)
@@ -149,7 +149,7 @@ namespace NssOrderTool.Services.Domain
         }
 
         // 指定した始点から終点への経路が存在するか探索し、経路リストを返す。
-        public List<string>? FindPath(IEnumerable<OrderPair> pairs, string start, string end)
+        public virtual List<string>? FindPath(IEnumerable<OrderPair> pairs, string start, string end)
         {
             // 隣接リスト構築
             var adj = new Dictionary<string, List<string>>();
