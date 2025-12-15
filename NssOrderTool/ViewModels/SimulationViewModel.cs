@@ -193,9 +193,14 @@ namespace NssOrderTool.ViewModels
                     SimulationResults.Add(item);
                 }
 
+                // 5. 同率グループの色分け処理
                 AssignTiedGroupColors();
 
                 StatusText = "✅ シミュレーション完了";
+            }
+            catch (System.Exception ex)
+            {
+                StatusText = $"❌ エラー: {ex.Message}";
             }
             finally
             {
