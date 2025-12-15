@@ -40,7 +40,19 @@
 			<ListBox ItemsSource="{Binding SimulationResults}" Height="400" Background="#F0F0F0">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding}" Padding="5" Foreground="Black"/>
+						<StackPanel Orientation="Horizontal" Spacing="5">
+
+							<TextBlock Text="{Binding RankText}"
+                                       Foreground="{Binding RankColor}"
+                                       FontWeight="{Binding RankWeight}"
+                                       Width="30" TextAlignment="Right"/>
+
+							<TextBlock Text="{Binding PlayerName}"
+                                       Foreground="Black" FontWeight="Bold"/>
+
+							<TextBlock Text="{Binding Suffix}"
+                                       Foreground="Gray" FontSize="11" VerticalAlignment="Center"/>
+						</StackPanel>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>

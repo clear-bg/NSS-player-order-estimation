@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NssOrderTool.Repositories;
@@ -22,7 +23,7 @@ namespace NssOrderTool.ViewModels
         public ObservableCollection<SimulationInputItem> Inputs { get; } = new();
 
         // 計算結果の表示リスト
-        public ObservableCollection<string> SimulationResults { get; } = new();
+        public ObservableCollection<SimulationResultItem> SimulationResults { get; } = new();
 
         [ObservableProperty]
         private string _statusText = "";
@@ -141,27 +142,55 @@ namespace NssOrderTool.ViewModels
                 .ToList();
 
                 // 4. 結果表示
-                int displayRank = 1;
-                foreach (var p in sortedParticipants)
+                for (int i = 0; i < sortedParticipants.Count; i++)
                 {
-                    string suffix = "";
+                    var p = sortedParticipants[i];
+                    var item = new SimulationResultItem { PlayerName = p.InputName };
 
+                    // 順位決定ロジック
+                    if (i == 0)
+                    {
+                        // 1人目は必ず1位
+                        item.Rank = 1;
+                    }
+                    else
+                    {
+                        var prevP = sortedParticipants[i - 1];
+
+                        // 直前の人とランク値が同じなら「同順位」とする
+                        // ※ただし、直前の人がホスト(OriginalIndex==0)の場合は、ホストは特例なので同順位にしない
+                        if (prevP.OriginalIndex != 0 && p.GlobalRank == prevP.GlobalRank)
+                        {
+                            // 同率処理: ランクは前の人と同じ
+                            item.Rank = SimulationResults[i - 1].Rank;
+                            item.IsTied = true;
+
+                            // 前の人も「同率」フラグを立てる
+                            SimulationResults[i - 1].IsTied = true;
+                        }
+                        else
+                        {
+                            // 通常処理: 現在のインデックス + 1 (1, 2, 2, 4... の形式)
+                            item.Rank = i + 1;
+                        }
+                    }
+
+                    // 付加情報の構築
                     if (p.OriginalIndex == 0)
                     {
-                        suffix = " (👑 固定)";
+                        item.IsHost = true;
+                        item.Suffix = " (👑 固定)";
                     }
                     else if (p.GlobalRank == int.MaxValue)
                     {
-                        suffix = " (❓ データなし)";
+                        item.Suffix = " (❓ データなし)";
                     }
-                    // エイリアス変換があった場合のみ表示
                     else if (p.InputName != p.NormalizedName)
                     {
-                        suffix = $" (← {p.NormalizedName})";
+                        item.Suffix = $" (← {p.NormalizedName})";
                     }
 
-                    SimulationResults.Add($"{displayRank}. {p.InputName}{suffix}");
-                    displayRank++;
+                    SimulationResults.Add(item);
                 }
 
                 StatusText = "✅ シミュレーション完了";
@@ -191,6 +220,35 @@ namespace NssOrderTool.ViewModels
             public string NormalizedName { get; set; } = "";
             public int GlobalRank { get; set; }
         }
+    }
+
+    public partial class SimulationResultItem : ObservableObject
+    {
+        // 2. 自動プロパティをやめ、フィールドに属性をつける形に変更
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RankText))] // Rankが変わったらRankTextも更新
+        private int _rank;
+
+        [ObservableProperty]
+        private string _playerName = "";
+
+        [ObservableProperty]
+        private string _suffix = "";
+
+        [ObservableProperty]
+        private bool _isHost;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(RankColor))]  // IsTiedが変わったらRankColorも更新
+        [NotifyPropertyChangedFor(nameof(RankWeight))] // IsTiedが変わったらRankWeightも更新
+        private bool _isTied;
+
+        // View側で使いやすいプロパティ (これらは計算プロパティなのでそのままでOK)
+        public string RankText => $"{Rank}.";
+
+        public IBrush RankColor => IsTied ? SolidColorBrush.Parse("#D50000") : Brushes.Black;
+        public FontWeight RankWeight => IsTied ? FontWeight.Bold : FontWeight.Normal;
     }
 
     // 入力欄1行分のデータクラス
