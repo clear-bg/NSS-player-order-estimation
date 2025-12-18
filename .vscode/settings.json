@@ -1,3 +1,13 @@
 {
-  "editor.formatOnSave": false
+  // 保存時に自動でフォーマット（整形）する
+  "editor.formatOnSave": true,
+
+  // インデントをスペース2つにする
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  // (オプション) C#固有のフォーマット設定も整える場合
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  }
 }
