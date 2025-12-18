@@ -13,6 +13,7 @@ namespace NssOrderTool.Database
 
     public virtual async Task EnsureTablesExistAsync()
     {
+      // シンプルな形に戻す
       await _dbContext.Database.EnsureCreatedAsync();
     }
   }

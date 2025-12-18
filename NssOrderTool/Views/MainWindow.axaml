@@ -20,8 +20,12 @@
       <views:OrderEstimationView />
     </TabItem>
 
-    <TabItem FontSize="16" Header="シミュレーター">
+    <TabItem FontSize="16" Header="順序推定">
       <views:SimulationView />
+    </TabItem>
+
+    <TabItem FontSize="16" Header="アリーナ集計">
+      <views:ArenaView />
     </TabItem>
 
     <TabItem FontSize="16" Header="エイリアス">

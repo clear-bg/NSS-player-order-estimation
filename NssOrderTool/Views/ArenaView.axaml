@@ -1,0 +1,109 @@
+<UserControl
+  x:Class="NssOrderTool.Views.ArenaView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  d:DesignHeight="450"
+  d:DesignWidth="800"
+  x:DataType="vm:ArenaViewModel"
+  mc:Ignorable="d">
+
+  <Grid RowDefinitions="Auto, Auto, *">
+
+    <StackPanel
+      Grid.Row="0"
+      Margin="10"
+      Spacing="5">
+      <TextBlock
+        FontSize="18"
+        FontWeight="Bold"
+        Text="🏟️ アリーナ集計 (Arena Analytics)" />
+      <TextBlock Foreground="Gray" Text="各ラウンドの勝利チームをクリックして選択してください。" />
+    </StackPanel>
+
+    <Border
+      Grid.Row="1"
+      Margin="10,0"
+      BorderBrush="#D0D0D0"
+      BorderThickness="1">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding RoundInputs}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="0" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button
+                Width="60"
+                Height="80"
+                Padding="0"
+                Background="{Binding CellColor}"
+                Command="{Binding ToggleWinnerCommand}"
+                CornerRadius="0">
+                <Grid RowDefinitions="Auto, *">
+                  <Border
+                    Grid.Row="0"
+                    Padding="2"
+                    Background="#E0E0E0">
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="10"
+                      FontWeight="Bold"
+                      Foreground="#333333"
+                      Text="{Binding RoundNumber}" />
+                  </Border>
+
+                  <TextBlock
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    FontWeight="Bold"
+                    Foreground="{Binding ForeColor}"
+                    Text="{Binding DisplayText}" />
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+
+    <StackPanel
+      Grid.Row="2"
+      Margin="10,20"
+      Orientation="Horizontal"
+      Spacing="15">
+
+      <Button
+        Padding="20,10"
+        Background="#007ACC"
+        Command="{Binding SaveSessionCommand}"
+        Content="結果を保存する"
+        FontWeight="Bold"
+        Foreground="White" />
+
+      <TextBlock
+        VerticalAlignment="Center"
+        FontSize="14"
+        FontWeight="Bold"
+        Foreground="Green"
+        Text="{Binding StatusText}" />
+    </StackPanel>
+
+    <Grid
+      Grid.RowSpan="3"
+      Background="#80FFFFFF"
+      IsVisible="{Binding IsBusy}">
+      <ProgressBar
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        IsIndeterminate="True" />
+    </Grid>
+  </Grid>
+</UserControl>
