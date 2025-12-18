@@ -96,6 +96,7 @@ public partial class App : Application
     collection.AddTransient<RelationshipExtractor>();
     collection.AddTransient<OrderSorter>();
     collection.AddTransient<GraphVizService>();
+    collection.AddTransient<ArenaLogicService>();
 
     // Repositories
     collection.AddTransient<OrderRepository>();
