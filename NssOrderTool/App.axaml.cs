@@ -101,6 +101,7 @@ public partial class App : Application
     collection.AddTransient<OrderRepository>();
     collection.AddTransient<PlayerRepository>();
     collection.AddTransient<AliasRepository>();
+    collection.AddTransient<ArenaRepository>();
 
     // ViewModels
     collection.AddTransient<MainWindowViewModel>();
