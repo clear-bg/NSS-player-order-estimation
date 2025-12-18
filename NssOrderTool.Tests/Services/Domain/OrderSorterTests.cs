@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -8,115 +8,115 @@ using Xunit;
 
 namespace NssOrderTool.Tests.Services.Domain
 {
-    public class OrderSorterTests
+  public class OrderSorterTests
+  {
+    private readonly OrderSorter _sorter;
+    private readonly Mock<ILogger<OrderSorter>> _mockLogger;
+
+    public OrderSorterTests()
     {
-        private readonly OrderSorter _sorter;
-        private readonly Mock<ILogger<OrderSorter>> _mockLogger;
+      _mockLogger = new Mock<ILogger<OrderSorter>>();
+      _sorter = new OrderSorter(_mockLogger.Object);
+    }
 
-        public OrderSorterTests()
-        {
-            _mockLogger = new Mock<ILogger<OrderSorter>>();
-            _sorter = new OrderSorter(_mockLogger.Object);
-        }
-
-        [Fact]
-        public void Sort_ShouldReturnCorrectOrder_ForLinearGraph()
-        {
-            // Arrange
-            // A -> B -> C の順序関係
-            var pairs = new List<OrderPair>
+    [Fact]
+    public void Sort_ShouldReturnCorrectOrder_ForLinearGraph()
+    {
+      // Arrange
+      // A -> B -> C の順序関係
+      var pairs = new List<OrderPair>
             {
                 new OrderPair("A", "B"),
                 new OrderPair("B", "C")
             };
 
-            // Act
-            var result = _sorter.Sort(pairs);
+      // Act
+      var result = _sorter.Sort(pairs);
 
-            // Assert
-            // 期待値:
-            // 1位: A
-            // 2位: B
-            // 3位: C
-            result.Should().HaveCount(3);
-            result[0].Should().ContainSingle("A");
-            result[1].Should().ContainSingle("B");
-            result[2].Should().ContainSingle("C");
-        }
+      // Assert
+      // 期待値:
+      // 1位: A
+      // 2位: B
+      // 3位: C
+      result.Should().HaveCount(3);
+      result[0].Should().ContainSingle("A");
+      result[1].Should().ContainSingle("B");
+      result[2].Should().ContainSingle("C");
+    }
 
-        [Fact]
-        public void Sort_ShouldGroupNodes_ForBranchingGraph()
-        {
-            // Arrange
-            // A -> B
-            // A -> C
-            // BとCには優劣がない -> 同率2位になるはず
-            var pairs = new List<OrderPair>
+    [Fact]
+    public void Sort_ShouldGroupNodes_ForBranchingGraph()
+    {
+      // Arrange
+      // A -> B
+      // A -> C
+      // BとCには優劣がない -> 同率2位になるはず
+      var pairs = new List<OrderPair>
             {
                 new OrderPair("A", "B"),
                 new OrderPair("A", "C")
             };
 
-            // Act
-            var result = _sorter.Sort(pairs);
+      // Act
+      var result = _sorter.Sort(pairs);
 
-            // Assert
-            // 期待値:
-            // 1位: A
-            // 2位: B, C (同率)
-            result.Should().HaveCount(2);
-            result[0].Should().ContainSingle("A");
-            result[1].Should().HaveCount(2);
-            result[1].Should().Contain(new[] { "B", "C" });
-        }
+      // Assert
+      // 期待値:
+      // 1位: A
+      // 2位: B, C (同率)
+      result.Should().HaveCount(2);
+      result[0].Should().ContainSingle("A");
+      result[1].Should().HaveCount(2);
+      result[1].Should().Contain(new[] { "B", "C" });
+    }
 
-        [Fact]
-        public void Sort_ShouldHandleDisconnectedGraphs()
-        {
-            // Arrange
-            // A -> B
-            // C -> D
-            // (A,B)グループと(C,D)グループは無関係だが、どちらも「入次数0」から始まる
-            var pairs = new List<OrderPair>
+    [Fact]
+    public void Sort_ShouldHandleDisconnectedGraphs()
+    {
+      // Arrange
+      // A -> B
+      // C -> D
+      // (A,B)グループと(C,D)グループは無関係だが、どちらも「入次数0」から始まる
+      var pairs = new List<OrderPair>
             {
                 new OrderPair("A", "B"),
                 new OrderPair("C", "D")
             };
 
-            // Act
-            var result = _sorter.Sort(pairs);
+      // Act
+      var result = _sorter.Sort(pairs);
 
-            // Assert
-            // 期待値:
-            // 1位グループ: A, C (どちらも誰にも負けてない)
-            // 2位グループ: B, D (それぞれA, Cに負けている)
-            result.Should().HaveCount(2);
-            result[0].Should().Contain(new[] { "A", "C" });
-            result[1].Should().Contain(new[] { "B", "D" });
-        }
+      // Assert
+      // 期待値:
+      // 1位グループ: A, C (どちらも誰にも負けてない)
+      // 2位グループ: B, D (それぞれA, Cに負けている)
+      result.Should().HaveCount(2);
+      result[0].Should().Contain(new[] { "A", "C" });
+      result[1].Should().Contain(new[] { "B", "D" });
+    }
 
-        [Fact]
-        public void Sort_ShouldGroupNodes_WhenCycleExists()
-        {
-            // Arrange
-            // A -> B -> C -> A (3すくみのループ)
-            // この場合、論理的に順序が付けられないため、SCCアルゴリズムはこれらを1つのグループにまとめるはず
-            var pairs = new List<OrderPair>
+    [Fact]
+    public void Sort_ShouldGroupNodes_WhenCycleExists()
+    {
+      // Arrange
+      // A -> B -> C -> A (3すくみのループ)
+      // この場合、論理的に順序が付けられないため、SCCアルゴリズムはこれらを1つのグループにまとめるはず
+      var pairs = new List<OrderPair>
             {
                 new OrderPair("A", "B"),
                 new OrderPair("B", "C"),
                 new OrderPair("C", "A")
             };
 
-            // Act
-            var result = _sorter.Sort(pairs);
+      // Act
+      var result = _sorter.Sort(pairs);
 
-            // Assert
-            // 期待値:
-            // 全体が1つのグループ（同順位）になる
-            result.Should().HaveCount(1);
-            result[0].Should().HaveCount(3);
-            result[0].Should().Contain(new[] { "A", "B", "C" });
-        }
+      // Assert
+      // 期待値:
+      // 全体が1つのグループ（同順位）になる
+      result.Should().HaveCount(1);
+      result[0].Should().HaveCount(3);
+      result[0].Should().Contain(new[] { "A", "B", "C" });
     }
+  }
 }
