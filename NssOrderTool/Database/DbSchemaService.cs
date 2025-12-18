@@ -2,18 +2,18 @@
 
 namespace NssOrderTool.Database
 {
-    public class DbSchemaService
+  public class DbSchemaService
+  {
+    private readonly AppDbContext _dbContext;
+
+    public DbSchemaService(AppDbContext dbContext)
     {
-        private readonly AppDbContext _dbContext;
-
-        public DbSchemaService(AppDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
-        public virtual async Task EnsureTablesExistAsync()
-        {
-            await _dbContext.Database.EnsureCreatedAsync();
-        }
+      _dbContext = dbContext;
     }
+
+    public virtual async Task EnsureTablesExistAsync()
+    {
+      await _dbContext.Database.EnsureCreatedAsync();
+    }
+  }
 }

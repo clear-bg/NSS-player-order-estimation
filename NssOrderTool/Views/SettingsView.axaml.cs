@@ -4,15 +4,15 @@ using NssOrderTool.ViewModels;
 
 namespace NssOrderTool.Views
 {
-    public partial class SettingsView : UserControl
+  public partial class SettingsView : UserControl
+  {
+    public SettingsView()
     {
-        public SettingsView()
-        {
-            InitializeComponent();
-            if (!Design.IsDesignMode)
-            {
-                DataContext = App.Services.GetRequiredService<SettingsViewModel>();
-            }
-        }
+      InitializeComponent();
+      if (!Design.IsDesignMode)
+      {
+        DataContext = App.Services.GetRequiredService<SettingsViewModel>();
+      }
     }
+  }
 }

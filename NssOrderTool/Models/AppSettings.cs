@@ -13,12 +13,12 @@
   }
 
   public class SsmSettings
-    {
-        public bool UseSsm { get; set; } = false;
-        public string InstanceId { get; set; } = "";
-        public string RemoteHost { get; set; } = "";
-        public int RemotePort { get; set; } = 3306;
-        public int LocalPort { get; set; } = 3306;
-        public string AwsProfile { get; set; } = "default"; // 必要なら
-    }
+  {
+    public bool UseSsm { get; set; } = false;
+    public string InstanceId { get; set; } = "";
+    public string RemoteHost { get; set; } = "";
+    public int RemotePort { get; set; } = 3306;
+    public int LocalPort { get; set; } = 3306;
+    public string AwsProfile { get; set; } = "default"; // 必要なら
+  }
 }

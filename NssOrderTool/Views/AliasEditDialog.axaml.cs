@@ -5,25 +5,25 @@ using NssOrderTool.Repositories;
 
 namespace NssOrderTool.Views
 {
-    public partial class AliasEditDialog : Window
+  public partial class AliasEditDialog : Window
+  {
+    public AliasEditDialog(string targetName, AliasRepository repo)
     {
-        public AliasEditDialog(string targetName, AliasRepository repo)
-        {
-            InitializeComponent();
-            // ViewModel‚É“n‚·
-            DataContext = new AliasEditViewModel(targetName, repo);
-        }
-
-        // ƒfƒUƒCƒi[—p‚È‚Ç
-        public AliasEditDialog()
-        {
-            InitializeComponent();
-        }
-
-        // •Â‚¶‚éƒ{ƒ^ƒ“‚¾‚¯‚ÍView‚ÌÓ–±‚Æ‚µ‚Ä‚±‚±‚Éc‚·
-        private void CloseButton_Click(object? sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+      InitializeComponent();
+      // ViewModelï¿½É“nï¿½ï¿½
+      DataContext = new AliasEditViewModel(targetName, repo);
     }
+
+    // ï¿½fï¿½Uï¿½Cï¿½iï¿½[ï¿½pï¿½È‚ï¿½
+    public AliasEditDialog()
+    {
+      InitializeComponent();
+    }
+
+    // ï¿½Â‚ï¿½ï¿½ï¿½{ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Viewï¿½ÌÓ–ï¿½ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Écï¿½ï¿½
+    private void CloseButton_Click(object? sender, RoutedEventArgs e)
+    {
+      Close();
+    }
+  }
 }

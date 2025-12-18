@@ -1,20 +1,20 @@
 ﻿using Avalonia.Controls;
-using Microsoft.Extensions.DependencyInjection; // 追加
+using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.ViewModels;
 
 namespace NssOrderTool.Views
 {
-    public partial class MainWindow : Window
+  public partial class MainWindow : Window
+  {
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
+      InitializeComponent();
 
-            if (!Design.IsDesignMode)
-            {
-                // DIからViewModelを取得
-                DataContext = App.Services.GetRequiredService<MainWindowViewModel>();
-            }
-        }
+      if (!Design.IsDesignMode)
+      {
+        // DIからViewModelを取得
+        DataContext = App.Services.GetRequiredService<MainWindowViewModel>();
+      }
     }
+  }
 }
