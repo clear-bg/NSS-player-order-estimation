@@ -8,7 +8,10 @@
 
   // --- C# 設定 ---
   "[csharp]": {
-    "editor.defaultFormatter": "ms-dotnettools.csharp"
+    "editor.defaultFormatter": "ms-dotnettools.csharp",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
   },
 
   // --- XAML 設定 ---
@@ -22,21 +25,9 @@
   "indentRainbow.ignoreErrorLanguages": ["*"],
 
   // --- XAML Styler (整形のルール) ---
-
-  // 属性が2つ以上なら改行する
   "xamlStyler.attributesTolerance": 1,
-
-  // 1行に1属性にする
   "xamlStyler.maxAttributesPerLine": 1,
-
-  // 最初の属性だけはタグの横に残す (true)
-  // 例: <Button Content="削除"
-  //             FontSize="10" ...
   "xamlStyler.keepFirstAttributeOnSameLine": true,
-
-  // 閉じカッコ ">" を新しい行にする
   "xamlStyler.putEndingBracketOnNewLine": true,
-
-  // 属性をアルファベット順や種類順にきれいに並べ替える
   "xamlStyler.reorderAttributes": true
 }
