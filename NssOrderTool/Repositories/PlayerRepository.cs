@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace NssOrderTool.Repositories
         public virtual async Task RegisterPlayersAsync(IEnumerable<string> players)
         {
             // 重複排除
-            var uniqueNames = players.Distinct().ToList();
+            var uniqueNames = players.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             if (!uniqueNames.Any()) return;
 
             // 1. 既にDBに存在する名前を取得
@@ -30,7 +31,7 @@ namespace NssOrderTool.Repositories
                 .ToListAsync();
 
             // 2. DBにない名前だけを抽出 (LINQで差分を取る)
-            var newNames = uniqueNames.Except(existingNames).ToList();
+            var newNames = uniqueNames.Except(existingNames, StringComparer.OrdinalIgnoreCase).ToList();
 
             if (newNames.Any())
             {

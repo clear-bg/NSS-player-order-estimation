@@ -16,9 +16,15 @@
 				<ItemsControl.ItemTemplate>
 					<DataTemplate x:DataType="vm:SimulationInputItem">
 						<Grid ColumnDefinitions="30, *" Margin="0,5">
-							<TextBlock Grid.Column="0" Text="{Binding Index, StringFormat='{}{0}.'}"
-                                       VerticalAlignment="Center" FontWeight="Bold"/>
-							<TextBox Grid.Column="1" Text="{Binding Name}" Watermark="{Binding Placeholder}"/>
+							<TextBlock Grid.Column="0" Text="{Binding Index, StringFormat='{}{0}.'}" 
+                                        VerticalAlignment="Center" FontWeight="Bold"/>
+
+                            <AutoCompleteBox Grid.Column="1"
+                                             Text="{Binding Name}"
+                                             Watermark="{Binding Placeholder}"
+                                             ItemsSource="{Binding $parent[UserControl].((vm:SimulationViewModel)DataContext).AllPlayerNames}"
+                                             FilterMode="Contains"
+                                             MinimumPrefixLength="1"/>
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>

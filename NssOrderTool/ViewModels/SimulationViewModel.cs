@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
+using NssOrderTool.Messages;
 
 namespace NssOrderTool.ViewModels
 {
@@ -25,6 +27,9 @@ namespace NssOrderTool.ViewModels
         // 計算結果の表示リスト
         public ObservableCollection<SimulationResultItem> SimulationResults { get; } = new();
 
+        // 全プレイヤー名リスト (オートコンプリート用)
+        public ObservableCollection<string> AllPlayerNames { get; } = new();
+
         [ObservableProperty]
         private string _statusText = "";
 
@@ -40,6 +45,14 @@ namespace NssOrderTool.ViewModels
             _extractor = extractor;
 
             InitializeInputs();
+
+            // DB更新通知を受け取ったらリストをリロードする
+            WeakReferenceMessenger.Default.Register<SimulationViewModel, DatabaseUpdatedMessage>(this, (r, m) =>
+            {
+                // r は this (SimulationViewModelインスタンス) です
+                // 非同期メソッドをファイア＆フォーゲットで呼び出します
+                _ = r.LoadPlayerNames();
+            });
         }
 
         // デザイナー用コンストラクタ
@@ -66,6 +79,33 @@ namespace NssOrderTool.ViewModels
                     item.Placeholder = $"Player {i + 1}";
 
                 Inputs.Add(item);
+            }
+          _ = LoadPlayerNames();
+        }
+
+        private async Task LoadPlayerNames()
+        {
+            try
+            {
+                // 全ての順序データを取得し、登場する名前(Predecessor, Successor)を重複なしで抽出
+                var pairs = await _orderRepo.GetAllPairsAsync();
+
+                var names = pairs.SelectMany(p => new[] { p.Predecessor, p.Successor })
+                                 .Distinct()
+                                 .OrderBy(n => n)
+                                 .ToList();
+
+                AllPlayerNames.Clear();
+                foreach (var name in names)
+                {
+                    AllPlayerNames.Add(name);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // 補完リストのロード失敗はメイン動作に影響しないため、ログ出力程度か無視でも可
+                // 必要であれば StatusText に出す
+                System.Diagnostics.Debug.WriteLine($"Error loading player names: {ex.Message}");
             }
         }
 
