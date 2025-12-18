@@ -34,7 +34,7 @@ namespace NssOrderTool.Tests.Services.Domain
       var result = _sorter.Sort(pairs);
 
       // Assert
-      // 期待値: 
+      // 期待値:
       // 1位: A
       // 2位: B
       // 3位: C
