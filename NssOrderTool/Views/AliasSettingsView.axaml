@@ -1,73 +1,108 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:NssOrderTool.ViewModels"
-             xmlns:models="using:NssOrderTool.Models"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
-             x:Class="NssOrderTool.Views.AliasSettingsView"
-             x:DataType="vm:AliasSettingsViewModel"
-             x:Name="Root">
-	<Grid Margin="20" ColumnDefinitions="*, 20, *">
-		<StackPanel Grid.Column="0" Spacing="15">
-			<TextBlock Text="➕ エイリアス追加" FontWeight="Bold" FontSize="16"/>
-			<TextBlock Text="表記揺れを正規の名前に自動変換します。" FontSize="12" Foreground="Gray"/>
+<UserControl
+  x:Class="NssOrderTool.Views.AliasSettingsView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:models="using:NssOrderTool.Models"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  x:Name="Root"
+  d:DesignHeight="500"
+  d:DesignWidth="800"
+  x:DataType="vm:AliasSettingsViewModel"
+  mc:Ignorable="d">
+  <Grid Margin="20" ColumnDefinitions="*, 20, *">
+    <StackPanel Grid.Column="0" Spacing="15">
+      <TextBlock
+        FontSize="16"
+        FontWeight="Bold"
+        Text="➕ エイリアス追加" />
+      <TextBlock
+        FontSize="12"
+        Foreground="Gray"
+        Text="表記揺れを正規の名前に自動変換します。" />
 
-			<StackPanel Spacing="5">
-				<TextBlock Text="正規名 (変換後の名前)" FontWeight="Bold" FontSize="12"/>
-				<TextBox Text="{Binding TargetInput}" Watermark="例: Takahiro"/>
-			</StackPanel>
+      <StackPanel Spacing="5">
+        <TextBlock
+          FontSize="12"
+          FontWeight="Bold"
+          Text="正規名 (変換後の名前)" />
+        <TextBox Text="{Binding TargetInput}" Watermark="例: Takahiro" />
+      </StackPanel>
 
-			<StackPanel Spacing="5">
-				<TextBlock Text="別名 (入力される名前)" FontWeight="Bold" FontSize="12"/>
-				<TextBox Text="{Binding AliasInput}" Watermark="例: Taka"/>
-			</StackPanel>
+      <StackPanel Spacing="5">
+        <TextBlock
+          FontSize="12"
+          FontWeight="Bold"
+          Text="別名 (入力される名前)" />
+        <TextBox Text="{Binding AliasInput}" Watermark="例: Taka" />
+      </StackPanel>
 
-			<Button Content="追加する"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    Background="#007ACC" Foreground="White"
-                    Command="{Binding AddAliasCommand}"/>
+      <Button
+        HorizontalAlignment="Stretch"
+        HorizontalContentAlignment="Center"
+        Background="#007ACC"
+        Command="{Binding AddAliasCommand}"
+        Content="追加する"
+        Foreground="White" />
 
-			<TextBlock Text="{Binding StatusText}"
-                       Foreground="Green"
-                       TextWrapping="Wrap"/>
-		</StackPanel>
+      <TextBlock
+        Foreground="Green"
+        Text="{Binding StatusText}"
+        TextWrapping="Wrap" />
+    </StackPanel>
 
-		<StackPanel Grid.Column="2" Spacing="10">
-			<Grid ColumnDefinitions="*, Auto">
-				<TextBlock Grid.Column="0" Text="📝 登録済みエイリアス" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-				<Button Grid.Column="1" Content="更新" Command="{Binding LoadAliasesCommand}"/>
-			</Grid>
+    <StackPanel Grid.Column="2" Spacing="10">
+      <Grid ColumnDefinitions="*, Auto">
+        <TextBlock
+          Grid.Column="0"
+          VerticalAlignment="Center"
+          FontSize="16"
+          FontWeight="Bold"
+          Text="📝 登録済みエイリアス" />
+        <Button
+          Grid.Column="1"
+          Command="{Binding LoadAliasesCommand}"
+          Content="更新" />
+      </Grid>
 
-			<ListBox ItemsSource="{Binding AliasList}" Height="380" Background="#F0F0F0" Foreground="Black">
-				<ListBox.ItemTemplate>
-					<DataTemplate x:DataType="models:AliasGroupItem">
-						<Grid ColumnDefinitions="*, Auto, Auto">
-							<TextBlock Grid.Column="0"
-                                       Text="{Binding DisplayText}"
-                                       VerticalAlignment="Center"
-                                       Foreground="Black"/>
+      <ListBox
+        Height="380"
+        Background="#F0F0F0"
+        Foreground="Black"
+        ItemsSource="{Binding AliasList}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="models:AliasGroupItem">
+            <Grid ColumnDefinitions="*, Auto, Auto">
+              <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Black"
+                Text="{Binding DisplayText}" />
 
-							<Button Grid.Column="1"
-                                    Content="編集"
-                                    FontSize="10"
-                                    Padding="8,4"
-                                    Margin="5,0"
-                                    Background="#DDDDDD" Foreground="Black"
-                                    Click="EditGroupButton_Click"/>
+              <Button
+                Grid.Column="1"
+                Margin="5,0"
+                Padding="8,4"
+                Background="#DDDDDD"
+                Click="EditGroupButton_Click"
+                Content="編集"
+                FontSize="10"
+                Foreground="Black" />
 
-							<Button Grid.Column="2"
-                                    Content="全削除"
-                                    FontSize="10"
-                                    Padding="8,4"
-                                    Background="#FFCCCC" Foreground="Red"
-                                    Command="{Binding #Root.((vm:AliasSettingsViewModel)DataContext).DeleteGroupCommand}"
-                                    CommandParameter="{Binding}"/>
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</StackPanel>
-	</Grid>
+              <Button
+                Grid.Column="2"
+                Padding="8,4"
+                Background="#FFCCCC"
+                Command="{Binding #Root.((vm:AliasSettingsViewModel)DataContext).DeleteGroupCommand}"
+                CommandParameter="{Binding}"
+                Content="全削除"
+                FontSize="10"
+                Foreground="Red" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+  </Grid>
 </UserControl>

@@ -1,31 +1,35 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="using:NssOrderTool.Views"
-        xmlns:vm="using:NssOrderTool.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
-        x:Class="NssOrderTool.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="{Binding Title}"
-        Width="800" Height="550"
-        WindowStartupLocation="CenterScreen">
+<Window
+  x:Class="NssOrderTool.Views.MainWindow"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:views="using:NssOrderTool.Views"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  Title="{Binding Title}"
+  Width="800"
+  Height="550"
+  d:DesignHeight="550"
+  d:DesignWidth="800"
+  x:DataType="vm:MainWindowViewModel"
+  WindowStartupLocation="CenterScreen"
+  mc:Ignorable="d">
 
-	<TabControl Margin="5">
-		<TabItem Header="メイン" FontSize="16">
-			<views:OrderEstimationView />
-		</TabItem>
+  <TabControl Margin="5">
+    <TabItem FontSize="16" Header="メイン">
+      <views:OrderEstimationView />
+    </TabItem>
 
-		<TabItem Header="シミュレーター" FontSize="16">
-			<views:SimulationView />
-		</TabItem>
+    <TabItem FontSize="16" Header="シミュレーター">
+      <views:SimulationView />
+    </TabItem>
 
-		<TabItem Header="エイリアス" FontSize="16">
-			<views:AliasSettingsView />
-		</TabItem>
+    <TabItem FontSize="16" Header="エイリアス">
+      <views:AliasSettingsView />
+    </TabItem>
 
-		<TabItem Header="設定" FontSize="16">
-			<views:SettingsView />
-		</TabItem>
-	</TabControl>
+    <TabItem FontSize="16" Header="設定">
+      <views:SettingsView />
+    </TabItem>
+  </TabControl>
 </Window>

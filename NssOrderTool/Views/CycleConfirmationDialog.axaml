@@ -1,45 +1,103 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="NssOrderTool.Views.CycleConfirmationDialog"
-        Title="矛盾の確認"
-        Width="450" Height="300"
-        WindowStartupLocation="CenterOwner"
-        CanResize="False"
-        SystemDecorations="BorderOnly">
+<Window
+  x:Class="NssOrderTool.Views.CycleConfirmationDialog"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Title="矛盾の確認"
+  Width="450"
+  Height="300"
+  CanResize="False"
+  SystemDecorations="BorderOnly"
+  WindowStartupLocation="CenterOwner">
 
-	<Grid RowDefinitions="Auto, *, Auto" Margin="20">
-		<StackPanel Grid.Row="0" Spacing="10">
-			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBlock Text="⚠️" FontSize="24" VerticalAlignment="Center"/>
-				<TextBlock Text="入力により順序矛盾が発生します" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Foreground="#D58000"/>
-			</StackPanel>
+  <Grid Margin="20" RowDefinitions="Auto, *, Auto">
+    <StackPanel Grid.Row="0" Spacing="10">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock
+          VerticalAlignment="Center"
+          FontSize="24"
+          Text="⚠️" />
+        <TextBlock
+          VerticalAlignment="Center"
+          FontSize="16"
+          FontWeight="Bold"
+          Foreground="#D58000"
+          Text="入力により順序矛盾が発生します" />
+      </StackPanel>
 
-			<TextBlock Text="以下の入力により、既存データとの間でループ（閉路）が発生します。"
-                       TextWrapping="Wrap" FontSize="12"/>
-		</StackPanel>
+      <TextBlock
+        FontSize="12"
+        Text="以下の入力により、既存データとの間でループ（閉路）が発生します。"
+        TextWrapping="Wrap" />
+    </StackPanel>
 
-		<StackPanel Grid.Row="1" Spacing="15" Margin="0,15">
-			<Border Background="#F9F9F9" Padding="10" CornerRadius="5" BorderBrush="#EEEEEE" BorderThickness="1">
-				<StackPanel>
-					<TextBlock Text="あなたの入力:" FontWeight="Bold" FontSize="11" Foreground="Gray"/>
-					<TextBlock Name="InputTextBlock" Text="A, B" FontWeight="Bold" Margin="0,5,0,0"/>
-				</StackPanel>
-			</Border>
+    <StackPanel
+      Grid.Row="1"
+      Margin="0,15"
+      Spacing="15">
+      <Border
+        Padding="10"
+        Background="#F9F9F9"
+        BorderBrush="#EEEEEE"
+        BorderThickness="1"
+        CornerRadius="5">
+        <StackPanel>
+          <TextBlock
+            FontSize="11"
+            FontWeight="Bold"
+            Foreground="Gray"
+            Text="あなたの入力:" />
+          <TextBlock
+            Name="InputTextBlock"
+            Margin="0,5,0,0"
+            FontWeight="Bold"
+            Text="A, B" />
+        </StackPanel>
+      </Border>
 
-			<Border Background="#FFF4F4" Padding="10" CornerRadius="5" BorderBrush="#FFCCCC" BorderThickness="1">
-				<StackPanel>
-					<TextBlock Text="発生する矛盾（ループ）:" FontWeight="Bold" FontSize="11" Foreground="Red"/>
-					<TextBlock Name="CycleTextBlock" Text="A -> B -> C -> A" TextWrapping="Wrap" Margin="0,5,0,0" Foreground="#CC0000"/>
-				</StackPanel>
-			</Border>
+      <Border
+        Padding="10"
+        Background="#FFF4F4"
+        BorderBrush="#FFCCCC"
+        BorderThickness="1"
+        CornerRadius="5">
+        <StackPanel>
+          <TextBlock
+            FontSize="11"
+            FontWeight="Bold"
+            Foreground="Red"
+            Text="発生する矛盾（ループ）:" />
+          <TextBlock
+            Name="CycleTextBlock"
+            Margin="0,5,0,0"
+            Foreground="#CC0000"
+            Text="A -&gt; B -&gt; C -&gt; A"
+            TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
 
-			<TextBlock Text="登録すると、これらのプレイヤーは「同順位」として扱われます。"
-                       TextWrapping="Wrap" FontSize="11" Foreground="Gray"/>
-		</StackPanel>
+      <TextBlock
+        FontSize="11"
+        Foreground="Gray"
+        Text="登録すると、これらのプレイヤーは「同順位」として扱われます。"
+        TextWrapping="Wrap" />
+    </StackPanel>
 
-		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-			<Button Name="CancelButton" Content="入力をやり直す" Click="CancelButton_Click"/>
-			<Button Name="RegisterButton" Content="このまま登録する" Background="#D58000" Foreground="White" FontWeight="Bold" Click="RegisterButton_Click"/>
-		</StackPanel>
-	</Grid>
+    <StackPanel
+      Grid.Row="2"
+      HorizontalAlignment="Right"
+      Orientation="Horizontal"
+      Spacing="10">
+      <Button
+        Name="CancelButton"
+        Click="CancelButton_Click"
+        Content="入力をやり直す" />
+      <Button
+        Name="RegisterButton"
+        Background="#D58000"
+        Click="RegisterButton_Click"
+        Content="このまま登録する"
+        FontWeight="Bold"
+        Foreground="White" />
+    </StackPanel>
+  </Grid>
 </Window>

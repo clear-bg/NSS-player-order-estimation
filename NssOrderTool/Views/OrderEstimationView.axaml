@@ -1,94 +1,168 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:NssOrderTool.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
-             x:Class="NssOrderTool.Views.OrderEstimationView"
-             x:DataType="vm:OrderEstimationViewModel">
+<UserControl
+  x:Class="NssOrderTool.Views.OrderEstimationView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  d:DesignHeight="500"
+  d:DesignWidth="800"
+  x:DataType="vm:OrderEstimationViewModel"
+  mc:Ignorable="d">
 
-	<Grid Margin="10" ColumnDefinitions="*, 20, *" IsEnabled="{Binding !IsBusy}">
+  <Grid
+    Margin="10"
+    ColumnDefinitions="*, 20, *"
+    IsEnabled="{Binding !IsBusy}">
 
-		<StackPanel Grid.Column="0" Spacing="10">
-			<ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}"
-                         HorizontalAlignment="Stretch" Height="4" Margin="0,0,0,5"/>
+    <StackPanel Grid.Column="0" Spacing="10">
+      <ProgressBar
+        Height="4"
+        Margin="0,0,0,5"
+        HorizontalAlignment="Stretch"
+        IsIndeterminate="True"
+        IsVisible="{Binding IsBusy}" />
 
-			<StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-				<TextBlock Text="✏️ 入力" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-				<Border CornerRadius="4" Padding="8,2" Background="{Binding EnvBadgeColor}">
-					<TextBlock Text="{Binding EnvText}" Foreground="White" FontWeight="Bold" FontSize="12"/>
-				</Border>
-			</StackPanel>
+      <StackPanel
+        VerticalAlignment="Center"
+        Orientation="Horizontal"
+        Spacing="10">
+        <TextBlock
+          VerticalAlignment="Center"
+          FontSize="16"
+          FontWeight="Bold"
+          Text="✏️ 入力" />
+        <Border
+          Padding="8,2"
+          Background="{Binding EnvBadgeColor}"
+          CornerRadius="4">
+          <TextBlock
+            FontSize="12"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="{Binding EnvText}" />
+        </Border>
+      </StackPanel>
 
-			<TextBlock Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" FontSize="12" Foreground="Gray"/>
+      <TextBlock
+        FontSize="12"
+        Foreground="Gray"
+        Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" />
 
-			<TextBox Text="{Binding InputText}"
-                     Watermark="例: Player1, Player2, Player3"
-                     Height="100"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"/>
+      <TextBox
+        Height="100"
+        AcceptsReturn="True"
+        Text="{Binding InputText}"
+        TextWrapping="Wrap"
+        Watermark="例: Player1, Player2, Player3" />
 
-			<Button Content="データを登録"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    Background="#007ACC" Foreground="White"
-                    Command="{Binding RegisterCommand}"/>
+      <Button
+        HorizontalAlignment="Stretch"
+        HorizontalContentAlignment="Center"
+        Background="#007ACC"
+        Command="{Binding RegisterCommand}"
+        Content="データを登録"
+        Foreground="White" />
 
-			<TextBlock Text="{Binding StatusText}"
-                       Foreground="Green"
-                       TextWrapping="Wrap"/>
+      <TextBlock
+        Foreground="Green"
+        Text="{Binding StatusText}"
+        TextWrapping="Wrap" />
 
-			<Separator Margin="0" />
+      <Separator Margin="0" />
 
-			<Grid ColumnDefinitions="Auto, *">
-				<Button Grid.Column="0" Content="📋 Graph"
-                        Padding="8,4" FontSize="12"
-                        Click="CopyGraphButton_Click"
-                        ToolTip.Tip="Mermaid形式でグラフをコピー"/>
+      <Grid ColumnDefinitions="Auto, *">
+        <Button
+          Grid.Column="0"
+          Padding="8,4"
+          Click="CopyGraphButton_Click"
+          Content="📋 Graph"
+          FontSize="12"
+          ToolTip.Tip="Mermaid形式でグラフをコピー" />
 
-				<TextBlock Grid.Column="1" Text="{Binding StatsText}"
-                           VerticalAlignment="Center" Margin="10,0,0,0"
-                           FontSize="12" Foreground="Gray"/>
-			</Grid>
+        <TextBlock
+          Grid.Column="1"
+          Margin="10,0,0,0"
+          VerticalAlignment="Center"
+          FontSize="12"
+          Foreground="Gray"
+          Text="{Binding StatsText}" />
+      </Grid>
 
-			<Separator Margin="0" />
-			<TextBlock Text="📜 登録履歴 (最新50件)" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+      <Separator Margin="0" />
+      <TextBlock
+        VerticalAlignment="Center"
+        FontSize="14"
+        FontWeight="Bold"
+        Text="📜 登録履歴 (最新50件)" />
 
-			<ListBox ItemsSource="{Binding HistoryList}" Height="150" Background="#F9F9F9">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<Grid ColumnDefinitions="*, Auto">
-							<TextBlock Grid.Column="0" Text="{Binding DisplayText}"
-                                       VerticalAlignment="Center" FontSize="11" Foreground="#333333"/>
+      <ListBox
+        Height="150"
+        Background="#F9F9F9"
+        ItemsSource="{Binding HistoryList}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid ColumnDefinitions="*, Auto">
+              <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="#333333"
+                Text="{Binding DisplayText}" />
 
-							<Button Grid.Column="1" Content="🗑️"
-                                    FontSize="10" Padding="5,2" Margin="5,0,0,0"
-                                    Background="Transparent" Foreground="Red"
-                                    Command="{Binding $parent[UserControl].((vm:OrderEstimationViewModel)DataContext).DeleteHistoryCommand}"
-                                    CommandParameter="{Binding}"/>
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</StackPanel>
+              <Button
+                Grid.Column="1"
+                Margin="5,0,0,0"
+                Padding="5,2"
+                Background="Transparent"
+                Command="{Binding $parent[UserControl].((vm:OrderEstimationViewModel)DataContext).DeleteHistoryCommand}"
+                CommandParameter="{Binding}"
+                Content="🗑️"
+                FontSize="10"
+                Foreground="Red" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
 
-		<StackPanel Grid.Column="2" Spacing="10">
-			<Grid ColumnDefinitions="*, Auto, Auto">
-				<TextBlock Grid.Column="0" Text="📊 推定順序" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-				<Button Grid.Column="1" Content="更新" Command="{Binding ReloadCommand}" Margin="0,0,5,0"/>
+    <StackPanel Grid.Column="2" Spacing="10">
+      <Grid ColumnDefinitions="*, Auto, Auto">
+        <TextBlock
+          Grid.Column="0"
+          VerticalAlignment="Center"
+          FontSize="16"
+          FontWeight="Bold"
+          Text="📊 推定順序" />
+        <Button
+          Grid.Column="1"
+          Margin="0,0,5,0"
+          Command="{Binding ReloadCommand}"
+          Content="更新" />
 
-				<Button Grid.Column="2" Name="ClearButton" Content="🗑️ 初期化"
-                        Background="#FFCCCC" Foreground="Red"
-                        Click="ClearButton_Click"/>
-			</Grid>
+        <Button
+          Name="ClearButton"
+          Grid.Column="2"
+          Background="#FFCCCC"
+          Click="ClearButton_Click"
+          Content="🗑️ 初期化"
+          Foreground="Red" />
+      </Grid>
 
-			<ListBox ItemsSource="{Binding RankingList}" Height="380" Background="#F0F0F0" Foreground="Black">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding}" Padding="5" Foreground="Black"/>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</StackPanel>
-	</Grid>
+      <ListBox
+        Height="380"
+        Background="#F0F0F0"
+        Foreground="Black"
+        ItemsSource="{Binding RankingList}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock
+              Padding="5"
+              Foreground="Black"
+              Text="{Binding}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+  </Grid>
 </UserControl>
