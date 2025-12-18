@@ -6,33 +6,42 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
+using NssOrderTool.Services.Domain;
+using NssOrderTool.ViewModels.Arena; // 👈 追加
 
 namespace NssOrderTool.ViewModels
 {
   public partial class ArenaViewModel : ViewModelBase
   {
     private readonly ArenaRepository _arenaRepo;
+    private readonly ArenaLogicService _arenaLogic;
 
     // --- Bindings ---
 
-    // 14ラウンド分の入力データ
     public ObservableCollection<ArenaRoundInputItem> RoundInputs { get; } = new();
+
+    // 子ViewModelのコレクション
+    public ObservableCollection<ArenaRowViewModel> PlayerRows { get; } = new();
 
     [ObservableProperty]
     private string _statusText = "準備完了";
 
-    // コンストラクタ
-    public ArenaViewModel(ArenaRepository arenaRepo)
+    public ArenaViewModel(ArenaRepository arenaRepo, ArenaLogicService arenaLogic)
     {
       _arenaRepo = arenaRepo;
+      _arenaLogic = arenaLogic;
+
       InitializeRounds();
+      InitializeMatrix();
     }
 
-    // XAMLデザイナー用
+    // デザイナー用
     public ArenaViewModel()
     {
       _arenaRepo = null!;
+      _arenaLogic = null!;
       InitializeRounds();
+      InitializeMatrix();
     }
 
     private void InitializeRounds()
@@ -40,7 +49,53 @@ namespace NssOrderTool.ViewModels
       RoundInputs.Clear();
       for (int i = 1; i <= 14; i++)
       {
-        RoundInputs.Add(new ArenaRoundInputItem { RoundNumber = i });
+        var item = new ArenaRoundInputItem { RoundNumber = i };
+        // ボタン変更時に再計算をトリガー
+        item.PropertyChanged += (s, e) =>
+        {
+          if (e.PropertyName == nameof(ArenaRoundInputItem.WinningTeam))
+          {
+            Recalculate();
+          }
+        };
+        RoundInputs.Add(item);
+      }
+    }
+
+    private void InitializeMatrix()
+    {
+      PlayerRows.Clear();
+      for (int i = 0; i < 8; i++)
+      {
+        // A, B, C...
+        char name = (char)('A' + i);
+        PlayerRows.Add(new ArenaRowViewModel(i, name.ToString()));
+      }
+      Recalculate();
+    }
+
+    // 集計処理のメインエントリー
+    private void Recalculate()
+    {
+      if (_arenaLogic == null) return;
+
+      // 1. 各行に更新を依頼 (勝数計算まで)
+      foreach (var row in PlayerRows)
+      {
+        row.UpdateRow(RoundInputs, _arenaLogic);
+      }
+
+      // 2. ランク（順位）計算
+      // 勝利数が多い順にランク付け (同率は同じランクにする)
+      var sortedScores = PlayerRows.Select(p => p.WinCount)
+                                   .Distinct()
+                                   .OrderByDescending(score => score)
+                                   .ToList();
+
+      foreach (var row in PlayerRows)
+      {
+        // 自分のスコアが何番目にあるか + 1
+        row.Rank = sortedScores.IndexOf(row.WinCount) + 1;
       }
     }
 
@@ -53,28 +108,29 @@ namespace NssOrderTool.ViewModels
 
       try
       {
-        // 1. セッション作成 (一旦プレイヤー名は空。Phase 3で連携)
+        // プレイヤーIDの並び (A,B...H)
+        var playerIds = string.Join(",", PlayerRows.Select(p => p.Name));
+
         var session = new ArenaSessionEntity
         {
-          PlayerIdsCsv = "",
+          PlayerIdsCsv = playerIds,
           CreatedAt = DateTime.Now
         };
 
-        // 2. ラウンド結果の変換
         foreach (var input in RoundInputs)
         {
           session.Rounds.Add(new ArenaRoundEntity
           {
             RoundNumber = input.RoundNumber,
-            WinningTeam = input.WinningTeam // 0=None, 1=Blue, 2=Orange
+            WinningTeam = input.WinningTeam
           });
         }
 
-        // 3. 保存
         await _arenaRepo.AddSessionAsync(session);
 
         StatusText = "✅ 結果を保存しました";
-        InitializeRounds(); // 入力をリセット
+
+        // 保存後に入力をクリアするかは任意（今回はそのまま残す）
       }
       catch (Exception ex)
       {
@@ -84,45 +140,6 @@ namespace NssOrderTool.ViewModels
       {
         IsBusy = false;
       }
-    }
-  }
-
-  // 各ラウンドのセル（ボタン）に対応するクラス
-  public partial class ArenaRoundInputItem : ObservableObject
-  {
-    public int RoundNumber { get; set; }
-
-    // 0: 未選択, 1: Blue, 2: Orange
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DisplayText))]
-    [NotifyPropertyChangedFor(nameof(CellColor))]
-    [NotifyPropertyChangedFor(nameof(ForeColor))]
-    private int _winningTeam = 0;
-
-    // 表示テキスト (Excel風にシンプルに)
-    public string DisplayText => WinningTeam switch
-    {
-      1 => "Blue",
-      2 => "Org",
-      _ => "-"
-    };
-
-    // 背景色 (Excelに近い色味)
-    public string CellColor => WinningTeam switch
-    {
-      1 => "#4472C4", // Excel標準の青
-      2 => "#ED7D31", // Excel標準のオレンジ
-      _ => "#F2F2F2"  // グレー
-    };
-
-    // 文字色
-    public string ForeColor => WinningTeam == 0 ? "Black" : "White";
-
-    // クリック時のトグルコマンド
-    [RelayCommand]
-    public void ToggleWinner()
-    {
-      WinningTeam = (WinningTeam + 1) % 3;
     }
   }
 }
