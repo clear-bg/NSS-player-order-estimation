@@ -1,8 +1,10 @@
 ﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using NssOrderTool.Database;
+using NssOrderTool.Messages;
 using NssOrderTool.Models;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
@@ -174,11 +176,13 @@ namespace NssOrderTool.ViewModels
                 await _playerRepo.RegisterPlayersAsync(playerNames);
                 await _orderRepo.UpdatePairsAsync(newPairs);
 
+                WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+
                 // メッセージ更新
-                if (InputText != normalizedInput)
-                    StatusText = $"✅ 登録完了 (変換あり): \n'{InputText}' \n→ '{normalizedInput}'";
-                else
-                    StatusText = $"✅ 登録完了: {newPairs.Count} 件の関係を更新しました";
+        if (InputText != normalizedInput)
+          StatusText = $"✅ 登録完了 (変換あり): \n'{InputText}' \n→ '{normalizedInput}'";
+        else
+          StatusText = $"✅ 登録完了: {newPairs.Count} 件の関係を更新しました";
 
                 InputText = ""; // 入力欄クリア
 
