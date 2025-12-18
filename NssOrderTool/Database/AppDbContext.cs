@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Models.Entities;
 
 namespace NssOrderTool.Database

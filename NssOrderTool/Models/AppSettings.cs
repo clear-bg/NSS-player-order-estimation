@@ -1,4 +1,4 @@
-﻿namespace NssOrderTool.Models
+namespace NssOrderTool.Models
 {
   // JSON設定ファイル用のクラス
   public class AppConfig

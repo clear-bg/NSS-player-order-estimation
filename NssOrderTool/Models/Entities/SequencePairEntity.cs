@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore; // 複合キー設定に使用
 
 namespace NssOrderTool.Models.Entities

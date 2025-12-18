@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree; // TopLevel取得用
 using Microsoft.Extensions.DependencyInjection;
