@@ -1,10 +1,12 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NssOrderTool.Models.Interfaces;
 
 namespace NssOrderTool.Models.Entities
 {
   [Table("ArenaParticipants")]
-  public class ArenaParticipantEntity
+  public class ArenaParticipantEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("participant_id")]
@@ -29,6 +31,15 @@ namespace NssOrderTool.Models.Entities
     // そのセッションでの順位（スナップショット）
     [Column("rank")]
     public int Rank { get; set; }
+
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; } = false;
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
 
     // --- Navigation Properties ---
 
