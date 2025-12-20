@@ -153,7 +153,7 @@
         Height="380"
         Background="#F0F0F0"
         Foreground="Black"
-        ItemsSource="{Binding RankingList}">
+        ItemsSource="{Binding EstimatedSequence}">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <TextBlock

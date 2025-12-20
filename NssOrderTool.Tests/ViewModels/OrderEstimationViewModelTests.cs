@@ -96,12 +96,12 @@ namespace NssOrderTool.Tests.ViewModels
       )), Times.Once);
 
       // E. 画面のリストが更新されたか？ (Reload処理)
-      // GetAllPairsAsyncが呼ばれ、結果がRankingListに反映されているはず
+      // GetAllPairsAsyncが呼ばれ、結果がEstimatedSequenceに反映されているはず
       _mockOrderRepo.Verify(r => r.GetAllPairsAsync(), Times.AtLeastOnce);
 
-      viewModel.RankingList.Should().NotBeEmpty();
-      viewModel.RankingList[0].Should().Contain("PlayerA"); // 1位
-      viewModel.RankingList[1].Should().Contain("PlayerB"); // 2位
+      viewModel.EstimatedSequence.Should().NotBeEmpty();
+      viewModel.EstimatedSequence[0].Should().Contain("PlayerA"); // 1位
+      viewModel.EstimatedSequence[1].Should().Contain("PlayerB"); // 2位
 
       // F. 入力欄がクリアされたか？
       viewModel.InputText.Should().BeEmpty();
