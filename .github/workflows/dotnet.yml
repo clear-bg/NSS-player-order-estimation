@@ -3,9 +3,9 @@ name: .NET Core Build and Test
 # トリガー: いつ実行するか
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "develop-db-refactor"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "develop-db-refactor"]
 
 jobs:
   build:
