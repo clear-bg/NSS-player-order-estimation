@@ -5,7 +5,7 @@ on:
   push:
     branches: ["main", "develop-db-refactor"]
   pull_request:
-    branches: ["main", "develop-db-refactor"]
+    branches: ["**"]
 
 jobs:
   build:
