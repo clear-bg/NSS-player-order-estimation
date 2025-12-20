@@ -42,10 +42,10 @@ namespace NssOrderTool.Repositories
 
     public virtual async Task DeleteAliasAsync(string alias)
     {
-      // 条件に合うものを一括削除 (通常は1件)
+      // 条件に合うものを一括削除 (通常は1件) (論理削除)
       await _context.Aliases
           .Where(a => a.AliasName == alias)
-          .ExecuteDeleteAsync();
+          .ExecuteUpdateAsync(s => s.SetProperty(a => a.IsDeleted, true));
     }
 
     public virtual async Task<Dictionary<string, string>> GetAliasDictionaryAsync()
