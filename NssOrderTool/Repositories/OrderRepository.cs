@@ -23,13 +23,29 @@ namespace NssOrderTool.Repositories
 
     public virtual async Task AddObservationAsync(string rawInput)
     {
+      // 1. カンマ区切りを分解して整形
+      var names = rawInput.Split(',')
+                          .Select(n => n.Trim())
+                          .Where(n => !string.IsNullOrEmpty(n))
+                          .ToList();
+
+      if (!names.Any()) return;
+
       var entity = new ObservationEntity
       {
-        OrderedList = rawInput,
         ObservationTime = DateTime.Now
       };
 
-      // SQL: INSERT INTO Observations ...
+      // 2. 詳細データ(Details)を作成
+      for (int i = 0; i < names.Count; i++)
+      {
+        entity.Details.Add(new ObservationDetailEntity
+        {
+          PlayerId = names[i],
+          OrderIndex = i
+        });
+      }
+
       _context.Observations.Add(entity);
       await _context.SaveChangesAsync();
     }
@@ -262,20 +278,11 @@ namespace NssOrderTool.Repositories
 
         // --- 3. Observations (履歴ログ) の置換 ---
         // ログ内の文字列も置換する
-        var observations = await _context.Observations
-            .Where(o => o.OrderedList.Contains(oldName))
-            .ToListAsync();
+        await _context.ObservationDetails
+            .Where(d => d.PlayerId == oldName)
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.PlayerId, newName));
 
-        foreach (var obs in observations)
-        {
-          // カンマ区切りで分解して正確に置換
-          var names = obs.OrderedList.Split(',')
-              .Select(n => n.Trim())
-              .Select(n => n.Equals(oldName, StringComparison.OrdinalIgnoreCase) ? newName : n);
-
-          obs.OrderedList = string.Join(", ", names);
-        }
-
+        // SequencePairsやPlayersの処理も含めてSave
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
       }

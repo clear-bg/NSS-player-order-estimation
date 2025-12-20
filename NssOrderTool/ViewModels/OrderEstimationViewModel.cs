@@ -212,11 +212,15 @@ namespace NssOrderTool.ViewModels
         HistoryList.Clear();
         foreach (var e in entities)
         {
+          var reconstructedList = string.Join(", ", e.Details
+              .OrderBy(d => d.OrderIndex)
+              .Select(d => d.PlayerId));
+
           HistoryList.Add(new HistoryItem
           {
             Id = e.Id,
             Timestamp = e.ObservationTime,
-            Content = e.OrderedList
+            Content = reconstructedList
           });
         }
       }

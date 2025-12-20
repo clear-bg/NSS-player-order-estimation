@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,10 +13,8 @@ namespace NssOrderTool.Models.Entities
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // AUTO_INCREMENT
     public int Id { get; set; }
 
-    [Column("ordered_list")]
-    public string OrderedList { get; set; } = "";
-
     [Column("observation_time")]
     public DateTime ObservationTime { get; set; } = DateTime.Now;
+    public List<ObservationDetailEntity> Details { get; set; } = new();
   }
 }

@@ -15,6 +15,7 @@ namespace NssOrderTool.Database
     public DbSet<SequencePairEntity> SequencePairs { get; set; }
     public DbSet<AliasEntity> Aliases { get; set; }
     public DbSet<ObservationEntity> Observations { get; set; }
+    public DbSet<ObservationDetailEntity> ObservationDetails { get; set; }
     public DbSet<ArenaSessionEntity> ArenaSessions { get; set; }
     public DbSet<ArenaRoundEntity> ArenaRounds { get; set; }
     public DbSet<ArenaParticipantEntity> ArenaParticipants { get; set; }
