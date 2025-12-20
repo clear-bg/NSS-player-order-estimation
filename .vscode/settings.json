@@ -29,5 +29,54 @@
   "xamlStyler.maxAttributesPerLine": 1,
   "xamlStyler.keepFirstAttributeOnSameLine": true,
   "xamlStyler.putEndingBracketOnNewLine": true,
-  "xamlStyler.reorderAttributes": true
+  "xamlStyler.reorderAttributes": true,
+
+  // --- DB Code (テスト用) ---
+  "dbcode.connections": [
+    {
+      "connectionId": "ABOrqNfxm0XrIUwVVmJrN",
+      "name": "OrderEstimator_Test",
+      "driver": "mysql",
+      "color": "#00B083",
+      "connectionType": "host",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "ssl": false,
+      "username": "admin",
+      "password": "",
+      "savePassword": "secretStorage",
+      "database": "player_order_data_test",
+      "readOnly": false,
+      "role": "testing",
+      "postConnectionSqlType": "inline",
+      "connectionTimeout": 60,
+      "driverOptions": {
+        "retrievePublickey": true,
+        "disableMultiStatements": false
+      }
+    },
+    // --- DB Code (本番用) ---
+    {
+      "connectionId": "iV-YqScuxDh5nHxZ6SNiX",
+      "name": "OrderEstimator_PROD",
+      "driver": "mysql",
+      "color": "#FF5116",
+      "connectionType": "host",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "ssl": false,
+      "username": "admin",
+      "password": "",
+      "savePassword": "secretStorage",
+      "database": "order_ranking_db_prod",
+      "readOnly": false,
+      "role": "production",
+      "postConnectionSqlType": "inline",
+      "connectionTimeout": 60,
+      "driverOptions": {
+        "retrievePublickey": true,
+        "disableMultiStatements": false
+      }
+    }
+  ]
 }
