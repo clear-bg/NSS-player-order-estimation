@@ -19,5 +19,17 @@ namespace NssOrderTool.Database
     public DbSet<ArenaSessionEntity> ArenaSessions { get; set; }
     public DbSet<ArenaRoundEntity> ArenaRounds { get; set; }
     public DbSet<ArenaParticipantEntity> ArenaParticipants { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+
+      // 論理削除のグローバルクエリフィルタを設定
+      modelBuilder.Entity<PlayerEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<ObservationEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<ObservationDetailEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<SequencePairEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<AliasEntity>().HasQueryFilter(e => !e.IsDeleted);
+    }
   }
 }
