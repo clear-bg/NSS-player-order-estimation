@@ -34,6 +34,9 @@ namespace NssOrderTool.Database
       modelBuilder.Entity<ObservationDetailEntity>().HasQueryFilter(e => !e.IsDeleted);
       modelBuilder.Entity<SequencePairEntity>().HasQueryFilter(e => !e.IsDeleted);
       modelBuilder.Entity<AliasEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<ArenaSessionEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<ArenaRoundEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<ArenaParticipantEntity>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     // 非同期保存時のフック
