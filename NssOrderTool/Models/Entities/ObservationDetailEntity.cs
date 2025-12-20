@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NssOrderTool.Models.Interfaces;
@@ -5,7 +6,7 @@ using NssOrderTool.Models.Interfaces;
 namespace NssOrderTool.Models.Entities
 {
   [Table("ObservationDetails")]
-  public class ObservationDetailEntity : ISoftDelete
+  public class ObservationDetailEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("detail_id")]
@@ -31,5 +32,11 @@ namespace NssOrderTool.Models.Entities
 
     [Column("is_deleted")]
     public bool IsDeleted { get; set; } = false;
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
   }
 }
