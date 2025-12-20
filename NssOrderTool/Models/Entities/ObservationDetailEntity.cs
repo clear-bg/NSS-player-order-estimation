@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NssOrderTool.Models.Interfaces;
 
 namespace NssOrderTool.Models.Entities
 {
   [Table("ObservationDetails")]
-  public class ObservationDetailEntity
+  public class ObservationDetailEntity : ISoftDelete
   {
     [Key]
     [Column("detail_id")]
@@ -27,5 +28,8 @@ namespace NssOrderTool.Models.Entities
 
     [ForeignKey(nameof(PlayerId))]
     public PlayerEntity? Player { get; set; }
+
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; } = false;
   }
 }

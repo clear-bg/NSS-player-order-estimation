@@ -131,17 +131,19 @@ namespace NssOrderTool.Repositories
           .ToListAsync();
     }
 
+    // 既存のメソッドを書き換えてください
     public virtual async Task UndoObservationAsync(int observationId, List<OrderPair> pairsToDecrement)
     {
       using var transaction = await _context.Database.BeginTransactionAsync();
       try
       {
-        // 1. ペアのFrequencyを減算 (存在チェック含む)
+        // 1. ペアのFrequencyを減算
         if (pairsToDecrement != null && pairsToDecrement.Any())
         {
           var preds = pairsToDecrement.Select(p => p.Predecessor).Distinct().ToList();
           var succs = pairsToDecrement.Select(p => p.Successor).Distinct().ToList();
 
+          // Global Filterが効いているので、生存しているペアのみ取得される
           var entities = await _context.SequencePairs
               .Where(p => preds.Contains(p.PredecessorId) && succs.Contains(p.SuccessorId))
               .ToListAsync();
@@ -155,7 +157,9 @@ namespace NssOrderTool.Repositories
             if (entity != null)
             {
               entity.Frequency--;
-              // 0以下になったらレコード削除 (ゴミ掃除)
+              // 0以下になったら物理削除のままとします（ゴミ掃除）
+              // ※ここを論理削除にすると、再登録時に「同名ペアの重複エラー」への対応が必要になるため、
+              //   今回はObservationの論理削除を優先し、ペアは物理削除で整合性を保ちます。
               if (entity.Frequency <= 0)
               {
                 _context.SequencePairs.Remove(entity);
@@ -165,10 +169,22 @@ namespace NssOrderTool.Repositories
         }
 
         // 2. 履歴ログ(Observation)を削除
-        var obs = await _context.Observations.FindAsync(observationId);
+        // 修正ポイント: FindAsyncではなくIncludeを使って詳細も取得する
+        var obs = await _context.Observations
+            .Include(o => o.Details)
+            .FirstOrDefaultAsync(o => o.Id == observationId);
+
         if (obs != null)
         {
-          _context.Observations.Remove(obs);
+          // [修正前] 物理削除
+          // _context.Observations.Remove(obs);
+
+          // [修正後] 論理削除
+          obs.IsDeleted = true;
+          foreach (var detail in obs.Details)
+          {
+            detail.IsDeleted = true;
+          }
         }
 
         await _context.SaveChangesAsync();
@@ -294,6 +310,27 @@ namespace NssOrderTool.Repositories
       }
     }
 
+    public virtual async Task DeleteObservationAsync(int id)
+    {
+      // 修正後: 詳細データ(Details)も含めて取得し、論理削除を行う
+      var obs = await _context.Observations
+          .Include(o => o.Details)
+          .FirstOrDefaultAsync(o => o.Id == id);
+
+      if (obs != null)
+      {
+        // 親の削除フラグ
+        obs.IsDeleted = true;
+
+        // 子(Details)の削除フラグもすべて立てる
+        foreach (var detail in obs.Details)
+        {
+          detail.IsDeleted = true;
+        }
+
+        await _context.SaveChangesAsync();
+      }
+    }
     public virtual void ResetTracking()
     {
       _context.ChangeTracker.Clear();
