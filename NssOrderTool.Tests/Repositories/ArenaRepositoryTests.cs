@@ -12,7 +12,6 @@ namespace NssOrderTool.Tests.Repositories
 {
   public class ArenaRepositoryTests
   {
-    // テストごとにクリーンなDBコンテキストを作成するヘルパー
     private AppDbContext CreateInMemoryContext(string dbName)
     {
       var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -22,17 +21,22 @@ namespace NssOrderTool.Tests.Repositories
     }
 
     [Fact]
-    public async Task AddSession_ShouldSaveSessionAndRounds()
+    public async Task AddSession_ShouldSaveSession_Rounds_AndParticipants()
     {
       // Arrange
       var dbName = "Test_AddSession";
       var session = new ArenaSessionEntity
       {
-        PlayerIdsCsv = "A,B,C,D,E,F,G,H",
+        // 参加者リストを作成
+        Participants = new List<ArenaParticipantEntity>
+        {
+            new ArenaParticipantEntity { PlayerId = "A", SlotIndex = 0 },
+            new ArenaParticipantEntity { PlayerId = "B", SlotIndex = 1 }
+        },
         Rounds = new List<ArenaRoundEntity>
         {
-            new ArenaRoundEntity { RoundNumber = 1, WinningTeam = 1 }, // Blue Win
-            new ArenaRoundEntity { RoundNumber = 2, WinningTeam = 2 }  // Orange Win
+            new ArenaRoundEntity { RoundNumber = 1, WinningTeam = 1 },
+            new ArenaRoundEntity { RoundNumber = 2, WinningTeam = 2 }
         }
       };
 
@@ -48,10 +52,16 @@ namespace NssOrderTool.Tests.Repositories
       {
         var saved = await context.ArenaSessions
             .Include(s => s.Rounds)
+            .Include(s => s.Participants) // 参加者も含めて取得
             .FirstOrDefaultAsync();
 
         saved.Should().NotBeNull();
-        saved!.PlayerIdsCsv.Should().Be("A,B,C,D,E,F,G,H");
+
+        // 参加者の検証
+        saved!.Participants.Should().HaveCount(2);
+        saved.Participants.Should().Contain(p => p.PlayerId == "A");
+
+        // ラウンドの検証
         saved.Rounds.Should().HaveCount(2);
         saved.Rounds.First(r => r.RoundNumber == 1).WinningTeam.Should().Be(1);
       }
@@ -65,9 +75,7 @@ namespace NssOrderTool.Tests.Repositories
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new ArenaRepository(context);
-        // 古いデータ
         await repo.AddSessionAsync(new ArenaSessionEntity { CreatedAt = System.DateTime.Now.AddDays(-1) });
-        // 新しいデータ
         await repo.AddSessionAsync(new ArenaSessionEntity { CreatedAt = System.DateTime.Now });
       }
 
@@ -79,7 +87,6 @@ namespace NssOrderTool.Tests.Repositories
 
         // Assert
         sessions.Should().HaveCount(2);
-        // 新しい順（降順）になっているか
         sessions[0].CreatedAt.Should().BeAfter(sessions[1].CreatedAt);
       }
     }
@@ -94,7 +101,7 @@ namespace NssOrderTool.Tests.Repositories
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new ArenaRepository(context);
-        var session = new ArenaSessionEntity { PlayerIdsCsv = "DeleteMe" };
+        var session = new ArenaSessionEntity();
         await repo.AddSessionAsync(session);
         targetId = session.Id;
       }

@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
-using NssOrderTool.Models.Entities; // Entityを使う
+using NssOrderTool.Models.Entities;
 
 namespace NssOrderTool.Repositories
 {
   public class PlayerRepository
   {
-    // DbManager ではなく AppDbContext を使う
     private readonly AppDbContext _context;
 
     public PlayerRepository(AppDbContext context)
@@ -18,6 +17,10 @@ namespace NssOrderTool.Repositories
       _context = context;
     }
 
+    /// <summary>
+    /// プレイヤー名を登録する（存在しない場合のみ新規作成）
+    /// テストでモック化可能にするため virtual を付与
+    /// </summary>
     public virtual async Task RegisterPlayersAsync(IEnumerable<string> players)
     {
       // 重複排除
@@ -48,12 +51,14 @@ namespace NssOrderTool.Repositories
       }
     }
 
-    public async Task<List<string>> GetAllPlayersAsync()
+    /// <summary>
+    /// 全プレイヤー情報を取得する
+    /// 将来の拡張性のため、IDだけでなく Entity 全体を返すように変更
+    /// </summary>
+    public virtual async Task<List<PlayerEntity>> GetAllPlayersAsync()
     {
-      // SQL: SELECT player_id FROM Players ORDER BY player_id
       return await _context.Players
           .OrderBy(p => p.Id)
-          .Select(p => p.Id)
           .ToListAsync();
     }
 
