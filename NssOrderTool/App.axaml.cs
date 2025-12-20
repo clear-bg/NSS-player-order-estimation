@@ -88,7 +88,7 @@ public partial class App : Application
 
       options.UseMySql(
               builder.ConnectionString,
-              ServerVersion.AutoDetect(builder.ConnectionString)
+              new MySqlServerVersion(new Version(8, 0, 0))
           );
     }, ServiceLifetime.Transient);
 
