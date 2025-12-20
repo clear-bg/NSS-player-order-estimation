@@ -166,14 +166,19 @@ namespace NssOrderTool.ViewModels
           }
         }
 
-        await _orderRepo.AddObservationAsync(normalizedInput);
-
-        // 4. プレイヤー登録 & 関係更新
+        // 4. プレイヤー登録 (先に実行！)
+        // newPairs からプレイヤー名を抽出
         var playerNames = newPairs.Select(p => p.Predecessor)
                                .Concat(newPairs.Select(p => p.Successor))
                                .Distinct();
 
+        // まずプレイヤーマスタに存在しない名前を登録する
         await _playerRepo.RegisterPlayersAsync(playerNames);
+
+        // 5. 観測データ保存 (プレイヤーが存在する状態なので成功する)
+        await _orderRepo.AddObservationAsync(normalizedInput);
+
+        // 6. ペア関係更新
         await _orderRepo.UpdatePairsAsync(newPairs);
 
         WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
