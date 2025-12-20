@@ -51,11 +51,30 @@ namespace NssOrderTool.Repositories
     /// </summary>
     public virtual async Task DeleteSessionAsync(int sessionId)
     {
-      // カスケード削除の設定によるが、念のため明示的に取得して削除
-      var session = await _context.ArenaSessions.FindAsync(sessionId);
+      // 1. 関連データ(Participants, Rounds)も含めて取得する
+      var session = await _context.ArenaSessions
+          .Include(s => s.Participants)
+          .Include(s => s.Rounds)
+          .FirstOrDefaultAsync(s => s.Id == sessionId);
+
       if (session != null)
       {
-        _context.ArenaSessions.Remove(session);
+        // 2. 親セッションの論理削除
+        session.IsDeleted = true;
+
+        // 3. 子（参加者）の論理削除
+        foreach (var p in session.Participants)
+        {
+          p.IsDeleted = true;
+        }
+
+        // 4. 子（ラウンド）の論理削除
+        foreach (var r in session.Rounds)
+        {
+          r.IsDeleted = true;
+        }
+
+        // 5. 保存 (UPDATE文が発行される)
         await _context.SaveChangesAsync();
       }
     }
