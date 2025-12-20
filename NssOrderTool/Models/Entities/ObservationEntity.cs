@@ -7,7 +7,7 @@ using NssOrderTool.Models.Interfaces;
 namespace NssOrderTool.Models.Entities
 {
   [Table("Observations")]
-  public class ObservationEntity : ISoftDelete
+  public class ObservationEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("observation_id")]
@@ -20,5 +20,11 @@ namespace NssOrderTool.Models.Entities
 
     [Column("is_deleted")]
     public bool IsDeleted { get; set; } = false;
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
   }
 }
