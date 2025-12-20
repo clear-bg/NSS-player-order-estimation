@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NssOrderTool.Database;
 
@@ -11,9 +12,11 @@ using NssOrderTool.Database;
 namespace NssOrderTool.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220155251_AddLogicalDelete")]
+    partial class AddLogicalDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,10 +31,6 @@ namespace NssOrderTool.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("alias_name");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
@@ -40,10 +39,6 @@ namespace NssOrderTool.Migrations
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("target_player_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("AliasName");
 
@@ -144,10 +139,6 @@ namespace NssOrderTool.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
@@ -164,10 +155,6 @@ namespace NssOrderTool.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("player_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -187,10 +174,6 @@ namespace NssOrderTool.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
@@ -198,10 +181,6 @@ namespace NssOrderTool.Migrations
                     b.Property<DateTime>("ObservationTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("observation_time");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -214,10 +193,6 @@ namespace NssOrderTool.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("player_id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
                     b.Property<DateTime>("FirstSeen")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("first_seen");
@@ -229,10 +204,6 @@ namespace NssOrderTool.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext")
                         .HasColumnName("name");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -249,10 +220,6 @@ namespace NssOrderTool.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("successor_id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
                     b.Property<int>("Frequency")
                         .HasColumnType("int")
                         .HasColumnName("frequency");
@@ -260,10 +227,6 @@ namespace NssOrderTool.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("PredecessorId", "SuccessorId");
 

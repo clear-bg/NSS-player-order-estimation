@@ -1,11 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NssOrderTool.Models.Interfaces;
 
 namespace NssOrderTool.Models.Entities
 {
   [Table("Players")] // DBのテーブル名を指定
-  public class PlayerEntity
+  public class PlayerEntity : ISoftDelete, ITimestamp
   {
     [Key] // 主キー
     [Column("player_id")]
@@ -16,5 +17,14 @@ namespace NssOrderTool.Models.Entities
 
     [Column("first_seen")]
     public DateTime FirstSeen { get; set; } = DateTime.Now;
+
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; } = false;
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
   }
 }
