@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace NssOrderTool.ViewModels
   public partial class ArenaViewModel : ViewModelBase
   {
     private readonly ArenaRepository _arenaRepo;
+    private readonly PlayerRepository _playerRepo;
     private readonly ArenaLogicService _arenaLogic;
 
     // --- Bindings ---
@@ -26,9 +28,13 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _statusText = "準備完了";
 
-    public ArenaViewModel(ArenaRepository arenaRepo, ArenaLogicService arenaLogic)
+    public ArenaViewModel(
+      ArenaRepository arenaRepo,
+      PlayerRepository playerRepo,
+      ArenaLogicService arenaLogic)
     {
       _arenaRepo = arenaRepo;
+      _playerRepo = playerRepo;
       _arenaLogic = arenaLogic;
 
       InitializeRounds();
@@ -39,6 +45,7 @@ namespace NssOrderTool.ViewModels
     public ArenaViewModel()
     {
       _arenaRepo = null!;
+      _playerRepo = null!;
       _arenaLogic = null!;
       InitializeRounds();
       InitializeMatrix();
@@ -108,15 +115,31 @@ namespace NssOrderTool.ViewModels
 
       try
       {
-        // プレイヤーIDの並び (A,B...H)
-        var playerIds = string.Join(",", PlayerRows.Select(p => p.Name));
+        // 1. プレイヤーID(名前)のリストを抽出
+        var playerNames = PlayerRows.Select(p => p.Name).ToList();
 
+        // 2. プレイヤーが存在しないとFKエラーになるため、事前に登録しておく
+        await _playerRepo.RegisterPlayersAsync(playerNames);
+
+        // 3. セッション作成
         var session = new ArenaSessionEntity
         {
-          PlayerIdsCsv = playerIds,
           CreatedAt = DateTime.Now
         };
 
+        // 参加者情報の作成
+        foreach (var row in PlayerRows)
+        {
+          session.Participants.Add(new ArenaParticipantEntity
+          {
+            PlayerId = row.Name,       // FK (RegisterPlayersAsyncで登録済み)
+            SlotIndex = row.Index,     // 表示順
+            WinCount = row.WinCount,   // スナップショット
+            Rank = row.Rank            // スナップショット
+          });
+        }
+
+        // ラウンド情報の作成
         foreach (var input in RoundInputs)
         {
           session.Rounds.Add(new ArenaRoundEntity
@@ -130,7 +153,6 @@ namespace NssOrderTool.ViewModels
 
         StatusText = "✅ 結果を保存しました";
 
-        // 保存後に入力をクリアするかは任意（今回はそのまま残す）
       }
       catch (Exception ex)
       {

@@ -16,10 +16,8 @@ namespace NssOrderTool.Models.Entities
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // 参加した8人のプレイヤーIDをカンマ区切りで保存 (順序 A, B, ... H)
-    // 例: "PlayerA, PlayerB, ..., PlayerH"
-    [Column("player_ids_csv")]
-    public string PlayerIdsCsv { get; set; } = "";
+    // 参加者リスト
+    public List<ArenaParticipantEntity> Participants { get; set; } = new();
 
     // リレーション (1対多)
     public List<ArenaRoundEntity> Rounds { get; set; } = new();

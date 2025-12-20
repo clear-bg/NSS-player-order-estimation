@@ -41,7 +41,8 @@ namespace NssOrderTool.Repositories
     public virtual async Task<ArenaSessionEntity?> GetSessionDetailAsync(int sessionId)
     {
       return await _context.ArenaSessions
-          .Include(s => s.Rounds) // ラウンド情報も結合して取得
+          .Include(s => s.Rounds)
+          .Include(s => s.Participants)
           .FirstOrDefaultAsync(s => s.Id == sessionId);
     }
 
