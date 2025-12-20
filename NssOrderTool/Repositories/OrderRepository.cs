@@ -125,6 +125,7 @@ namespace NssOrderTool.Repositories
     public virtual async Task<List<ObservationEntity>> GetRecentObservationsAsync(int limit = 50)
     {
       return await _context.Observations
+          .Include(o => o.Details)
           .OrderByDescending(o => o.ObservationTime)
           .Take(limit)
           .ToListAsync();
