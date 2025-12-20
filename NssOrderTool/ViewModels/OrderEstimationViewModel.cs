@@ -44,7 +44,7 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _statsText = "";
 
-    public ObservableCollection<string> RankingList { get; } = new();
+    public ObservableCollection<string> EstimatedSequence { get; } = new();
     public Func<string, List<string>, Task<bool>>? ConfirmCycleCallback { get; set; }
     public ObservableCollection<HistoryItem> HistoryList { get; } = new();
 
@@ -313,7 +313,7 @@ namespace NssOrderTool.ViewModels
         int totalPairs = allPairs.Count;
         StatsText = $"({totalPlayers} players, {totalPairs} pairs)";
 
-        RankingList.Clear();
+        EstimatedSequence.Clear();
         int currentRank = 1;
 
         foreach (var group in sortedLayers)
@@ -322,7 +322,7 @@ namespace NssOrderTool.ViewModels
               ? $"{currentRank} : {group[0]}"
               : $"{currentRank} : {string.Join(", ", group)} (推定同列)";
 
-          RankingList.Add(line);
+          EstimatedSequence.Add(line);
           currentRank++;
         }
         StatusText = "";
