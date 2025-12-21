@@ -11,37 +11,60 @@
   x:DataType="vm:ArenaViewModel"
   mc:Ignorable="d">
 
-  <Grid Margin="10" RowDefinitions="Auto, Auto, Auto">
+  <!--  ボタンに定義したクラス  -->
+  <UserControl.Styles>
+    <Style Selector="Button.RoundBtn /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+        </Transitions>
+      </Setter>
+    </Style>
 
+    <Style Selector="Button.RoundBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="0.8" />
+    </Style>
+  </UserControl.Styles>
+
+  <!--  画面を上(タイトル)・中(表)・ 下(保存ボタン) の3つに分割  -->
+  <Grid Margin="15" RowDefinitions="Auto, Auto, Auto">
     <StackPanel
       Grid.Row="0"
-      Margin="0,0,0,10"
-      Spacing="5">
+      Margin="0,0,0,15"
+      Spacing="10">
       <TextBlock
-        FontSize="18"
+        FontSize="20"
         FontWeight="Bold"
         Text="🏟️ アリーナ集計" />
-      <TextBlock Foreground="Gray" Text="プレイヤーごとの勝敗を確認し、下のボタンで勝敗を切り替えてください。" />
+      <TextBlock
+        FontSize="13"
+        Foreground="#666666"
+        Text="下のボタンで各ラウンドの勝利チームを入力すると、スコアが自動計算されます。" />
     </StackPanel>
 
+    <!--  スコア表と入力ボタンのエリア  -->
+    <!--  スコア表全体の見た目  -->
     <Border
       Grid.Row="1"
+      Background="#f0f8ff"
       BorderBrush="#808080"
-      BorderThickness="1">
-
+      BorderThickness="3">
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-        <StackPanel Margin="10">
-
+        <StackPanel Margin="15">
           <StackPanel Orientation="Horizontal">
+            <!--  Playerの部分  -->
+            <!--  ボックスの見た目  -->
             <Border
               Width="80"
-              Height="24"
-              Background="#F0F0F0"
-              BorderBrush="#808080"
-              BorderThickness="0.5">
+              Height="28"
+              Background="#bbbbbb"
+              BorderBrush="#555555"
+              BorderThickness="0.8">
+              <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                FontSize="12"
                 FontWeight="Bold"
                 Foreground="#333333"
                 Text="Player" />
@@ -55,50 +78,59 @@
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
+                  <!--  ラウンド番号の部分の見た目  -->
+                  <!--  ボックスの見た目  -->
                   <Border
-                    Width="60"
-                    Height="24"
-                    Background="#F0F0F0"
-                    BorderBrush="#808080"
-                    BorderThickness="0.5">
+                    Width="40"
+                    Height="28"
+                    Background="#bbbbbb"
+                    BorderBrush="#555555"
+                    BorderThickness="0.8">
+                    <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
                       FontSize="11"
                       FontWeight="Bold"
-                      Foreground="#333333"
+                      Foreground="#555555"
                       Text="{Binding RoundNumber, StringFormat='R{0}'}" />
                   </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
 
+            <!--  Winsの部分  -->
+            <!--  ボックスの見た目  -->
             <Border
-              Width="60"
-              Height="24"
-              Background="#EEFFEE"
-              BorderBrush="#808080"
-              BorderThickness="0.5">
+              Width="40"
+              Height="28"
+              Background="#bbbbbb"
+              BorderBrush="#555555"
+              BorderThickness="0.8">
+              <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                FontSize="11"
+                FontSize="12"
                 FontWeight="Bold"
-                Foreground="#006600"
-                Text="Wins" />
+                Foreground="#2E7D32"
+                Text="Win" />
             </Border>
+            <!--  Rankの部分  -->
+            <!--  ボックスの見た目  -->
             <Border
-              Width="60"
-              Height="24"
-              Background="#FFFFEE"
-              BorderBrush="#808080"
-              BorderThickness="0.5">
+              Width="40"
+              Height="28"
+              Background="#bbbbbb"
+              BorderBrush="#555555"
+              BorderThickness="0.8">
+              <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                FontSize="11"
+                FontSize="12"
                 FontWeight="Bold"
-                Foreground="#666600"
+                Foreground="#2E7D32"
                 Text="Rank" />
             </Border>
           </StackPanel>
@@ -108,20 +140,25 @@
               <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
                 <StackPanel Orientation="Horizontal">
 
+                  <!--  プレイヤー名表示部分  -->
+                  <!--  ボックスの見た目  -->
                   <Border
                     Width="80"
-                    Height="30"
-                    Background="#E0E0E0"
-                    BorderBrush="#808080"
-                    BorderThickness="0.5">
+                    Height="32"
+                    Background="#dbdbdb"
+                    BorderBrush="#555555"
+                    BorderThickness="0.8">
+                    <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
+                      FontSize="14"
                       FontWeight="Bold"
-                      Foreground="Black"
+                      Foreground="#333333"
                       Text="{Binding Name}" />
                   </Border>
 
+                  <!--  セルの繰り返し  -->
                   <ItemsControl ItemsSource="{Binding Cells}">
                     <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>
@@ -130,16 +167,19 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vmArena:ArenaCellViewModel">
+                        <!--  1ラウンド分のセルの見た目  -->
+                        <!--  ボックスの見た目  -->
                         <Border
-                          Width="60"
-                          Height="30"
+                          Width="40"
+                          Height="32"
                           Background="{Binding CellColor}"
-                          BorderBrush="#808080"
-                          BorderThickness="0.5">
+                          BorderBrush="#555555"
+                          BorderThickness="0.8">
+                          <!--  テキストの見た目  -->
                           <TextBlock
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            FontSize="14"
+                            FontSize="16"
                             FontWeight="Bold"
                             Foreground="{Binding ForeColor}"
                             Text="{Binding ResultMark}" />
@@ -148,30 +188,38 @@
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
 
+                  <!--  Winの集計結果セル部分  -->
+                  <!--  ボックスの見た目  -->
                   <Border
-                    Width="60"
-                    Height="30"
-                    Background="#F9FFF9"
-                    BorderBrush="#808080"
-                    BorderThickness="0.5">
+                    Width="40"
+                    Height="32"
+                    Background="#C6E0B4"
+                    BorderBrush="#555555"
+                    BorderThickness="0.8">
+                    <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      FontWeight="SemiBold"
-                      Foreground="Black"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Foreground="#333333"
                       Text="{Binding WinCount}" />
                   </Border>
+                  <!--  Rankの集計結果セル部分  -->
+                  <!--  ボックスの見た目  -->
                   <Border
-                    Width="60"
-                    Height="30"
-                    Background="#FFFFF9"
-                    BorderBrush="#808080"
-                    BorderThickness="0.5">
+                    Width="40"
+                    Height="32"
+                    Background="#C6E0B4"
+                    BorderBrush="#555555"
+                    BorderThickness="0.8">
+                    <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      FontWeight="SemiBold"
-                      Foreground="Black"
+                      FontSize="14"
+                      FontWeight="Bold"
+                      Foreground="#333333"
                       Text="{Binding Rank}" />
                   </Border>
 
@@ -180,14 +228,20 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <Separator Margin="0,15" />
+          <!--  仕切り線  -->
+          <Separator
+            Height="2"
+            Margin="0,20"
+            Background="#DDDDDD" />
 
-          <StackPanel Orientation="Horizontal">
+          <!--  プレイヤー名の表示分だけ右にずらすため  -->
+          <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
             <Border
               Width="80"
-              Height="10"
+              Height="1"
               Background="Transparent" />
 
+            <!--  ボタン部分  -->
             <ItemsControl ItemsSource="{Binding RoundInputs}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -196,29 +250,37 @@
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
+                  <!--  ボタンのデザイン  -->
+                  <!--  ボタンの見た目  -->
                   <Button
-                    Width="60"
-                    Height="50"
+                    Width="40"
+                    Height="55"
                     Margin="0,0,1,0"
+                    Padding="0"
                     Background="{Binding CellColor}"
-                    BorderBrush="#404040"
+                    BorderBrush="#606060"
                     BorderThickness="1"
+                    Classes="RoundBtn"
                     Command="{Binding ToggleWinnerCommand}"
                     CornerRadius="4">
+                    <!--  ボタンの中身のレイアウト  -->
                     <Grid RowDefinitions="Auto, *">
+                      <!--  R1とかのテキストの見た目  -->
                       <TextBlock
-                        Margin="0,2"
+                        Margin="0,4,0,0"
                         HorizontalAlignment="Center"
-                        FontSize="10"
-                        Foreground="#EEEEEE"
+                        FontSize="11"
+                        Foreground="#333333"
+                        Opacity="0.9"
                         Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                      <!--  "-"とか"Blue"とかのテキストの見た目  -->
                       <TextBlock
                         Grid.Row="1"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Foreground="{Binding ForeColor}"
+                        FontSize="13"
+                        FontWeight="Black"
+                        Foreground="#333333"
                         Text="{Binding DisplayText}" />
                     </Grid>
                   </Button>
@@ -231,24 +293,40 @@
       </ScrollViewer>
     </Border>
 
+    <!--  下段、保存ボタンとテキスト  -->
     <StackPanel
       Grid.Row="2"
       Margin="0,15"
+      VerticalAlignment="Top"
       Orientation="Horizontal"
-      Spacing="15">
+      Spacing="20">
+
+      <!--  保存ボタン  -->
       <Button
-        Padding="20,10"
+        Padding="30,12"
         Background="#007ACC"
         Command="{Binding SaveSessionCommand}"
-        Content="結果を保存する"
-        FontWeight="Bold"
-        Foreground="White" />
+        CornerRadius="6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock
+            VerticalAlignment="Center"
+            FontSize="16"
+            Text="💾" />
+          <TextBlock
+            VerticalAlignment="Center"
+            FontSize="14"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="結果を保存する" />
+        </StackPanel>
+      </Button>
 
+      <!--  ステータスメッセージ  -->
       <TextBlock
         VerticalAlignment="Center"
         FontSize="14"
         FontWeight="Bold"
-        Foreground="Green"
+        Foreground="#2E7D32"
         Text="{Binding StatusText}" />
     </StackPanel>
 

@@ -22,9 +22,9 @@ namespace NssOrderTool.ViewModels.Arena
     // 背景色（チームごとの色）
     public IBrush CellColor => TeamId switch
     {
-      1 => Brushes.CornflowerBlue,
-      2 => Brushes.SandyBrown,
-      _ => Brushes.LightGray
+      1 => Brush.Parse("#9BC2E6"),
+      2 => Brush.Parse("#F8CBAD"),
+      _ => Brush.Parse("#f0f0f0"),
     };
 
     // 文字色
