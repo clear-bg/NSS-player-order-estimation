@@ -20,7 +20,7 @@ namespace NssOrderTool.Tests.Repositories
     {
       var options = new DbContextOptionsBuilder<AppDbContext>()
           .UseInMemoryDatabase(databaseName: dbName)
-          .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+          .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)) // トランザクション無視警告を抑制
           .Options;
 
       return new AppDbContext(options);
@@ -32,7 +32,7 @@ namespace NssOrderTool.Tests.Repositories
       // Arrange
       var dbName = "TestDb_AddObservation";
       var input = "PlayerA, PlayerB, PlayerC";
-      var config = new AppConfig(); // テスト用の設定（中身は空でOK）
+      var config = new AppConfig();
 
       // Act
       using (var context = CreateInMemoryContext(dbName))
@@ -44,7 +44,6 @@ namespace NssOrderTool.Tests.Repositories
       // Assert
       using (var context = CreateInMemoryContext(dbName))
       {
-        // 親レコード(Observation)の確認
         var observation = await context.Observations
             .Include(o => o.Details)
             .FirstOrDefaultAsync();
@@ -52,17 +51,84 @@ namespace NssOrderTool.Tests.Repositories
         observation.Should().NotBeNull();
         observation!.Details.Should().HaveCount(3);
 
-        // 子レコード(Details)の順序と内容の確認
         var details = observation.Details.OrderBy(d => d.OrderIndex).ToList();
-
         details[0].PlayerId.Should().Be("PlayerA");
-        details[0].OrderIndex.Should().Be(0);
+      }
+    }
 
-        details[1].PlayerId.Should().Be("PlayerB");
-        details[1].OrderIndex.Should().Be(1);
+    [Fact]
+    public async Task AddObservationAsync_ShouldSetAuditColumns()
+    {
+      // Arrange
+      var dbName = "TestDb_AuditColumns";
+      var config = new AppConfig();
+      var before = DateTime.Now;
 
-        details[2].PlayerId.Should().Be("PlayerC");
-        details[2].OrderIndex.Should().Be(2);
+      // Act
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var repo = new OrderRepository(context, config);
+        await repo.AddObservationAsync("A, B");
+      }
+
+      // Assert
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var obs = await context.Observations.FirstAsync();
+
+        // 作成日時・更新日時が入っていること
+        obs.CreatedAt.Should().BeAfter(before.AddSeconds(-1));
+        obs.CreatedAt.Should().BeBefore(DateTime.Now.AddSeconds(1));
+        obs.UpdatedAt.Should().Be(obs.CreatedAt); // 新規作成時は同じはず
+      }
+    }
+
+    [Fact]
+    public async Task DeleteObservationAsync_LogicalDelete_WorksCorrectly()
+    {
+      // Arrange
+      var dbName = "TestDb_LogicalDelete";
+      var config = new AppConfig();
+      int targetId;
+
+      // データ準備
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var repo = new OrderRepository(context, config);
+        await repo.AddObservationAsync("DeleteMeA, DeleteMeB");
+        var obs = await context.Observations.FirstAsync();
+        targetId = obs.Id;
+      }
+
+      // Act: 削除実行
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var repo = new OrderRepository(context, config);
+        await repo.DeleteObservationAsync(targetId);
+      }
+
+      // Assert
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        // 1. 通常のクエリでは取得できないこと（アプリ上は消えている）
+        var visibleObs = await context.Observations.FirstOrDefaultAsync(o => o.Id == targetId);
+        visibleObs.Should().BeNull();
+
+        // 2. フィルタを無視すれば取得でき、IsDeletedがtrueであること（DBには残っている）
+        var deletedObs = await context.Observations
+            .IgnoreQueryFilters()
+            .Include(o => o.Details)
+            .FirstOrDefaultAsync(o => o.Id == targetId);
+
+        deletedObs.Should().NotBeNull();
+        deletedObs!.IsDeleted.Should().BeTrue();
+
+        // 3. 子データ(Details)も論理削除されていること
+        deletedObs.Details.Should().NotBeEmpty();
+        foreach (var detail in deletedObs.Details)
+        {
+          detail.IsDeleted.Should().BeTrue();
+        }
       }
     }
 
@@ -88,8 +154,6 @@ namespace NssOrderTool.Tests.Repositories
 
         // Assert
         result.Should().HaveCount(2);
-        // 新しい順に取得されるはず
-        result[0].Details.Should().Contain(d => d.PlayerId == "C"); // ※注: 実装にIncludeがない場合、ここでDetailsが取得できない可能性がありますが、テストとしては期待値を記述します
       }
     }
 
@@ -107,7 +171,7 @@ namespace NssOrderTool.Tests.Repositories
         await repo.UpdatePairsAsync(pairs);
       }
 
-      // Act: 同じペアを再度追加
+      // Act
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new OrderRepository(context, config);

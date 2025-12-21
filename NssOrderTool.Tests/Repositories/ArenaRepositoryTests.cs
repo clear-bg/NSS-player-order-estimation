@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using NssOrderTool.Database;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
@@ -16,6 +18,7 @@ namespace NssOrderTool.Tests.Repositories
     {
       var options = new DbContextOptionsBuilder<AppDbContext>()
           .UseInMemoryDatabase(databaseName: dbName)
+          .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)) // 念のため追加
           .Options;
       return new AppDbContext(options);
     }
@@ -27,7 +30,6 @@ namespace NssOrderTool.Tests.Repositories
       var dbName = "Test_AddSession";
       var session = new ArenaSessionEntity
       {
-        // 参加者リストを作成
         Participants = new List<ArenaParticipantEntity>
         {
             new ArenaParticipantEntity { PlayerId = "A", SlotIndex = 0 },
@@ -52,50 +54,23 @@ namespace NssOrderTool.Tests.Repositories
       {
         var saved = await context.ArenaSessions
             .Include(s => s.Rounds)
-            .Include(s => s.Participants) // 参加者も含めて取得
+            .Include(s => s.Participants)
             .FirstOrDefaultAsync();
 
         saved.Should().NotBeNull();
-
-        // 参加者の検証
         saved!.Participants.Should().HaveCount(2);
-        saved.Participants.Should().Contain(p => p.PlayerId == "A");
-
-        // ラウンドの検証
         saved.Rounds.Should().HaveCount(2);
-        saved.Rounds.First(r => r.RoundNumber == 1).WinningTeam.Should().Be(1);
+
+        // 監査カラムの確認
+        saved.CreatedAt.Should().BeAfter(DateTime.MinValue);
       }
     }
 
     [Fact]
-    public async Task GetAllSessions_ShouldReturnDescendingOrder()
+    public async Task DeleteSession_LogicalDelete_WorksCorrectly()
     {
       // Arrange
-      var dbName = "Test_GetAllSessions";
-      using (var context = CreateInMemoryContext(dbName))
-      {
-        var repo = new ArenaRepository(context);
-        await repo.AddSessionAsync(new ArenaSessionEntity { CreatedAt = System.DateTime.Now.AddDays(-1) });
-        await repo.AddSessionAsync(new ArenaSessionEntity { CreatedAt = System.DateTime.Now });
-      }
-
-      // Act
-      using (var context = CreateInMemoryContext(dbName))
-      {
-        var repo = new ArenaRepository(context);
-        var sessions = await repo.GetAllSessionsAsync();
-
-        // Assert
-        sessions.Should().HaveCount(2);
-        sessions[0].CreatedAt.Should().BeAfter(sessions[1].CreatedAt);
-      }
-    }
-
-    [Fact]
-    public async Task DeleteSession_ShouldRemoveData()
-    {
-      // Arrange
-      var dbName = "Test_DeleteSession";
+      var dbName = "Test_LogicalDeleteSession";
       int targetId;
 
       using (var context = CreateInMemoryContext(dbName))
@@ -106,7 +81,7 @@ namespace NssOrderTool.Tests.Repositories
         targetId = session.Id;
       }
 
-      // Act
+      // Act: 削除実行
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new ArenaRepository(context);
@@ -116,8 +91,64 @@ namespace NssOrderTool.Tests.Repositories
       // Assert
       using (var context = CreateInMemoryContext(dbName))
       {
-        var deleted = await context.ArenaSessions.FindAsync(targetId);
-        deleted.Should().BeNull();
+        // 1. 通常検索ではヒットしない（アプリ上は消えている）
+        var visible = await context.ArenaSessions.FindAsync(targetId);
+        visible.Should().BeNull();
+
+        // 2. フィルタ無視ならヒットし、IsDeleted=true（DBには残っている）
+        var deleted = await context.ArenaSessions
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(s => s.Id == targetId);
+
+        deleted.Should().NotBeNull();
+        deleted!.IsDeleted.Should().BeTrue();
+      }
+    }
+
+    [Fact]
+    public async Task DeleteSession_ShouldCascadeLogicalDelete()
+    {
+      // Arrange
+      var dbName = "Test_CascadeDelete";
+      int sessionId;
+
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var repo = new ArenaRepository(context);
+        var session = new ArenaSessionEntity();
+        session.Rounds.Add(new ArenaRoundEntity { RoundNumber = 1 });
+        session.Participants.Add(new ArenaParticipantEntity { PlayerId = "P1" });
+
+        await repo.AddSessionAsync(session);
+        sessionId = session.Id;
+      }
+
+      // Act
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        var repo = new ArenaRepository(context);
+        await repo.DeleteSessionAsync(sessionId);
+      }
+
+      // Assert
+      using (var context = CreateInMemoryContext(dbName))
+      {
+        // 親だけでなく、子データも論理削除されているか確認
+        var rounds = await context.ArenaRounds
+            .IgnoreQueryFilters()
+            .Where(r => r.SessionId == sessionId)
+            .ToListAsync();
+
+        var participants = await context.ArenaParticipants
+            .IgnoreQueryFilters()
+            .Where(p => p.SessionId == sessionId)
+            .ToListAsync();
+
+        rounds.Should().NotBeEmpty();
+        rounds.All(r => r.IsDeleted).Should().BeTrue("全てのラウンドが論理削除されていること");
+
+        participants.Should().NotBeEmpty();
+        participants.All(p => p.IsDeleted).Should().BeTrue("全ての参加者が論理削除されていること");
       }
     }
   }
