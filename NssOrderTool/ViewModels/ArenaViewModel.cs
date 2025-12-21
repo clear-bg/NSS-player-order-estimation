@@ -101,8 +101,7 @@ namespace NssOrderTool.ViewModels
 
       foreach (var row in PlayerRows)
       {
-        // 自分のスコアが何番目にあるか + 1
-        row.Rank = sortedScores.IndexOf(row.WinCount) + 1;
+        row.Rank = PlayerRows.Count(p => p.WinCount > row.WinCount) + 1;
       }
     }
 
