@@ -63,9 +63,9 @@ namespace NssOrderTool.Database
       {
         if (entry.State == EntityState.Added)
         {
-          // 新規作成時は CreatedAt と UpdatedAt 両方を現在時刻に
-          entry.Entity.CreatedAt = DateTime.Now;
-          entry.Entity.UpdatedAt = DateTime.Now;
+          var now = DateTime.Now;
+          entry.Entity.CreatedAt = now;
+          entry.Entity.UpdatedAt = now;
         }
         else if (entry.State == EntityState.Modified)
         {
