@@ -16,13 +16,13 @@
     <Style Selector="Button.RoundBtn /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Transitions">
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+          <BrushTransition Property="Background" Duration="0:0:0.2" />
         </Transitions>
       </Setter>
     </Style>
 
-    <Style Selector="Button.RoundBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Opacity" Value="0.8" />
+    <Style x:CompileBindings="False" Selector="Button.RoundBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{Binding HoverColor}" />
     </Style>
   </UserControl.Styles>
 
