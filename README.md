@@ -59,3 +59,73 @@ https://mermaid.live/edit
 ### 設定
 
 **設定 (Settings)** タブでのデータベース接続情報および環境モード（TEST/PROD）の変更（反映にはアプリケーションの再起動が必要）。
+
+---
+
+## データベース設計 (ER図)
+
+```mermaid
+erDiagram
+    %% プレイヤーとエイリアス
+    Players ||--|{ Aliases : "has"
+    Players {
+        string player_id PK "Player Name"
+        datetime created_at
+        datetime updated_at
+        bool is_deleted
+    }
+    Aliases {
+        int alias_id PK
+        string target_player_id FK
+        string alias_name
+    }
+
+    %% 観測データ (正規化済み)
+    Players ||--o{ ObservationDetails : "appears_in"
+    Observations ||--|{ ObservationDetails : "contains"
+    Observations {
+        int observation_id PK
+        datetime created_at
+        datetime updated_at
+        bool is_deleted
+    }
+    ObservationDetails {
+        int detail_id PK
+        int observation_id FK
+        string player_id FK
+        int order_index
+    }
+
+    %% アリーナ機能 (戦績記録)
+    Players ||--o{ ArenaParticipants : "joins"
+    ArenaSessions ||--|{ ArenaParticipants : "has_members"
+    ArenaSessions ||--|{ ArenaRounds : "consists_of"
+    ArenaSessions {
+        int session_id PK
+        datetime created_at
+        datetime updated_at
+        bool is_deleted
+    }
+    ArenaParticipants {
+        int participant_id PK
+        int session_id FK
+        string player_id FK
+        int slot_index
+        int win_count
+        int rank
+    }
+    ArenaRounds {
+        int round_id PK
+        int session_id FK
+        int round_number
+        int winning_team "0:Draw, 1:Blue, 2:Orange"
+    }
+
+    %% 順序推定用データ
+    SequencePairs {
+        int id PK
+        string predecessor_id
+        string successor_id
+        int frequency
+    }
+```
