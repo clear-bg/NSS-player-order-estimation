@@ -12,21 +12,22 @@ namespace NssOrderTool.ViewModels.Arena
     [NotifyPropertyChangedFor(nameof(ForeColor))]
     private int _teamId; // 1:Blue, 2:Orange
 
+    // ★変更点: 勝った時だけ "1" を表示するためのプロパティ
     [ObservableProperty]
-    private string _resultMark = ""; // "Win" etc
+    private string _resultMark = "";
 
     [ObservableProperty]
     private bool _isWinner;
 
-    // Excel風の色定義
+    // 背景色（チームごとの色）
     public IBrush CellColor => TeamId switch
     {
-      1 => Brushes.CornflowerBlue, // Blue
-      2 => Brushes.SandyBrown,     // Orange
+      1 => Brushes.CornflowerBlue,
+      2 => Brushes.SandyBrown,
       _ => Brushes.LightGray
     };
 
-    // 文字色（背景が濃いので白、グレーの時は非表示っぽく薄くなど）
+    // 文字色
     public IBrush ForeColor => Brushes.White;
 
     public ArenaCellViewModel(int roundNumber)
@@ -39,14 +40,9 @@ namespace NssOrderTool.ViewModels.Arena
     /// </summary>
     public void UpdateState(int winningTeam)
     {
-      if (winningTeam == 0)
+      if (winningTeam == TeamId)
       {
-        ResultMark = "";
-        IsWinner = false;
-      }
-      else if (winningTeam == TeamId)
-      {
-        ResultMark = "Win";
+        ResultMark = "1";
         IsWinner = true;
       }
       else
