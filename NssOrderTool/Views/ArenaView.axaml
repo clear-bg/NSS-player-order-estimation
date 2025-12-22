@@ -147,11 +147,11 @@
             <Border
               Width="40"
               Height="28"
+              Padding="1,0,0,1"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              Classes="DoubleBottom">
-
-              <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+              BorderThickness="0,0,1,1">
+              <Border BorderBrush="#555555" BorderThickness="1,0,0,1">
                 <!--  テキストの見た目  -->
                 <TextBlock
                   HorizontalAlignment="Center"
@@ -245,17 +245,20 @@
                   <Border
                     Width="40"
                     Height="28"
+                    Padding="1,0,0,0"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
-                    Classes="Cell">
-                    <!--  テキストの見た目  -->
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      FontSize="14"
-                      FontWeight="Bold"
-                      Foreground="#333333"
-                      Text="{Binding WinCount}" />
+                    BorderThickness="0,0,1,1">
+                    <Border BorderBrush="#555555" BorderThickness="1,0,0,0">
+                      <!--  テキストの見た目  -->
+                      <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Foreground="#333333"
+                        Text="{Binding WinCount}" />
+                    </Border>
                   </Border>
                   <!--  Rankの集計結果セル部分  -->
                   <!--  ボックスの見た目  -->
