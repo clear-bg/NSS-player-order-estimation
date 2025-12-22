@@ -24,6 +24,27 @@
     <Style x:CompileBindings="False" Selector="Button.RoundBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="{Binding HoverColor}" />
     </Style>
+
+    <!--  各セルの罫線の設定  -->
+    <Style Selector="Border.Cell">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="BorderBrush" Value="#808080" />
+    </Style>
+
+    <Style Selector="Border.HeaderBottom">
+      <Setter Property="BorderThickness" Value="0,0,1,3" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <Style Selector="Border.HeaderRight">
+      <Setter Property="BorderThickness" Value="0,0,3,1" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <Style Selector="Border.HeaderCorner">
+      <Setter Property="BorderThickness" Value="0,0,3,3" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
   </UserControl.Styles>
 
   <!--  画面を上(タイトル)・中(表)・ 下(保存ボタン) の3つに分割  -->
@@ -48,7 +69,7 @@
       Grid.Row="1"
       Background="#f0f8ff"
       BorderBrush="#808080"
-      BorderThickness="3">
+      BorderThickness="3,3,0,0">
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
         <StackPanel Margin="15">
           <StackPanel Orientation="Horizontal">
@@ -59,7 +80,7 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.6">
+              Classes="HeaderCorner">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -85,7 +106,7 @@
                     Height="28"
                     Background="#bbbbbb"
                     BorderBrush="#555555"
-                    BorderThickness="0.6">
+                    Classes="HeaderBottom">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -106,7 +127,7 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.6">
+              Classes="HeaderBottom">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -123,7 +144,7 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.6">
+              Classes="HeaderBottom">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -147,7 +168,7 @@
                     Height="32"
                     Background="#dbdbdb"
                     BorderBrush="#555555"
-                    BorderThickness="0.6">
+                    Classes="HeaderRight">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -174,7 +195,7 @@
                           Height="32"
                           Background="{Binding CellColor}"
                           BorderBrush="#555555"
-                          BorderThickness="0.6">
+                          Classes="Cell">
                           <!--  テキストの見た目  -->
                           <TextBlock
                             HorizontalAlignment="Center"
@@ -195,7 +216,7 @@
                     Height="32"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
-                    BorderThickness="0.6">
+                    Classes="Cell">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -212,7 +233,7 @@
                     Height="32"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
-                    BorderThickness="0.6">
+                    Classes="Cell">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
