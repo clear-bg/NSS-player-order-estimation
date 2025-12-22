@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.ViewModels;
 
@@ -14,6 +15,14 @@ namespace NssOrderTool.Views
       if (!Design.IsDesignMode)
       {
         DataContext = App.Services.GetRequiredService<ArenaViewModel>();
+      }
+    }
+
+    private void OnNameInputKeyDown(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Enter)
+      {
+        this.Focus();
       }
     }
   }

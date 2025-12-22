@@ -9,6 +9,7 @@
   d:DesignHeight="600"
   d:DesignWidth="800"
   x:DataType="vm:ArenaViewModel"
+  Focusable="True"
   mc:Ignorable="d">
 
   <UserControl.Styles>
@@ -211,7 +212,8 @@
                             FontSize="14"
                             FontWeight="Bold"
                             Foreground="#333333"
-                            Text="{Binding Name}" />
+                            KeyDown="OnNameInputKeyDown"
+                            Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </Border>
                       </Border>
 
