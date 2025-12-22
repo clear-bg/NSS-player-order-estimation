@@ -8,7 +8,26 @@ namespace NssOrderTool.ViewModels.Arena
   public partial class ArenaRowViewModel : ViewModelBase
   {
     public int Index { get; }
-    public string Name { get; }
+
+    private string _name = null!;
+
+    public string Name
+    {
+      get => _name;
+      set
+      {
+        // バリデーション: 空白なら "-" に戻す
+        if (string.IsNullOrWhiteSpace(value))
+        {
+          value = "-";
+        }
+
+        if (!SetProperty(ref _name, value))
+        {
+          OnPropertyChanged(nameof(Name));
+        }
+      }
+    }
 
     // 14ラウンド分のセル
     public ObservableCollection<ArenaCellViewModel> Cells { get; } = new();
