@@ -16,12 +16,16 @@ namespace NssOrderTool.ViewModels.Arena
       get => _name;
       set
       {
-        // バリデーション: 空白やnullで確定されたら "-" に置き換える
+        // バリデーション: 空白なら "-" に戻す
         if (string.IsNullOrWhiteSpace(value))
         {
           value = "-";
         }
-        SetProperty(ref _name, value);
+
+        if (!SetProperty(ref _name, value))
+        {
+          OnPropertyChanged(nameof(Name));
+        }
       }
     }
 

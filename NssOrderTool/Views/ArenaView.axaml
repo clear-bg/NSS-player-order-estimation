@@ -185,7 +185,7 @@
                 </Border>
               </StackPanel>
 
-              <ItemsControl ItemsSource="{Binding PlayerRows}">
+              <ItemsControl ItemsSource="{Binding PlayerRows}" KeyboardNavigation.TabNavigation="Continue">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
                     <StackPanel Orientation="Horizontal">
@@ -212,6 +212,7 @@
                             FontSize="14"
                             FontWeight="Bold"
                             Foreground="#333333"
+                            GotFocus="OnNameInputGotFocus"
                             KeyDown="OnNameInputKeyDown"
                             Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </Border>
