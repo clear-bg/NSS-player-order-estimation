@@ -24,6 +24,20 @@
       <Setter Property="Background" Value="{Binding HoverColor}" />
     </Style>
 
+    <Style Selector="TextBox.PlayerNameBox">
+      <Setter Property="CaretBrush" Value="Black" />
+    </Style>
+
+    <Style Selector="TextBox.PlayerNameBox:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TextBox.PlayerNameBox:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
     <Style Selector="Border.Cell">
       <Setter Property="BorderThickness" Value="0,0,1,1" />
       <Setter Property="BorderBrush" Value="#808080" />
@@ -183,9 +197,17 @@
                         Classes="DoubleRight">
 
                         <Border BorderBrush="#555555" BorderThickness="0,0,1,0">
-                          <TextBlock
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
+                          <TextBox
+                            MinHeight="0"
+                            Padding="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Classes="PlayerNameBox"
+                            CornerRadius="0"
                             FontSize="14"
                             FontWeight="Bold"
                             Foreground="#333333"
