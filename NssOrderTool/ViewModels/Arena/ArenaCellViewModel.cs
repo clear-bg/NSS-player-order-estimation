@@ -28,7 +28,7 @@ namespace NssOrderTool.ViewModels.Arena
     };
 
     // 文字色
-    public IBrush ForeColor => Brushes.White;
+    public IBrush ForeColor => Brushes.Black;
 
     public ArenaCellViewModel(int roundNumber)
     {

@@ -55,11 +55,11 @@
             <!--  Playerの部分  -->
             <!--  ボックスの見た目  -->
             <Border
-              Width="80"
+              Width="100"
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.8">
+              BorderThickness="0.6">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -85,7 +85,7 @@
                     Height="28"
                     Background="#bbbbbb"
                     BorderBrush="#555555"
-                    BorderThickness="0.8">
+                    BorderThickness="0.6">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -106,7 +106,7 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.8">
+              BorderThickness="0.6">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -123,7 +123,7 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              BorderThickness="0.8">
+              BorderThickness="0.6">
               <!--  テキストの見た目  -->
               <TextBlock
                 HorizontalAlignment="Center"
@@ -143,11 +143,11 @@
                   <!--  プレイヤー名表示部分  -->
                   <!--  ボックスの見た目  -->
                   <Border
-                    Width="80"
+                    Width="100"
                     Height="32"
                     Background="#dbdbdb"
                     BorderBrush="#555555"
-                    BorderThickness="0.8">
+                    BorderThickness="0.6">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -174,12 +174,12 @@
                           Height="32"
                           Background="{Binding CellColor}"
                           BorderBrush="#555555"
-                          BorderThickness="0.8">
+                          BorderThickness="0.6">
                           <!--  テキストの見た目  -->
                           <TextBlock
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            FontSize="16"
+                            FontSize="14"
                             FontWeight="Bold"
                             Foreground="{Binding ForeColor}"
                             Text="{Binding ResultMark}" />
@@ -195,7 +195,7 @@
                     Height="32"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
-                    BorderThickness="0.8">
+                    BorderThickness="0.6">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -212,7 +212,7 @@
                     Height="32"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
-                    BorderThickness="0.8">
+                    BorderThickness="0.6">
                     <!--  テキストの見た目  -->
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -237,7 +237,7 @@
           <!--  プレイヤー名の表示分だけ右にずらすため  -->
           <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
             <Border
-              Width="80"
+              Width="100"
               Height="1"
               Background="Transparent" />
 
@@ -254,7 +254,7 @@
                   <!--  ボタンの見た目  -->
                   <Button
                     Width="40"
-                    Height="55"
+                    Height="40"
                     Margin="0,0,1,0"
                     Padding="0"
                     Background="{Binding CellColor}"
