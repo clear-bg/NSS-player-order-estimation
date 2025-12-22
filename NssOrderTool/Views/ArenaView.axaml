@@ -25,7 +25,7 @@
       <Setter Property="Background" Value="{Binding HoverColor}" />
     </Style>
 
-    <!--  各セルの罫線の設定  -->
+    <!--  罫線：各セルの罫線  -->
     <Style Selector="Border.Cell">
       <Setter Property="BorderThickness" Value="0,0,1,1" />
       <Setter Property="BorderBrush" Value="#808080" />
@@ -44,6 +44,22 @@
     <Style Selector="Border.HeaderCorner">
       <Setter Property="BorderThickness" Value="0,0,3,3" />
       <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <!--  罫線：見出しの2重線  -->
+    <Style Selector="Border.DoubleBottom">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Border.DoubleRight">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,1,0" />
+    </Style>
+
+    <Style Selector="Border.DoubleCorner">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,1,1" />
     </Style>
   </UserControl.Styles>
 
@@ -80,15 +96,18 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              Classes="HeaderCorner">
-              <!--  テキストの見た目  -->
-              <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="12"
-                FontWeight="Bold"
-                Foreground="#333333"
-                Text="Player" />
+              Classes="DoubleCorner">
+
+              <Border BorderBrush="#555555" BorderThickness="0,0,1,1">
+                <!--  テキストの見た目  -->
+                <TextBlock
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  FontSize="12"
+                  FontWeight="Bold"
+                  Foreground="#333333"
+                  Text="Player" />
+              </Border>
             </Border>
 
             <ItemsControl ItemsSource="{Binding RoundInputs}">
@@ -106,15 +125,18 @@
                     Height="28"
                     Background="#bbbbbb"
                     BorderBrush="#555555"
-                    Classes="HeaderBottom">
-                    <!--  テキストの見た目  -->
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      FontSize="11"
-                      FontWeight="Bold"
-                      Foreground="#555555"
-                      Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                    Classes="DoubleBottom">
+
+                    <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                      <!--  テキストの見た目  -->
+                      <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Foreground="#555555"
+                        Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                    </Border>
                   </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
@@ -127,15 +149,18 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              Classes="HeaderBottom">
-              <!--  テキストの見た目  -->
-              <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="12"
-                FontWeight="Bold"
-                Foreground="#2E7D32"
-                Text="Win" />
+              Classes="DoubleBottom">
+
+              <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                <!--  テキストの見た目  -->
+                <TextBlock
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  FontSize="12"
+                  FontWeight="Bold"
+                  Foreground="#2E7D32"
+                  Text="Win" />
+              </Border>
             </Border>
             <!--  Rankの部分  -->
             <!--  ボックスの見た目  -->
@@ -144,15 +169,18 @@
               Height="28"
               Background="#bbbbbb"
               BorderBrush="#555555"
-              Classes="HeaderBottom">
-              <!--  テキストの見た目  -->
-              <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="12"
-                FontWeight="Bold"
-                Foreground="#2E7D32"
-                Text="Rank" />
+              Classes="DoubleBottom">
+
+              <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                <!--  テキストの見た目  -->
+                <TextBlock
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  FontSize="12"
+                  FontWeight="Bold"
+                  Foreground="#F57F17"
+                  Text="Rank" />
+              </Border>
             </Border>
           </StackPanel>
 
@@ -165,18 +193,21 @@
                   <!--  ボックスの見た目  -->
                   <Border
                     Width="100"
-                    Height="32"
+                    Height="28"
                     Background="#dbdbdb"
                     BorderBrush="#555555"
-                    Classes="HeaderRight">
-                    <!--  テキストの見た目  -->
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      FontSize="14"
-                      FontWeight="Bold"
-                      Foreground="#333333"
-                      Text="{Binding Name}" />
+                    Classes="DoubleRight">
+
+                    <Border BorderBrush="#555555" BorderThickness="0,0,1,0">
+                      <!--  テキストの見た目  -->
+                      <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Foreground="#333333"
+                        Text="{Binding Name}" />
+                    </Border>
                   </Border>
 
                   <!--  セルの繰り返し  -->
@@ -192,7 +223,7 @@
                         <!--  ボックスの見た目  -->
                         <Border
                           Width="40"
-                          Height="32"
+                          Height="28"
                           Background="{Binding CellColor}"
                           BorderBrush="#555555"
                           Classes="Cell">
@@ -213,7 +244,7 @@
                   <!--  ボックスの見た目  -->
                   <Border
                     Width="40"
-                    Height="32"
+                    Height="28"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
                     Classes="Cell">
@@ -230,7 +261,7 @@
                   <!--  ボックスの見た目  -->
                   <Border
                     Width="40"
-                    Height="32"
+                    Height="28"
                     Background="#C6E0B4"
                     BorderBrush="#555555"
                     Classes="Cell">
