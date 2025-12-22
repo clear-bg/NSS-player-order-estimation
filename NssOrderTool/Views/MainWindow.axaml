@@ -7,7 +7,7 @@
   xmlns:views="using:NssOrderTool.Views"
   xmlns:vm="using:NssOrderTool.ViewModels"
   Title="{Binding Title}"
-  Width="900"
+  Width="880"
   Height="580"
   d:DesignHeight="550"
   d:DesignWidth="800"

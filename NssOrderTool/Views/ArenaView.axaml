@@ -78,12 +78,12 @@
     <Border Grid.Row="1" Background="#f0f8ff">
 
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="15">
+        <StackPanel Margin="15" HorizontalAlignment="Left">
 
           <Border
             x:Name="ArenaTableBorder"
-            BorderBrush="#808080"
-            BorderThickness="3">
+            BorderBrush="#474747"
+            BorderThickness="3,3,2,2">
 
             <StackPanel>
               <StackPanel Orientation="Horizontal">
