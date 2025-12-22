@@ -6,238 +6,344 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:vm="using:NssOrderTool.ViewModels"
   xmlns:vmArena="using:NssOrderTool.ViewModels.Arena"
-  d:DesignHeight="500"
+  d:DesignHeight="600"
   d:DesignWidth="800"
   x:DataType="vm:ArenaViewModel"
   mc:Ignorable="d">
 
-  <Grid Margin="10" RowDefinitions="Auto, Auto, *">
+  <UserControl.Styles>
+    <Style Selector="Button.RoundBtn /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.2" />
+        </Transitions>
+      </Setter>
+    </Style>
 
+    <Style x:CompileBindings="False" Selector="Button.RoundBtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{Binding HoverColor}" />
+    </Style>
+
+    <Style Selector="Border.Cell">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="BorderBrush" Value="#808080" />
+    </Style>
+
+    <Style Selector="Border.HeaderBottom">
+      <Setter Property="BorderThickness" Value="0,0,1,3" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <Style Selector="Border.HeaderRight">
+      <Setter Property="BorderThickness" Value="0,0,3,1" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <Style Selector="Border.HeaderCorner">
+      <Setter Property="BorderThickness" Value="0,0,3,3" />
+      <Setter Property="BorderBrush" Value="#606060" />
+    </Style>
+
+    <Style Selector="Border.DoubleBottom">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Border.DoubleRight">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,1,0" />
+    </Style>
+
+    <Style Selector="Border.DoubleCorner">
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="0,0,1,1" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid Margin="15" RowDefinitions="Auto, *, Auto, Auto">
     <StackPanel
       Grid.Row="0"
-      Margin="0,0,0,10"
-      Spacing="5">
+      Margin="0,0,0,15"
+      Spacing="10">
       <TextBlock
-        FontSize="18"
+        FontSize="20"
         FontWeight="Bold"
         Text="🏟️ アリーナ集計" />
-      <TextBlock Foreground="Gray" Text="各ラウンドの勝利チームを選択してください。" />
+      <TextBlock
+        FontSize="13"
+        Foreground="#666666"
+        Text="下のボタンで各ラウンドの勝利チームを入力すると、スコアが自動計算されます。" />
     </StackPanel>
 
-    <Border
-      Grid.Row="1"
-      BorderBrush="#D0D0D0"
-      BorderThickness="1">
-      <ScrollViewer HorizontalScrollBarVisibility="Auto">
-        <StackPanel Margin="10">
+    <Border Grid.Row="1" Background="#f0f8ff">
 
-          <StackPanel Orientation="Horizontal">
-            <Border
-              Width="80"
-              Height="60"
-              Background="Transparent" />
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="15" HorizontalAlignment="Left">
 
-            <ItemsControl ItemsSource="{Binding RoundInputs}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <StackPanel Orientation="Horizontal" Spacing="0" />
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Button
-                    Width="60"
-                    Height="60"
-                    Background="{Binding CellColor}"
-                    BorderBrush="White"
-                    BorderThickness="0.5"
-                    Command="{Binding ToggleWinnerCommand}"
-                    CornerRadius="0">
-                    <Grid RowDefinitions="Auto, *">
-                      <TextBlock
-                        Margin="0,2"
-                        HorizontalAlignment="Center"
-                        FontSize="10"
-                        Text="{Binding RoundNumber}" />
-                      <TextBlock
-                        Grid.Row="1"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontWeight="Bold"
-                        Foreground="{Binding ForeColor}"
-                        Text="{Binding DisplayText}" />
-                    </Grid>
-                  </Button>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
+          <Border
+            x:Name="ArenaTableBorder"
+            BorderBrush="#474747"
+            BorderThickness="3,3,2,2">
 
-          <Separator Margin="0,10" />
+            <StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <Border
+                  Width="100"
+                  Height="28"
+                  Background="#bbbbbb"
+                  BorderBrush="#555555"
+                  Classes="DoubleCorner">
 
-          <StackPanel Orientation="Horizontal">
-            <Border
-              Width="80"
-              Height="24"
-              Background="Transparent" />
-
-            <ItemsControl ItemsSource="{Binding RoundInputs}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <StackPanel Orientation="Horizontal" Spacing="0" />
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border
-                    Width="60"
-                    Height="24"
-                    Background="#F0F0F0"
-                    BorderBrush="Gray"
-                    BorderThickness="0.5">
+                  <Border BorderBrush="#555555" BorderThickness="0,0,1,1">
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      FontSize="11"
+                      FontSize="12"
                       FontWeight="Bold"
                       Foreground="#333333"
-                      Text="{Binding RoundNumber}" />
+                      Text="Player" />
                   </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </Border>
 
-            <Border
-              Width="60"
-              Height="24"
-              Background="#EEFFEE"
-              BorderBrush="Gray"
-              BorderThickness="0.5">
-              <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="11"
-                FontWeight="Bold"
-                Foreground="#006600"
-                Text="Wins" />
-            </Border>
+                <ItemsControl ItemsSource="{Binding RoundInputs}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="0" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border
+                        Width="40"
+                        Height="28"
+                        Background="#bbbbbb"
+                        BorderBrush="#555555"
+                        Classes="DoubleBottom">
 
-            <Border
-              Width="60"
-              Height="24"
-              Background="#FFFFEE"
-              BorderBrush="Gray"
-              BorderThickness="0.5">
-              <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="11"
-                FontWeight="Bold"
-                Foreground="#666600"
-                Text="Rank" />
-            </Border>
-          </StackPanel>
-
-          <ItemsControl ItemsSource="{Binding PlayerRows}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
-                <StackPanel Orientation="Horizontal">
-
-                  <Border
-                    Width="80"
-                    Height="30"
-                    Background="#E0E0E0"
-                    BorderBrush="Gray"
-                    BorderThickness="0,0,1,1">
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      FontWeight="Bold"
-                      Foreground="Black"
-                      Text="{Binding Name}" />
-                  </Border>
-
-                  <ItemsControl ItemsSource="{Binding Cells}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vmArena:ArenaCellViewModel">
-                        <Border
-                          Width="60"
-                          Height="30"
-                          Background="{Binding CellColor}"
-                          BorderBrush="White"
-                          BorderThickness="0.5">
+                        <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
                           <TextBlock
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             FontSize="11"
                             FontWeight="Bold"
-                            Foreground="{Binding ForeColor}"
-                            Text="{Binding ResultMark}" />
+                            Foreground="#555555"
+                            Text="{Binding RoundNumber, StringFormat='R{0}'}" />
                         </Border>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-                  <Border
-                    Width="60"
-                    Height="30"
-                    Background="#F9FFF9"
-                    BorderBrush="Gray"
-                    BorderThickness="0,0,1,1">
+                <Border
+                  Width="40"
+                  Height="28"
+                  Padding="1,0,0,1"
+                  Background="#bbbbbb"
+                  BorderBrush="#555555"
+                  BorderThickness="0,0,1,1">
+                  <Border BorderBrush="#555555" BorderThickness="1,0,0,1">
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      FontWeight="SemiBold"
-                      Foreground="Black"
-                      Text="{Binding WinCount}" />
+                      FontSize="12"
+                      FontWeight="Bold"
+                      Foreground="#2E7D32"
+                      Text="Win" />
                   </Border>
+                </Border>
+                <Border
+                  Width="40"
+                  Height="28"
+                  Background="#bbbbbb"
+                  BorderBrush="#555555"
+                  Classes="DoubleBottom">
 
-                  <Border
-                    Width="60"
-                    Height="30"
-                    Background="#FFFFF9"
-                    BorderBrush="Gray"
-                    BorderThickness="0,0,1,1">
+                  <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
                     <TextBlock
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      FontWeight="SemiBold"
-                      Foreground="Black"
-                      Text="{Binding Rank}" />
+                      FontSize="12"
+                      FontWeight="Bold"
+                      Foreground="#F57F17"
+                      Text="Rank" />
                   </Border>
+                </Border>
+              </StackPanel>
 
-                </StackPanel>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+              <ItemsControl ItemsSource="{Binding PlayerRows}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
+                    <StackPanel Orientation="Horizontal">
 
+                      <Border
+                        Width="100"
+                        Height="28"
+                        Background="#dbdbdb"
+                        BorderBrush="#555555"
+                        Classes="DoubleRight">
+
+                        <Border BorderBrush="#555555" BorderThickness="0,0,1,0">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#333333"
+                            Text="{Binding Name}" />
+                        </Border>
+                      </Border>
+
+                      <ItemsControl ItemsSource="{Binding Cells}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vmArena:ArenaCellViewModel">
+                            <Border
+                              Width="40"
+                              Height="28"
+                              Background="{Binding CellColor}"
+                              BorderBrush="#555555"
+                              Classes="Cell">
+                              <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Foreground="{Binding ForeColor}"
+                                Text="{Binding ResultMark}" />
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                      <Border
+                        Width="40"
+                        Height="28"
+                        Padding="1,0,0,0"
+                        Background="#C6E0B4"
+                        BorderBrush="#555555"
+                        BorderThickness="0,0,1,1">
+                        <Border BorderBrush="#555555" BorderThickness="1,0,0,0">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#333333"
+                            Text="{Binding WinCount}" />
+                        </Border>
+                      </Border>
+                      <Border
+                        Width="40"
+                        Height="28"
+                        Background="#C6E0B4"
+                        BorderBrush="#555555"
+                        Classes="Cell">
+                        <TextBlock
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          FontSize="14"
+                          FontWeight="Bold"
+                          Foreground="#333333"
+                          Text="{Binding Rank}" />
+                      </Border>
+
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </ScrollViewer>
     </Border>
 
     <StackPanel
       Grid.Row="2"
+      Margin="15,5,15,5"
+      Orientation="Horizontal">
+      <Border
+        Width="88"
+        Height="1"
+        Margin="15,0,0,0"
+        Background="Transparent" />
+
+      <ItemsControl ItemsSource="{Binding RoundInputs}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="0" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button
+              Width="39"
+              Height="40"
+              Margin="0,0,1,0"
+              Padding="0"
+              Background="{Binding CellColor}"
+              BorderBrush="#606060"
+              BorderThickness="1"
+              Classes="RoundBtn"
+              Command="{Binding ToggleWinnerCommand}"
+              CornerRadius="4">
+              <Grid RowDefinitions="Auto, *">
+                <TextBlock
+                  Margin="0,4,0,0"
+                  HorizontalAlignment="Center"
+                  FontSize="11"
+                  Foreground="#333333"
+                  Opacity="0.9"
+                  Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                <TextBlock
+                  Grid.Row="1"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  FontSize="13"
+                  FontWeight="Black"
+                  Foreground="#333333"
+                  Text="{Binding DisplayText}" />
+              </Grid>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <StackPanel
+      Grid.Row="3"
       Margin="0,15"
+      VerticalAlignment="Top"
       Orientation="Horizontal"
-      Spacing="15">
+      Spacing="20">
+
       <Button
-        Padding="20,10"
+        Padding="30,12"
         Background="#007ACC"
         Command="{Binding SaveSessionCommand}"
-        Content="結果を保存する"
-        FontWeight="Bold"
-        Foreground="White" />
+        CornerRadius="6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock
+            VerticalAlignment="Center"
+            FontSize="16"
+            Text="💾" />
+          <TextBlock
+            VerticalAlignment="Center"
+            FontSize="14"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="結果を保存する" />
+        </StackPanel>
+      </Button>
 
       <TextBlock
         VerticalAlignment="Center"
         FontSize="14"
         FontWeight="Bold"
-        Foreground="Green"
+        Foreground="#2E7D32"
         Text="{Binding StatusText}" />
     </StackPanel>
 

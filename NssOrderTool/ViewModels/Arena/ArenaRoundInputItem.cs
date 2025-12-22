@@ -13,6 +13,7 @@ namespace NssOrderTool.ViewModels.Arena
     [NotifyPropertyChangedFor(nameof(DisplayText))]
     [NotifyPropertyChangedFor(nameof(CellColor))]
     [NotifyPropertyChangedFor(nameof(ForeColor))]
+    [NotifyPropertyChangedFor(nameof(HoverColor))]
     private int _winningTeam = 0;
 
     // 表示テキスト (Excel風にシンプルに)
@@ -26,9 +27,22 @@ namespace NssOrderTool.ViewModels.Arena
     // 背景色 (Excelに近い色味)
     public IBrush CellColor => WinningTeam switch
     {
-      1 => Brushes.CornflowerBlue, // Blue
-      2 => Brushes.SandyBrown,     // Orange
-      _ => Brushes.LightGray       // Gray
+      1 => Brush.Parse("#9BC2E6"),
+      2 => Brush.Parse("#F8CBAD"),
+      _ => Brush.Parse("#f0f0f0"),
+    };
+
+
+    public IBrush HoverColor => WinningTeam switch
+    {
+      // CornflowerBlue(#6495ED) より少し明るい青
+      1 => Brush.Parse("#82B1FF"),
+
+      // SandyBrown(#F4A460) より少し明るいオレンジ
+      2 => Brush.Parse("#FFCC80"),
+
+      // LightGray(#D3D3D3) より少し明るいグレー
+      _ => Brush.Parse("#E0E0E0")
     };
 
     // 文字色
