@@ -125,18 +125,38 @@ namespace NssOrderTool.Views
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel?.Clipboard == null) return;
 
-        // 3. レンダリング
+        // 3. レンダリング (作業用キャンバスを作成)
+        // 画面のピクセルサイズとDPIに合わせてビットマップを生成
         var pixelSize = new PixelSize((int)target.Bounds.Width, (int)target.Bounds.Height);
-        var dpiVector = new Vector(96, 96);
+        var dpiVector = new Vector(192, 192);
 
-        using var bitmap = new RenderTargetBitmap(pixelSize, dpiVector);
-        bitmap.Render(target);
+        using var renderBitmap = new RenderTargetBitmap(pixelSize, dpiVector);
+        renderBitmap.Render(target);
 
-        // 4. クリップボードへ転送 (ここを修正)
-        // DataObjectを作成せず、直接 SetBitmapAsync を使用します
-        // これにより DataFormats.Bitmap がないエラーや Obsolete 警告も解消されます
-        await topLevel.Clipboard.SetBitmapAsync(bitmap);
+        // =========================================================
+        // 【重要な修正点】
+        // RenderTargetBitmapを直接渡さず、一度 MemoryStream を経由して
+        // 「純粋なBitmapオブジェクト」に変換してから渡します。
+        // これにより、Windows/Mac問わず空データになるのを防げます。
+        // =========================================================
 
+        // 4. メモリ上で一度PNG形式として保存する
+        // (RenderTargetBitmap -> Stream)
+        using var stream = new MemoryStream();
+        renderBitmap.Save(stream);
+
+        // ストリームの位置を先頭に戻す (必須)
+        stream.Position = 0;
+
+        // 5. ストリームから新しいBitmapを作成する
+        // (Stream -> Bitmap)
+        // これでGPU描画リソースから切り離された、ただの画像データになります
+        var clipboardBitmap = new Bitmap(stream);
+
+        // 6. クリップボードへ転送
+        await topLevel.Clipboard.SetBitmapAsync(clipboardBitmap);
+
+        // 完了通知
         if (DataContext is ArenaViewModel vm)
         {
           vm.StatusText = "📋 クリップボードにコピーしました";
@@ -145,6 +165,10 @@ namespace NssOrderTool.Views
       catch (Exception ex)
       {
         Console.WriteLine($"Clipboard Error: {ex.Message}");
+        if (DataContext is ArenaViewModel vm)
+        {
+          vm.StatusText = "⚠️ コピーに失敗しました";
+        }
       }
     }
   }
