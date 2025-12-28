@@ -8,7 +8,7 @@
   xmlns:vm="using:NssOrderTool.ViewModels"
   Title="{Binding Title}"
   Width="880"
-  Height="580"
+  Height="610"
   d:DesignHeight="550"
   d:DesignWidth="800"
   x:DataType="vm:MainWindowViewModel"
