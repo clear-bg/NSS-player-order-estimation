@@ -98,7 +98,7 @@ namespace NssOrderTool.Views
         // 3. レンダリング
         // 画面に表示されているサイズで画像化します
         var pixelSize = new PixelSize((int)target.Bounds.Width, (int)target.Bounds.Height);
-        var dpiVector = new Vector(96, 96);
+        var dpiVector = new Vector(192, 192);
 
         using var bitmap = new RenderTargetBitmap(pixelSize, dpiVector);
         bitmap.Render(target);
