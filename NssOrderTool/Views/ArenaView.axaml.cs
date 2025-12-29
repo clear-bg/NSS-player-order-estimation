@@ -96,9 +96,15 @@ namespace NssOrderTool.Views
         if (file == null) return;
 
         // 3. レンダリング
-        // 画面に表示されているサイズで画像化します
-        var pixelSize = new PixelSize((int)target.Bounds.Width, (int)target.Bounds.Height);
-        var dpiVector = new Vector(192, 192);
+        // 高解像度(192 DPI)に合わせて、ピクセルサイズもスケール倍して確保します
+        double dpi = 192.0;
+        double scale = dpi / 96.0;
+
+        var pixelSize = new PixelSize(
+            (int)(target.Bounds.Width * scale),
+            (int)(target.Bounds.Height * scale));
+
+        var dpiVector = new Vector(dpi, dpi);
 
         using var bitmap = new RenderTargetBitmap(pixelSize, dpiVector);
         bitmap.Render(target);
@@ -126,19 +132,18 @@ namespace NssOrderTool.Views
         if (topLevel?.Clipboard == null) return;
 
         // 3. レンダリング (作業用キャンバスを作成)
-        // 画面のピクセルサイズとDPIに合わせてビットマップを生成
-        var pixelSize = new PixelSize((int)target.Bounds.Width, (int)target.Bounds.Height);
-        var dpiVector = new Vector(192, 192);
+        // 高解像度(192 DPI)に合わせて、ピクセルサイズもスケール倍して確保します
+        double dpi = 192.0;
+        double scale = dpi / 96.0;
+
+        var pixelSize = new PixelSize(
+            (int)(target.Bounds.Width * scale),
+            (int)(target.Bounds.Height * scale));
+
+        var dpiVector = new Vector(dpi, dpi);
 
         using var renderBitmap = new RenderTargetBitmap(pixelSize, dpiVector);
         renderBitmap.Render(target);
-
-        // =========================================================
-        // 【重要な修正点】
-        // RenderTargetBitmapを直接渡さず、一度 MemoryStream を経由して
-        // 「純粋なBitmapオブジェクト」に変換してから渡します。
-        // これにより、Windows/Mac問わず空データになるのを防げます。
-        // =========================================================
 
         // 4. メモリ上で一度PNG形式として保存する
         // (RenderTargetBitmap -> Stream)
