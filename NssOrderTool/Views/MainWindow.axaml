@@ -28,6 +28,10 @@
       <views:ArenaView />
     </TabItem>
 
+    <TabItem FontSize="16" Header="アリーナデータ">
+      <views:ArenaDataView />
+    </TabItem>
+
     <TabItem FontSize="16" Header="エイリアス">
       <views:AliasSettingsView />
     </TabItem>

@@ -24,7 +24,24 @@ namespace NssOrderTool.Views
       // デザインモードでなければ、DIコンテナからViewModelを取得してセットする
       if (!Design.IsDesignMode)
       {
-        DataContext = App.Services.GetRequiredService<ArenaViewModel>();
+        var vm = App.Services.GetRequiredService<ArenaViewModel>();
+        DataContext = vm;
+
+        vm.ShowConfirmDialogAction = async (message) =>
+        {
+          var topLevel = TopLevel.GetTopLevel(this) as Window;
+          if (topLevel == null) return false;
+
+          // 引数なしコンストラクタを使用
+          var dialog = new ConfirmationDialog();
+
+          // メッセージはDataContext経由で渡す（View側でBindingされていることを想定）
+          dialog.DataContext = message;
+
+          // Close(true) / Close(false) の結果をboolとして受け取る
+          var result = await dialog.ShowDialog<bool>(topLevel);
+          return result;
+        };
       }
     }
 

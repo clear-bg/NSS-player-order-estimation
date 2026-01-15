@@ -25,6 +25,10 @@ namespace NssOrderTool.ViewModels
     // 子ViewModelのコレクション
     public ObservableCollection<ArenaRowViewModel> PlayerRows { get; } = new();
 
+    public ObservableCollection<ArenaSessionEntity> HistoryList { get; } = new();
+
+    public Func<string, Task<bool>>? ShowConfirmDialogAction { get; set; }
+
     [ObservableProperty]
     private string _statusText = "準備完了";
 
@@ -39,6 +43,8 @@ namespace NssOrderTool.ViewModels
 
       InitializeRounds();
       InitializeMatrix();
+
+      _ = LoadHistoryAsync();
     }
 
     // デザイナー用
@@ -152,10 +158,65 @@ namespace NssOrderTool.ViewModels
 
         StatusText = "✅ 結果を保存しました";
 
+        await LoadHistoryAsync();
+
       }
       catch (Exception ex)
       {
         StatusText = $"❌ エラー: {ex.Message}";
+      }
+      finally
+      {
+        IsBusy = false;
+      }
+    }
+
+    public async Task LoadHistoryAsync()
+    {
+      try
+      {
+        var sessions = await _arenaRepo.GetAllSessionsAsync();
+
+        HistoryList.Clear();
+        foreach (var s in sessions)
+        {
+          HistoryList.Add(s);
+        }
+      }
+      catch (Exception ex)
+      {
+        // 読み込み失敗時はログ出力のみにとどめる等
+        System.Diagnostics.Debug.WriteLine($"History load failed: {ex.Message}");
+      }
+    }
+
+    [RelayCommand]
+    private async Task DeleteSession(ArenaSessionEntity session)
+    {
+      if (session == null || IsBusy) return;
+
+      // 確認ダイアログの表示 (Actionが設定されている場合)
+      if (ShowConfirmDialogAction != null)
+      {
+        bool isConfirmed = await ShowConfirmDialogAction("この履歴データを削除しますか？\n(復元できません)");
+        if (!isConfirmed) return;
+      }
+
+      IsBusy = true;
+      StatusText = "削除中...";
+
+      try
+      {
+        await _arenaRepo.DeleteSessionAsync(session.Id);
+
+        StatusText = "🗑️ 履歴を削除しました";
+
+        // リストから削除 (再読み込みするより高速)
+        HistoryList.Remove(session);
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ 削除エラー: {ex.Message}";
       }
       finally
       {
