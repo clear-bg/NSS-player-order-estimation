@@ -111,6 +111,7 @@ public partial class App : Application
     collection.AddTransient<AliasSettingsViewModel>();
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
+    collection.AddTransient<ArenaDataViewModel>();
 
     // 3. プロバイダのビルド
     Services = collection.BuildServiceProvider();
