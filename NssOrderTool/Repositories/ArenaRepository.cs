@@ -31,6 +31,8 @@ namespace NssOrderTool.Repositories
     public virtual async Task<List<ArenaSessionEntity>> GetAllSessionsAsync()
     {
       return await _context.ArenaSessions
+          .Include(s => s.Rounds)
+          .Include(s => s.Participants)
           .OrderByDescending(s => s.CreatedAt)
           .ToListAsync();
     }
