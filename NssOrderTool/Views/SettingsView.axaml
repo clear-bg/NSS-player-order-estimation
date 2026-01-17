@@ -53,6 +53,20 @@
                 ItemsSource="{Binding EnvironmentList}"
                 SelectedItem="{Binding Environment}" />
             </Grid>
+            <StackPanel Spacing="5">
+              <TextBlock FontWeight="Bold" Text="デフォルト表示プレイヤー" />
+              <TextBlock
+                Margin="0,0,0,5"
+                FontSize="11"
+                Foreground="Gray"
+                Text="アリーナデータ画面を開いたときに初期表示するプレイヤーを選択します。" />
+              <ComboBox
+                HorizontalAlignment="Stretch"
+                DisplayMemberBinding="{Binding Name}"
+                ItemsSource="{Binding PlayerList}"
+                PlaceholderText="選択なし"
+                SelectedItem="{Binding SelectedDefaultPlayer}" />
+            </StackPanel>
           </StackPanel>
         </Border>
 

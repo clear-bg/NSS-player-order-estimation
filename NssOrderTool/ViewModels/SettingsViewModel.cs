@@ -1,18 +1,21 @@
 using System;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using DotNetEnv;
 using Avalonia.Media;
-using NssOrderTool.Database;
 using NssOrderTool.Models;
 using NssOrderTool.Services.Infrastructure;
+using NssOrderTool.Models.Entities;
+using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
@@ -20,14 +23,17 @@ namespace NssOrderTool.ViewModels
   {
     private readonly AppConfig _currentConfig;
     private readonly ILogger<SettingsViewModel> _logger;
-    // テスト接続用にLoggerFactoryが必要（SsmTunnelService生成用）
     private readonly ILoggerFactory _loggerFactory;
+    private readonly PlayerRepository _playerRepository;
 
     // --- 設定プロパティ ---
-
+    public string[] EnvironmentList { get; } = { "TEST", "PROD" };
     [ObservableProperty]
     private string _environment = "TEST";
-    public string[] EnvironmentList { get; } = { "TEST", "PROD" };
+    public ObservableCollection<PlayerEntity> PlayerList { get; } = new();
+
+    [ObservableProperty]
+    private PlayerEntity? _selectedDefaultPlayer;
 
     [ObservableProperty]
     private bool _useSsm;
@@ -52,13 +58,20 @@ namespace NssOrderTool.ViewModels
     private bool _isSuccess; // メッセージの色分け用
     public IBrush StatusBrush => IsSuccess ? Brushes.Green : Brushes.Red;
 
-    public SettingsViewModel(AppConfig config, ILogger<SettingsViewModel> logger, ILoggerFactory loggerFactory)
+    public SettingsViewModel(
+        AppConfig config,
+        ILogger<SettingsViewModel> logger,
+        ILoggerFactory loggerFactory,
+        PlayerRepository playerRepository)
     {
       _currentConfig = config;
       _logger = logger;
       _loggerFactory = loggerFactory;
+      _playerRepository = playerRepository;
 
       LoadSettings();
+      // プレイヤーリスト読み込み開始
+      _ = LoadPlayersAsync();
     }
 
     // デザイナー用
@@ -67,6 +80,7 @@ namespace NssOrderTool.ViewModels
       _currentConfig = new AppConfig();
       _logger = null!;
       _loggerFactory = null!;
+      _playerRepository = null!;
     }
 
     private void LoadSettings()
@@ -90,6 +104,28 @@ namespace NssOrderTool.ViewModels
       }
     }
 
+    private async Task LoadPlayersAsync()
+    {
+      if (_playerRepository == null) return;
+      try
+      {
+        var players = await _playerRepository.GetAllPlayersAsync();
+        PlayerList.Clear();
+        foreach (var p in players) PlayerList.Add(p);
+
+        // 設定されているIDがあれば選択状態にする
+        var savedId = _currentConfig.AppSettings?.DefaultPlayerId;
+        if (!string.IsNullOrEmpty(savedId))
+        {
+          SelectedDefaultPlayer = PlayerList.FirstOrDefault(p => p.Id == savedId);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "プレイヤーリストの読み込みに失敗しました");
+      }
+    }
+
     [RelayCommand]
     private async Task SaveSettings()
     {
@@ -100,7 +136,11 @@ namespace NssOrderTool.ViewModels
         // 1. 新しい設定オブジェクトを作成
         var newConfig = new AppConfig
         {
-          AppSettings = new AppSettings { Environment = Environment },
+          AppSettings = new AppSettings
+          {
+            Environment = Environment,
+            DefaultPlayerId = SelectedDefaultPlayer?.Id ?? ""
+          },
           SsmSettings = new SsmSettings
           {
             UseSsm = UseSsm,

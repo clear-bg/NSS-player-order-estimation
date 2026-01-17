@@ -13,6 +13,7 @@ namespace NssOrderTool.ViewModels
   {
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaRepository _arenaRepository;
+    private readonly AppConfig _appConfig;
 
     // 検索フォーム
     [ObservableProperty]
@@ -37,13 +38,15 @@ namespace NssOrderTool.ViewModels
     {
       _playerRepo = null!;
       _arenaRepository = null!;
+      _appConfig = null!;
     }
 
     // 本番用 (DI)
-    public ArenaDataViewModel(PlayerRepository playerRepo, ArenaRepository arenaRepository)
+    public ArenaDataViewModel(PlayerRepository playerRepo, ArenaRepository arenaRepository, AppConfig appConfig)
     {
       _playerRepo = playerRepo;
       _arenaRepository = arenaRepository;
+      _appConfig = appConfig;
 
       _ = LoadPlayersAsync();
     }
@@ -92,6 +95,16 @@ namespace NssOrderTool.ViewModels
         var players = await _playerRepo.GetAllPlayersAsync();
         Players.Clear();
         foreach (var p in players) Players.Add(p);
+
+        var defaultId = _appConfig.AppSettings?.DefaultPlayerId;
+        if (!string.IsNullOrEmpty(defaultId))
+        {
+          var target = Players.FirstOrDefault(p => p.Id == defaultId);
+          if (target != null)
+          {
+            SelectedPlayer = target;
+          }
+        }
       }
       catch (Exception ex)
       {
