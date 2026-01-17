@@ -22,7 +22,7 @@ namespace NssOrderTool.Tests.ViewModels
     {
       // Repositoryは仮想(Mock)化する
       // Repositoryのコンストラクタ引数(AppDbContext)に合わせて、nullを1つだけ渡す
-      _mockArenaRepo = new Mock<ArenaRepository>((AppDbContext)null!);
+      _mockArenaRepo = new Mock<ArenaRepository>((AppDbContext)null!, (System.IServiceProvider)null!);
 
       // ★修正箇所: 引数を (null!, null!) から (null!) に変更
       _mockPlayerRepo = new Mock<PlayerRepository>((AppDbContext)null!);
