@@ -10,99 +10,102 @@
   x:DataType="vm:SimulationViewModel"
   mc:Ignorable="d">
 
-  <Grid Margin="20" ColumnDefinitions="*, 20, *">
-    <StackPanel Grid.Column="0" Spacing="10">
-      <TextBlock
-        FontSize="16"
-        FontWeight="Bold"
-        Text="🎮 シミュレーション入力" />
-      <TextBlock
-        FontSize="12"
-        Foreground="Gray"
-        Text="参加する8人の名前を入力してください。1番目は部屋主（固定）です。"
-        TextWrapping="Wrap" />
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-      <ItemsControl ItemsSource="{Binding Inputs}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="vm:SimulationInputItem">
-            <Grid Margin="0,5" ColumnDefinitions="30, *">
-              <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="{Binding Index, StringFormat='{}{0}.'}" />
-
-              <AutoCompleteBox
-                Grid.Column="1"
-                FilterMode="Contains"
-                ItemsSource="{Binding $parent[UserControl].((vm:SimulationViewModel)DataContext).AllPlayerNames}"
-                MinimumPrefixLength="1"
-                Text="{Binding Name}"
-                Watermark="{Binding Placeholder}" />
-            </Grid>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-
-      <StackPanel
-        Margin="0,10,0,0"
-        Orientation="Horizontal"
-        Spacing="10">
-        <Button
-          Background="#007ACC"
-          Command="{Binding RunSimulationCommand}"
-          Content="計算する"
+    <Grid Margin="20" ColumnDefinitions="*, 20, *">
+      <StackPanel Grid.Column="0" Spacing="10">
+        <TextBlock
+          FontSize="16"
           FontWeight="Bold"
-          Foreground="White" />
-        <Button Command="{Binding ClearInputsCommand}" Content="クリア" />
+          Text="🎮 シミュレーション入力" />
+        <TextBlock
+          FontSize="12"
+          Foreground="Gray"
+          Text="参加する8人の名前を入力してください。1番目は部屋主（固定）です。"
+          TextWrapping="Wrap" />
+
+        <ItemsControl ItemsSource="{Binding Inputs}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SimulationInputItem">
+              <Grid Margin="0,5" ColumnDefinitions="30, *">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  FontWeight="Bold"
+                  Text="{Binding Index, StringFormat='{}{0}.'}" />
+
+                <AutoCompleteBox
+                  Grid.Column="1"
+                  FilterMode="Contains"
+                  ItemsSource="{Binding $parent[UserControl].((vm:SimulationViewModel)DataContext).AllPlayerNames}"
+                  MinimumPrefixLength="1"
+                  Text="{Binding Name}"
+                  Watermark="{Binding Placeholder}" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel
+          Margin="0,10,0,0"
+          Orientation="Horizontal"
+          Spacing="10">
+          <Button
+            Background="#007ACC"
+            Command="{Binding RunSimulationCommand}"
+            Content="計算する"
+            FontWeight="Bold"
+            Foreground="White" />
+          <Button Command="{Binding ClearInputsCommand}" Content="クリア" />
+        </StackPanel>
+
+        <TextBlock
+          Margin="0,5,0,0"
+          Foreground="Green"
+          Text="{Binding StatusText}"
+          TextWrapping="Wrap" />
       </StackPanel>
 
-      <TextBlock
-        Margin="0,5,0,0"
-        Foreground="Green"
-        Text="{Binding StatusText}"
-        TextWrapping="Wrap" />
-    </StackPanel>
+      <StackPanel Grid.Column="2" Spacing="10">
+        <TextBlock
+          FontSize="16"
+          FontWeight="Bold"
+          Text="📊 推定結果" />
+        <TextBlock
+          FontSize="12"
+          Foreground="Gray"
+          Text="内部レート順の予測（上から順に並びます）" />
 
-    <StackPanel Grid.Column="2" Spacing="10">
-      <TextBlock
-        FontSize="16"
-        FontWeight="Bold"
-        Text="📊 推定結果" />
-      <TextBlock
-        FontSize="12"
-        Foreground="Gray"
-        Text="内部レート順の予測（上から順に並びます）" />
+        <ListBox
+          Height="400"
+          Background="#F0F0F0"
+          ItemsSource="{Binding SimulationResults}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="5">
 
-      <ListBox
-        Height="400"
-        Background="#F0F0F0"
-        ItemsSource="{Binding SimulationResults}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock
+                  Width="30"
+                  FontWeight="{Binding RankWeight}"
+                  Foreground="{Binding RankColor}"
+                  Text="{Binding RankText}"
+                  TextAlignment="Right" />
 
-              <TextBlock
-                Width="30"
-                FontWeight="{Binding RankWeight}"
-                Foreground="{Binding RankColor}"
-                Text="{Binding RankText}"
-                TextAlignment="Right" />
+                <TextBlock
+                  FontWeight="Bold"
+                  Foreground="Black"
+                  Text="{Binding PlayerName}" />
 
-              <TextBlock
-                FontWeight="Bold"
-                Foreground="Black"
-                Text="{Binding PlayerName}" />
-
-              <TextBlock
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="Gray"
-                Text="{Binding Suffix}" />
-            </StackPanel>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
-  </Grid>
+                <TextBlock
+                  VerticalAlignment="Center"
+                  FontSize="11"
+                  Foreground="Gray"
+                  Text="{Binding Suffix}" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
 </UserControl>
