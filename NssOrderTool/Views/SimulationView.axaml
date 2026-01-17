@@ -76,6 +76,12 @@
           Foreground="Gray"
           Text="内部レート順の予測（上から順に並びます）" />
 
+        <Button
+          HorizontalAlignment="Right"
+          Command="{Binding TransferToArenaCommand}"
+          Content="➡️ アリーナ集計へ反映"
+          ToolTip.Tip="この順序をアリーナ集計タブの入力欄にコピーして移動します" />
+
         <ListBox
           Height="400"
           Background="#F0F0F0"

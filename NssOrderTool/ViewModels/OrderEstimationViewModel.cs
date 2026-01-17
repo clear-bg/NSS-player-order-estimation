@@ -368,16 +368,5 @@ namespace NssOrderTool.ViewModels
         IsBusy = false;
       }
     }
-
-    [RelayCommand]
-    private void TransferToArena()
-    {
-      // リストが空なら何もしない
-      if (EstimatedSequence.Count == 0) return;
-
-      // メッセージを作成して送信 (WeakReferenceMessenger.Defaultを使用)
-      var names = EstimatedSequence.ToList();
-      WeakReferenceMessenger.Default.Send(new TransferToArenaMessage(names));
-    }
   }
 }

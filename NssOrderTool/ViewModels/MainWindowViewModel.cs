@@ -1,18 +1,30 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using NssOrderTool.Messages;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class MainWindowViewModel : ViewModelBase
+  public partial class MainWindowViewModel : ViewModelBase, IRecipient<TransferToArenaMessage>
   {
-    [ObservableProperty]
-    private string _title = "NSS 順序推定ツール (C#)";
+    public string Title => "NSS Order Tool";
 
-    // 将来的にここに「現在のタブインデックス」や「ステータスバーの文字」など
-    // アプリ全体で共有したいデータを持たせることができます。
+    [ObservableProperty]
+    private int _selectedTabIndex = 0;
+
+    // ... (コンストラクタ等)
 
     public MainWindowViewModel()
     {
-      // 初期化処理があればここに記述
+      // ★追加: メッセージ受信登録
+      WeakReferenceMessenger.Default.Register(this);
+    }
+
+    // ★追加: メッセージ受信時の処理
+    public void Receive(TransferToArenaMessage message)
+    {
+      // アリーナ集計タブ（インデックス1と仮定）へ切り替え
+      // ※ご自身の環境のタブ順序に合わせて数字を調整してください
+      SelectedTabIndex = 1;
     }
   }
 }
