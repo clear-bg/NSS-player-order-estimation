@@ -5,19 +5,17 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:vm="using:NssOrderTool.ViewModels"
-  d:DesignHeight="450"
+  d:DesignHeight="800"
   d:DesignWidth="800"
   x:DataType="vm:ArenaDataViewModel"
   mc:Ignorable="d">
 
   <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="20" Spacing="20">
 
-    <Grid RowDefinitions="Auto, Auto">
       <Border
-        Grid.Row="0"
-        Padding="15"
-        Background="#f0f0f0"
-        BorderBrush="#cccccc"
+        Padding="0,0,0,20"
+        BorderBrush="#444444"
         BorderThickness="0,0,0,1">
         <StackPanel
           VerticalAlignment="Center"
@@ -26,9 +24,7 @@
           <TextBlock
             VerticalAlignment="Center"
             FontWeight="Medium"
-            Foreground="#2e2e2e"
             Text="🔍 プレイヤー検索:" />
-
           <AutoCompleteBox
             Width="250"
             FilterMode="Contains"
@@ -37,31 +33,325 @@
             Text="{Binding SearchText}"
             ValueMemberBinding="{Binding Name}"
             Watermark="名前を入力して選択..." />
-
           <TextBlock
             Margin="10,0,0,0"
             VerticalAlignment="Center"
-            Foreground="#666666"
+            Foreground="Gray"
             Text="{Binding SelectedPlayer.Name, StringFormat='選択中: {0}', TargetNullValue='(未選択)'}" />
         </StackPanel>
       </Border>
 
-      <Border
-        Grid.Row="1"
-        Padding="20"
-        Background="White">
-
-        <StackPanel
+      <StackPanel
+        Margin="20"
+        HorizontalAlignment="Center"
+        IsVisible="{Binding IsLoadingDetails}">
+        <ProgressBar
+          Width="200"
+          Height="4"
+          Margin="0,0,0,10"
+          IsIndeterminate="True" />
+        <TextBlock
           HorizontalAlignment="Center"
-          VerticalAlignment="Center"
-          IsVisible="{Binding SelectedPlayer, Converter={x:Static ObjectConverters.IsNull}}">
-          <TextBlock
-            HorizontalAlignment="Center"
-            FontSize="16"
-            Foreground="#999999"
-            Text="👈 上のボックスからプレイヤーを選択してください" />
-        </StackPanel>
-      </Border>
-    </Grid>
+          Foreground="Gray"
+          Text="データを集計中..." />
+      </StackPanel>
+
+      <StackPanel IsVisible="{Binding Details, Converter={x:Static ObjectConverters.IsNotNull}}" Spacing="20">
+
+        <Border
+          Padding="20"
+          Background="#252526"
+          BorderBrush="#3E3E42"
+          BorderThickness="1"
+          CornerRadius="5">
+          <Grid ColumnDefinitions="*, *, *, *">
+            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="Gray"
+                Text="総参加数" />
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Text="{Binding Details.Stats.TotalSessions, StringFormat='{}{0} 回'}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="Gray"
+                Text="優勝回数" />
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Foreground="#FFD700"
+                Text="{Binding Details.Stats.SessionWins, StringFormat='{}{0} 回'}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="Gray"
+                Text="勝率" />
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Text="{Binding Details.Stats.SessionWinRate, StringFormat='{}{0:P1}'}" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="Gray"
+                Text="平均順位" />
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Text="{Binding Details.Stats.AverageRank, StringFormat='{}{0:F2} 位'}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid ColumnDefinitions="*, 20, *">
+          <StackPanel Grid.Column="0" Spacing="20">
+
+            <Border
+              Padding="15"
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel Spacing="10">
+                <TextBlock
+                  FontSize="16"
+                  FontWeight="Bold"
+                  Text="📊 チーム別ラウンド成績" />
+                <Grid ColumnDefinitions="*, Auto, *">
+                  <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontWeight="Bold"
+                      Foreground="#4488FF"
+                      Text="🔵 Blue" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="18"
+                      Text="{Binding Details.Stats.BlueWinRate, StringFormat='勝率 {0:P1}'}" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="12"
+                      Foreground="Gray"
+                      Text="{Binding Details.Stats.BlueWins, StringFormat='({0}勝)'}" />
+                  </StackPanel>
+
+                  <Border
+                    Grid.Column="1"
+                    Width="1"
+                    Margin="10,0"
+                    Background="#444444" />
+
+                  <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontWeight="Bold"
+                      Foreground="#FF8844"
+                      Text="🟠 Orange" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="18"
+                      Text="{Binding Details.Stats.OrangeWinRate, StringFormat='勝率 {0:P1}'}" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="12"
+                      Foreground="Gray"
+                      Text="{Binding Details.Stats.OrangeWins, StringFormat='({0}勝)'}" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <Border
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel>
+                <Border
+                  Padding="15,10"
+                  BorderBrush="#333333"
+                  BorderThickness="0,0,0,1">
+                  <TextBlock FontWeight="Bold" Text="📅 直近のセッション履歴" />
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding Details.History}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border
+                        Padding="15,8"
+                        BorderBrush="#333333"
+                        BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="100, 60, 60, *">
+                          <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Foreground="Gray"
+                            Text="{Binding Date, StringFormat='MM/dd HH:mm'}" />
+                          <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontWeight="Bold"
+                            Text="{Binding Result}" />
+                          <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Text="{Binding WinCount, StringFormat='{}{0}勝'}" />
+                          <TextBlock
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            FontSize="11"
+                            Foreground="Gray"
+                            Text="{Binding PartnerName}"
+                            TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Column="2" Spacing="20">
+
+            <Border
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel>
+                <Border
+                  Padding="15,10"
+                  Background="#1E2A1E"
+                  BorderBrush="#333333"
+                  BorderThickness="0,0,0,1">
+                  <TextBlock
+                    FontWeight="Bold"
+                    Foreground="#88FF88"
+                    Text="🤝 ベストパートナー (味方時勝率)" />
+                </Border>
+                <ItemsControl ItemsSource="{Binding Details.BestPartners}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border
+                        Padding="15,8"
+                        BorderBrush="#333333"
+                        BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*, Auto">
+                          <StackPanel Grid.Column="0">
+                            <TextBlock FontWeight="Bold" Text="{Binding PlayerName}" />
+                            <TextBlock
+                              FontSize="11"
+                              Foreground="Gray"
+                              Text="{Binding RoundCount, StringFormat='共演 {0}ラウンド'}" />
+                          </StackPanel>
+                          <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="#88FF88"
+                            Text="{Binding WinRate, StringFormat='{}{0:P0}'}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock
+                  Margin="10"
+                  HorizontalAlignment="Right"
+                  FontSize="10"
+                  Foreground="Gray"
+                  Text="※5ラウンド以上共演した相手のみ" />
+              </StackPanel>
+            </Border>
+
+            <Border
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel>
+                <Border
+                  Padding="15,10"
+                  Background="#2A1E1E"
+                  BorderBrush="#333333"
+                  BorderThickness="0,0,0,1">
+                  <TextBlock
+                    FontWeight="Bold"
+                    Foreground="#FF8888"
+                    Text="⚔️ ライバル (敵対時勝率)" />
+                </Border>
+                <ItemsControl ItemsSource="{Binding Details.WorstRivals}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border
+                        Padding="15,8"
+                        BorderBrush="#333333"
+                        BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*, Auto">
+                          <StackPanel Grid.Column="0">
+                            <TextBlock FontWeight="Bold" Text="{Binding PlayerName}" />
+                            <TextBlock
+                              FontSize="11"
+                              Foreground="Gray"
+                              Text="{Binding RoundCount, StringFormat='対戦 {0}ラウンド'}" />
+                          </StackPanel>
+                          <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock
+                              HorizontalAlignment="Right"
+                              FontSize="9"
+                              Foreground="Gray"
+                              Text="自分の勝率" />
+                            <TextBlock
+                              HorizontalAlignment="Right"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="#FF8888"
+                              Text="{Binding WinRate, StringFormat='{}{0:P0}'}" />
+                          </StackPanel>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock
+                  Margin="10"
+                  HorizontalAlignment="Right"
+                  FontSize="10"
+                  Foreground="Gray"
+                  Text="※5ラウンド以上対戦した相手のみ" />
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+
+      <StackPanel
+        Margin="0,50,0,0"
+        HorizontalAlignment="Center"
+        IsVisible="{Binding Details, Converter={x:Static ObjectConverters.IsNull}}">
+        <TextBlock
+          FontSize="16"
+          Foreground="Gray"
+          Text="👈 プレイヤーを選択すると詳細が表示されます" />
+      </StackPanel>
+
+    </StackPanel>
   </ScrollViewer>
 </UserControl>
