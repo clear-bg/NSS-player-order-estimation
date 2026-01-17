@@ -33,7 +33,7 @@ namespace NssOrderTool.Tests.ViewModels
 
       // Act (実行)
       // ViewModelを初期化（ここでLoadSettingsが走るはず）
-      var vm = new SettingsViewModel(config, mockLogger.Object, mockFactory.Object);
+      var vm = new SettingsViewModel(config, mockLogger.Object, mockFactory.Object, null!);
 
       // Assert (検証)
       // configの中身がViewModelのプロパティに反映されているか
