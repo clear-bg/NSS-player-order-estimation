@@ -8,6 +8,10 @@
   d:DesignHeight="800"
   d:DesignWidth="800"
   x:DataType="vm:ArenaDataViewModel"
+  Background="Transparent"
+  Focusable="True"
+  KeyDown="OnRootKeyDown"
+  PointerPressed="OnRootPointerPressed"
   mc:Ignorable="d">
 
   <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -57,7 +61,6 @@
       </StackPanel>
 
       <StackPanel IsVisible="{Binding Details, Converter={x:Static ObjectConverters.IsNotNull}}" Spacing="20">
-
         <Border
           Padding="20"
           Background="#252526"
@@ -119,7 +122,6 @@
 
         <Grid ColumnDefinitions="*, 20, *">
           <StackPanel Grid.Column="0" Spacing="20">
-
             <Border
               Padding="15"
               Background="#1E1E1E"
@@ -148,13 +150,11 @@
                       Foreground="Gray"
                       Text="{Binding Details.Stats.BlueWins, StringFormat='({0}勝)'}" />
                   </StackPanel>
-
                   <Border
                     Grid.Column="1"
                     Width="1"
                     Margin="10,0"
                     Background="#444444" />
-
                   <StackPanel Grid.Column="2" HorizontalAlignment="Center">
                     <TextBlock
                       HorizontalAlignment="Center"
@@ -187,7 +187,6 @@
                   BorderThickness="0,0,0,1">
                   <TextBlock FontWeight="Bold" Text="📅 直近のセッション履歴" />
                 </Border>
-
                 <ItemsControl ItemsSource="{Binding Details.History}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -227,7 +226,6 @@
           </StackPanel>
 
           <StackPanel Grid.Column="2" Spacing="20">
-
             <Border
               Background="#1E1E1E"
               BorderBrush="#333333"
@@ -337,7 +335,6 @@
                   Text="※5ラウンド以上対戦した相手のみ" />
               </StackPanel>
             </Border>
-
           </StackPanel>
         </Grid>
       </StackPanel>
