@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using NssOrderTool.Models; // DTO利用
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 
@@ -11,37 +12,80 @@ namespace NssOrderTool.ViewModels
   public partial class ArenaDataViewModel : ViewModelBase
   {
     private readonly PlayerRepository _playerRepo;
+    private readonly ArenaRepository _arenaRepository;
+    private readonly AppConfig _appConfig;
 
-    // 検索フォームの入力値
+    // 検索フォーム
     [ObservableProperty]
     private string _searchText = string.Empty;
 
-    // 選択されたプレイヤー (ComboBox/ListBoxでの選択状態)
+    // 選択されたプレイヤー
     [ObservableProperty]
     private PlayerEntity? _selectedPlayer;
 
-    // 検索候補となる全プレイヤーリスト
+    // ★追加: 詳細データ
+    [ObservableProperty]
+    private PlayerDetailsDto? _details;
+
+    // ★追加: 読み込み中フラグ
+    [ObservableProperty]
+    private bool _isLoadingDetails;
+
     public ObservableCollection<PlayerEntity> Players { get; } = new();
 
-    // デザインモード用コンストラクタ
+    // デザイン用
     public ArenaDataViewModel()
     {
       _playerRepo = null!;
+      _arenaRepository = null!;
+      _appConfig = null!;
     }
 
-    // DIコンテナから注入されるコンストラクタ
-    public ArenaDataViewModel(PlayerRepository playerRepo)
+    // 本番用 (DI)
+    public ArenaDataViewModel(PlayerRepository playerRepo, ArenaRepository arenaRepository, AppConfig appConfig)
     {
       _playerRepo = playerRepo;
+      _arenaRepository = arenaRepository;
+      _appConfig = appConfig;
 
-      // 初期化時にリストを読み込む (Fire-and-forget)
-      // ※画面表示時に読み込み直す仕組みを入れることも可能ですが、まずは初期化時のみとします
       _ = LoadPlayersAsync();
     }
 
-    /// <summary>
-    /// リポジトリから全プレイヤーを読み込み、リストを更新する
-    /// </summary>
+    // プレイヤー選択時に呼ばれる
+    partial void OnSelectedPlayerChanged(PlayerEntity? value)
+    {
+      if (value != null)
+      {
+        // string ID を渡す
+        LoadDetailsAsync(value.Id);
+      }
+      else
+      {
+        Details = null;
+      }
+    }
+
+    private async void LoadDetailsAsync(string playerId)
+    {
+      if (_arenaRepository == null) return;
+
+      IsLoadingDetails = true;
+      try
+      {
+        // 重い処理なのでTask.Runで実行
+        var data = await Task.Run(() => _arenaRepository.GetPlayerDetailsAsync(playerId));
+        Details = data;
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine($"Error loading details: {ex.Message}");
+      }
+      finally
+      {
+        IsLoadingDetails = false;
+      }
+    }
+
     public async Task LoadPlayersAsync()
     {
       if (_playerRepo == null) return;
@@ -49,16 +93,21 @@ namespace NssOrderTool.ViewModels
       try
       {
         var players = await _playerRepo.GetAllPlayersAsync();
-
         Players.Clear();
-        foreach (var p in players)
+        foreach (var p in players) Players.Add(p);
+
+        var defaultId = _appConfig.AppSettings?.DefaultPlayerId;
+        if (!string.IsNullOrEmpty(defaultId))
         {
-          Players.Add(p);
+          var target = Players.FirstOrDefault(p => p.Id == defaultId);
+          if (target != null)
+          {
+            SelectedPlayer = target;
+          }
         }
       }
       catch (Exception ex)
       {
-        // ログ出力など (今回はデバッグ出力のみ)
         System.Diagnostics.Debug.WriteLine($"Error loading players: {ex.Message}");
       }
     }

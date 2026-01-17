@@ -45,8 +45,8 @@ namespace NssOrderTool.Tests.Repositories
       // Act
       using (var context = CreateInMemoryContext(dbName))
       {
-        var repo = new ArenaRepository(context);
-        await repo.AddSessionAsync(session);
+        var repository = new ArenaRepository(context, null!);
+        await repository.AddSessionAsync(session);
       }
 
       // Assert
@@ -75,17 +75,17 @@ namespace NssOrderTool.Tests.Repositories
 
       using (var context = CreateInMemoryContext(dbName))
       {
-        var repo = new ArenaRepository(context);
+        var repository = new ArenaRepository(context, null!);
         var session = new ArenaSessionEntity();
-        await repo.AddSessionAsync(session);
+        await repository.AddSessionAsync(session);
         targetId = session.Id;
       }
 
       // Act: 削除実行
       using (var context = CreateInMemoryContext(dbName))
       {
-        var repo = new ArenaRepository(context);
-        await repo.DeleteSessionAsync(targetId);
+        var repository = new ArenaRepository(context, null!);
+        await repository.DeleteSessionAsync(targetId);
       }
 
       // Assert
@@ -114,20 +114,20 @@ namespace NssOrderTool.Tests.Repositories
 
       using (var context = CreateInMemoryContext(dbName))
       {
-        var repo = new ArenaRepository(context);
+        var repository = new ArenaRepository(context, null!);
         var session = new ArenaSessionEntity();
         session.Rounds.Add(new ArenaRoundEntity { RoundNumber = 1 });
         session.Participants.Add(new ArenaParticipantEntity { PlayerId = "P1" });
 
-        await repo.AddSessionAsync(session);
+        await repository.AddSessionAsync(session);
         sessionId = session.Id;
       }
 
       // Act
       using (var context = CreateInMemoryContext(dbName))
       {
-        var repo = new ArenaRepository(context);
-        await repo.DeleteSessionAsync(sessionId);
+        var repository = new ArenaRepository(context, null!);
+        await repository.DeleteSessionAsync(sessionId);
       }
 
       // Assert

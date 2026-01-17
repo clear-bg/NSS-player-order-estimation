@@ -10,6 +10,7 @@ namespace NssOrderTool.Models
   public class AppSettings
   {
     public string Environment { get; set; } = "TEST";
+    public string DefaultPlayerId { get; set; } = "";
   }
 
   public class SsmSettings
