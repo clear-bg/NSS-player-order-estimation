@@ -144,11 +144,23 @@
                       HorizontalAlignment="Center"
                       FontSize="18"
                       Text="{Binding Details.Stats.BlueWinRate, StringFormat='勝率 {0:P1}'}" />
-                    <TextBlock
+                    <StackPanel
                       HorizontalAlignment="Center"
-                      FontSize="12"
-                      Foreground="Gray"
-                      Text="{Binding Details.Stats.BlueWins, StringFormat='({0}勝)'}" />
+                      Orientation="Horizontal"
+                      Spacing="2">
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.BlueWins}" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="/" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.BlueRounds}" />
+                    </StackPanel>
                   </StackPanel>
                   <Border
                     Grid.Column="1"
@@ -165,11 +177,23 @@
                       HorizontalAlignment="Center"
                       FontSize="18"
                       Text="{Binding Details.Stats.OrangeWinRate, StringFormat='勝率 {0:P1}'}" />
-                    <TextBlock
+                    <StackPanel
                       HorizontalAlignment="Center"
-                      FontSize="12"
-                      Foreground="Gray"
-                      Text="{Binding Details.Stats.OrangeWins, StringFormat='({0}勝)'}" />
+                      Orientation="Horizontal"
+                      Spacing="2">
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.OrangeWins}" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="/" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.OrangeRounds}" />
+                    </StackPanel>
                   </StackPanel>
                 </Grid>
               </StackPanel>

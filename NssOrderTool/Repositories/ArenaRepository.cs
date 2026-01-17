@@ -168,16 +168,16 @@ namespace NssOrderTool.Repositories
 
       // 履歴リスト
       result.History = myParticipations
-          .Where(p => p.Session != null)
-          .Take(10)
-          .Select(p => new MatchHistoryDto
-          {
-            Date = p.Session!.CreatedAt,
-            Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
-            MyRank = p.Rank,
-            WinCount = p.WinCount,
-            PartnerName = $"{p.Session.Participants.Count}名参加"
-          }).ToList();
+                .Where(p => p.Session != null)
+                .Take(10)
+                .Select(p => new MatchHistoryDto
+                {
+                  Date = p.Session!.CreatedAt,
+                  Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
+                  MyRank = p.Rank,
+                  WinCount = p.WinCount,
+                  PartnerName = $"Host: {p.Session.Participants.FirstOrDefault(x => x.SlotIndex == 0)?.Player?.Name ?? "-"}"
+                }).ToList();
 
       // 相性データ
       result.BestPartners = partnerStats
