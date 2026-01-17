@@ -10,159 +10,162 @@
   x:DataType="vm:OrderEstimationViewModel"
   mc:Ignorable="d">
 
-  <Grid
-    Margin="10"
-    ColumnDefinitions="*, 20, *"
-    IsEnabled="{Binding !IsBusy}">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-    <StackPanel Grid.Column="0" Spacing="10">
-      <ProgressBar
-        Height="4"
-        Margin="0,0,0,5"
-        HorizontalAlignment="Stretch"
-        IsIndeterminate="True"
-        IsVisible="{Binding IsBusy}" />
+    <Grid
+      Margin="10"
+      ColumnDefinitions="*, 20, *"
+      IsEnabled="{Binding !IsBusy}">
 
-      <StackPanel
-        VerticalAlignment="Center"
-        Orientation="Horizontal"
-        Spacing="10">
-        <TextBlock
+      <StackPanel Grid.Column="0" Spacing="10">
+        <ProgressBar
+          Height="4"
+          Margin="0,0,0,5"
+          HorizontalAlignment="Stretch"
+          IsIndeterminate="True"
+          IsVisible="{Binding IsBusy}" />
+
+        <StackPanel
           VerticalAlignment="Center"
-          FontSize="16"
-          FontWeight="Bold"
-          Text="✏️ 入力" />
-        <Border
-          Padding="8,2"
-          Background="{Binding EnvBadgeColor}"
-          CornerRadius="4">
+          Orientation="Horizontal"
+          Spacing="10">
           <TextBlock
-            FontSize="12"
+            VerticalAlignment="Center"
+            FontSize="16"
             FontWeight="Bold"
-            Foreground="White"
-            Text="{Binding EnvText}" />
-        </Border>
-      </StackPanel>
-
-      <TextBlock
-        FontSize="12"
-        Foreground="Gray"
-        Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" />
-
-      <TextBox
-        Height="100"
-        AcceptsReturn="True"
-        Text="{Binding InputText}"
-        TextWrapping="Wrap"
-        Watermark="例: Player1, Player2, Player3" />
-
-      <Button
-        HorizontalAlignment="Stretch"
-        HorizontalContentAlignment="Center"
-        Background="#007ACC"
-        Command="{Binding RegisterCommand}"
-        Content="データを登録"
-        Foreground="White" />
-
-      <TextBlock
-        Foreground="Green"
-        Text="{Binding StatusText}"
-        TextWrapping="Wrap" />
-
-      <Separator Margin="0" />
-
-      <Grid ColumnDefinitions="Auto, *">
-        <Button
-          Grid.Column="0"
-          Padding="8,4"
-          Click="CopyGraphButton_Click"
-          Content="📋 Graph"
-          FontSize="12"
-          ToolTip.Tip="Mermaid形式でグラフをコピー" />
+            Text="✏️ 入力" />
+          <Border
+            Padding="8,2"
+            Background="{Binding EnvBadgeColor}"
+            CornerRadius="4">
+            <TextBlock
+              FontSize="12"
+              FontWeight="Bold"
+              Foreground="White"
+              Text="{Binding EnvText}" />
+          </Border>
+        </StackPanel>
 
         <TextBlock
-          Grid.Column="1"
-          Margin="10,0,0,0"
-          VerticalAlignment="Center"
           FontSize="12"
           Foreground="Gray"
-          Text="{Binding StatsText}" />
-      </Grid>
+          Text="プレイヤー名をカンマ区切りで入力 (例: A, B, C)" />
 
-      <Separator Margin="0" />
-      <TextBlock
-        VerticalAlignment="Center"
-        FontSize="14"
-        FontWeight="Bold"
-        Text="📜 登録履歴 (最新50件)" />
+        <TextBox
+          Height="100"
+          AcceptsReturn="True"
+          Text="{Binding InputText}"
+          TextWrapping="Wrap"
+          Watermark="例: Player1, Player2, Player3" />
 
-      <ListBox
-        Height="150"
-        Background="#F9F9F9"
-        ItemsSource="{Binding HistoryList}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <Grid ColumnDefinitions="*, Auto">
-              <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="#333333"
-                Text="{Binding DisplayText}" />
+        <Button
+          HorizontalAlignment="Stretch"
+          HorizontalContentAlignment="Center"
+          Background="#007ACC"
+          Command="{Binding RegisterCommand}"
+          Content="データを登録"
+          Foreground="White" />
 
-              <Button
-                Grid.Column="1"
-                Margin="5,0,0,0"
-                Padding="5,2"
-                Background="Transparent"
-                Command="{Binding $parent[UserControl].((vm:OrderEstimationViewModel)DataContext).DeleteHistoryCommand}"
-                CommandParameter="{Binding}"
-                Content="🗑️"
-                FontSize="10"
-                Foreground="Red" />
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
-
-    <StackPanel Grid.Column="2" Spacing="10">
-      <Grid ColumnDefinitions="*, Auto, Auto">
         <TextBlock
-          Grid.Column="0"
+          Foreground="Green"
+          Text="{Binding StatusText}"
+          TextWrapping="Wrap" />
+
+        <Separator Margin="0" />
+
+        <Grid ColumnDefinitions="Auto, *">
+          <Button
+            Grid.Column="0"
+            Padding="8,4"
+            Click="CopyGraphButton_Click"
+            Content="📋 Graph"
+            FontSize="12"
+            ToolTip.Tip="Mermaid形式でグラフをコピー" />
+
+          <TextBlock
+            Grid.Column="1"
+            Margin="10,0,0,0"
+            VerticalAlignment="Center"
+            FontSize="12"
+            Foreground="Gray"
+            Text="{Binding StatsText}" />
+        </Grid>
+
+        <Separator Margin="0" />
+        <TextBlock
           VerticalAlignment="Center"
-          FontSize="16"
+          FontSize="14"
           FontWeight="Bold"
-          Text="📊 推定順序" />
-        <Button
-          Grid.Column="1"
-          Margin="0,0,5,0"
-          Command="{Binding ReloadCommand}"
-          Content="更新" />
+          Text="📜 登録履歴 (最新50件)" />
 
-        <Button
-          Name="ClearButton"
-          Grid.Column="2"
-          Background="#FFCCCC"
-          Click="ClearButton_Click"
-          Content="🗑️ 初期化"
-          Foreground="Red" />
-      </Grid>
+        <ListBox
+          Height="150"
+          Background="#F9F9F9"
+          ItemsSource="{Binding HistoryList}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="*, Auto">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  FontSize="11"
+                  Foreground="#333333"
+                  Text="{Binding DisplayText}" />
 
-      <ListBox
-        Height="380"
-        Background="#F0F0F0"
-        Foreground="Black"
-        ItemsSource="{Binding EstimatedSequence}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock
-              Padding="5"
-              Foreground="Black"
-              Text="{Binding}" />
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
-  </Grid>
+                <Button
+                  Grid.Column="1"
+                  Margin="5,0,0,0"
+                  Padding="5,2"
+                  Background="Transparent"
+                  Command="{Binding $parent[UserControl].((vm:OrderEstimationViewModel)DataContext).DeleteHistoryCommand}"
+                  CommandParameter="{Binding}"
+                  Content="🗑️"
+                  FontSize="10"
+                  Foreground="Red" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Spacing="10">
+        <Grid ColumnDefinitions="*, Auto, Auto">
+          <TextBlock
+            Grid.Column="0"
+            VerticalAlignment="Center"
+            FontSize="16"
+            FontWeight="Bold"
+            Text="📊 推定順序" />
+          <Button
+            Grid.Column="1"
+            Margin="0,0,5,0"
+            Command="{Binding ReloadCommand}"
+            Content="更新" />
+
+          <Button
+            Name="ClearButton"
+            Grid.Column="2"
+            Background="#FFCCCC"
+            Click="ClearButton_Click"
+            Content="🗑️ 初期化"
+            Foreground="Red" />
+        </Grid>
+
+        <ListBox
+          Height="380"
+          Background="#F0F0F0"
+          Foreground="Black"
+          ItemsSource="{Binding EstimatedSequence}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock
+                Padding="5"
+                Foreground="Black"
+                Text="{Binding}" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
 </UserControl>

@@ -10,57 +10,58 @@
   x:DataType="vm:ArenaDataViewModel"
   mc:Ignorable="d">
 
-  <Grid RowDefinitions="Auto, *">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-    <Border
-      Grid.Row="0"
-      Padding="15"
-      Background="#f0f0f0"
-      BorderBrush="#cccccc"
-      BorderThickness="0,0,0,1">
-      <StackPanel
-        VerticalAlignment="Center"
-        Orientation="Horizontal"
-        Spacing="10">
-        <TextBlock
+    <Grid RowDefinitions="Auto, Auto">
+      <Border
+        Grid.Row="0"
+        Padding="15"
+        Background="#f0f0f0"
+        BorderBrush="#cccccc"
+        BorderThickness="0,0,0,1">
+        <StackPanel
           VerticalAlignment="Center"
-          FontWeight="Medium"
-          Text="🔍 プレイヤー検索:" />
+          Orientation="Horizontal"
+          Spacing="10">
+          <TextBlock
+            VerticalAlignment="Center"
+            FontWeight="Medium"
+            Foreground="#2e2e2e"
+            Text="🔍 プレイヤー検索:" />
 
-        <AutoCompleteBox
-          Width="250"
-          FilterMode="Contains"
-          ItemsSource="{Binding Players}"
-          SelectedItem="{Binding SelectedPlayer}"
-          Text="{Binding SearchText}"
-          ValueMemberBinding="{Binding Name}"
-          Watermark="名前を入力して選択..." />
+          <AutoCompleteBox
+            Width="250"
+            FilterMode="Contains"
+            ItemsSource="{Binding Players}"
+            SelectedItem="{Binding SelectedPlayer}"
+            Text="{Binding SearchText}"
+            ValueMemberBinding="{Binding Name}"
+            Watermark="名前を入力して選択..." />
 
-        <TextBlock
-          Margin="10,0,0,0"
-          VerticalAlignment="Center"
-          Foreground="#666666"
-          Text="{Binding SelectedPlayer.Name, StringFormat='選択中: {0}', TargetNullValue='(未選択)'}" />
-      </StackPanel>
-    </Border>
+          <TextBlock
+            Margin="10,0,0,0"
+            VerticalAlignment="Center"
+            Foreground="#666666"
+            Text="{Binding SelectedPlayer.Name, StringFormat='選択中: {0}', TargetNullValue='(未選択)'}" />
+        </StackPanel>
+      </Border>
 
-    <Border
-      Grid.Row="1"
-      Padding="20"
-      Background="White">
+      <Border
+        Grid.Row="1"
+        Padding="20"
+        Background="White">
 
-      <StackPanel
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        IsVisible="{Binding SelectedPlayer, Converter={x:Static ObjectConverters.IsNull}}">
-        <TextBlock
+        <StackPanel
           HorizontalAlignment="Center"
-          FontSize="16"
-          Foreground="#999999"
-          Text="👈 上のボックスからプレイヤーを選択してください" />
-      </StackPanel>
-
-    </Border>
-
-  </Grid>
+          VerticalAlignment="Center"
+          IsVisible="{Binding SelectedPlayer, Converter={x:Static ObjectConverters.IsNull}}">
+          <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="16"
+            Foreground="#999999"
+            Text="👈 上のボックスからプレイヤーを選択してください" />
+        </StackPanel>
+      </Border>
+    </Grid>
+  </ScrollViewer>
 </UserControl>

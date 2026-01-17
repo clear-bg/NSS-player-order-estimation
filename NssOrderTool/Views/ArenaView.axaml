@@ -79,29 +79,29 @@
     </Style>
   </UserControl.Styles>
 
-  <Grid Margin="5,15,15,15" RowDefinitions="Auto, *, Auto, Auto, 220">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-    <StackPanel
-      Grid.Row="0"
-      Margin="0,0,0,15"
-      Spacing="10">
-      <TextBlock
-        FontSize="20"
-        FontWeight="Medium"
-        Text="🏟️ アリーナ集計" />
-      <TextBlock
-        FontSize="13"
-        Foreground="#666666"
-        Text="下のボタンで各ラウンドの勝利チームを入力すると、スコアが自動計算されます。" />
-    </StackPanel>
+    <Grid Margin="5,15,15,15" RowDefinitions="Auto, *, Auto, Auto, 220">
+      <StackPanel
+        Grid.Row="0"
+        Margin="0,0,0,15"
+        Spacing="10">
+        <TextBlock
+          FontSize="20"
+          FontWeight="Medium"
+          Text="🏟️ アリーナ集計" />
+        <TextBlock
+          FontSize="13"
+          Foreground="#666666"
+          Text="下のボタンで各ラウンドの勝利チームを入力すると、スコアが自動計算されます。" />
+      </StackPanel>
 
-    <Border Grid.Row="1" Background="White">
+      <Border Grid.Row="1" Background="White">
 
-      <Border
-        Background="#f0f8ff"
-        BorderBrush="#808080"
-        BorderThickness="1">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Border
+          Background="#f0f8ff"
+          BorderBrush="#808080"
+          BorderThickness="1">
           <Border
             x:Name="CaptureTarget"
             Padding="15"
@@ -297,204 +297,203 @@
               </Border>
             </StackPanel>
           </Border>
-        </ScrollViewer>
+        </Border>
       </Border>
-    </Border>
 
-    <StackPanel
-      Grid.Row="2"
-      Margin="15,10,15,10"
-      Orientation="Horizontal">
+      <StackPanel
+        Grid.Row="2"
+        Margin="15,10,15,10"
+        Orientation="Horizontal">
+
+        <Border
+          Width="120"
+          Height="1"
+          Margin="0"
+          Background="Transparent" />
+
+        <ItemsControl ItemsSource="{Binding RoundInputs}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="0" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button
+                Width="39"
+                Height="40"
+                Margin="0,0,1,0"
+                Padding="0"
+                Background="{Binding CellColor}"
+                BorderBrush="#606060"
+                BorderThickness="1"
+                Classes="RoundBtn"
+                Command="{Binding ToggleWinnerCommand}"
+                CornerRadius="4">
+                <Grid RowDefinitions="Auto, *">
+                  <TextBlock
+                    Margin="0,4,0,0"
+                    HorizontalAlignment="Center"
+                    FontSize="11"
+                    Foreground="#333333"
+                    Opacity="0.9"
+                    Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                  <TextBlock
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="13"
+                    FontWeight="Black"
+                    Foreground="#333333"
+                    Text="{Binding DisplayText}" />
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <StackPanel
+        Grid.Row="3"
+        Margin="0,15"
+        VerticalAlignment="Top"
+        Orientation="Horizontal"
+        Spacing="20">
+
+        <Button
+          Padding="30,12"
+          Background="#007ACC"
+          Command="{Binding SaveSessionCommand}"
+          CornerRadius="6">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="16"
+              Text="💾" />
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="14"
+              FontWeight="Medium"
+              Foreground="White"
+              Text="結果を保存する" />
+          </StackPanel>
+        </Button>
+
+        <Button
+          Padding="20,12"
+          Background="#606060"
+          Click="OnCopyToClipboardClick"
+          CornerRadius="6">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="16"
+              Text="📋" />
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="14"
+              FontWeight="Medium"
+              Foreground="White"
+              Text="クリップボードにコピー" />
+          </StackPanel>
+        </Button>
+
+        <Button
+          Padding="20,12"
+          Background="#606060"
+          Click="OnScreenshotClick"
+          CornerRadius="6">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="16"
+              Text="📷" />
+            <TextBlock
+              VerticalAlignment="Center"
+              FontSize="14"
+              FontWeight="Medium"
+              Foreground="White"
+              Text="画像として保存" />
+          </StackPanel>
+        </Button>
+
+        <TextBlock
+          VerticalAlignment="Center"
+          FontSize="14"
+          FontWeight="Medium"
+          Foreground="#2E7D32"
+          Text="{Binding StatusText}" />
+      </StackPanel>
 
       <Border
-        Width="120"
-        Height="1"
-        Margin="0"
-        Background="Transparent" />
+        Grid.Row="4"
+        Margin="0,10,0,0"
+        Background="White"
+        BorderBrush="#808080"
+        BorderThickness="1">
+        <Grid RowDefinitions="Auto, *">
+          <Border
+            Padding="10,5"
+            Background="#f0f0f0"
+            BorderBrush="#808080"
+            BorderThickness="0,0,0,1">
+            <TextBlock
+              FontWeight="Bold"
+              Foreground="#555555"
+              Text="📜 直近の履歴 (削除のみ)" />
+          </Border>
 
-      <ItemsControl ItemsSource="{Binding RoundInputs}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Orientation="Horizontal" Spacing="0" />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Button
-              Width="39"
-              Height="40"
-              Margin="0,0,1,0"
-              Padding="0"
-              Background="{Binding CellColor}"
-              BorderBrush="#606060"
-              BorderThickness="1"
-              Classes="RoundBtn"
-              Command="{Binding ToggleWinnerCommand}"
-              CornerRadius="4">
-              <Grid RowDefinitions="Auto, *">
-                <TextBlock
-                  Margin="0,4,0,0"
-                  HorizontalAlignment="Center"
-                  FontSize="11"
-                  Foreground="#333333"
-                  Opacity="0.9"
-                  Text="{Binding RoundNumber, StringFormat='R{0}'}" />
-                <TextBlock
-                  Grid.Row="1"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  FontSize="13"
-                  FontWeight="Black"
-                  Foreground="#333333"
-                  Text="{Binding DisplayText}" />
-              </Grid>
-            </Button>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </StackPanel>
-
-    <StackPanel
-      Grid.Row="3"
-      Margin="0,15"
-      VerticalAlignment="Top"
-      Orientation="Horizontal"
-      Spacing="20">
-
-      <Button
-        Padding="30,12"
-        Background="#007ACC"
-        Command="{Binding SaveSessionCommand}"
-        CornerRadius="6">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="16"
-            Text="💾" />
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            FontWeight="Medium"
-            Foreground="White"
-            Text="結果を保存する" />
-        </StackPanel>
-      </Button>
-
-      <Button
-        Padding="20,12"
-        Background="#606060"
-        Click="OnCopyToClipboardClick"
-        CornerRadius="6">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="16"
-            Text="📋" />
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            FontWeight="Medium"
-            Foreground="White"
-            Text="クリップボードにコピー" />
-        </StackPanel>
-      </Button>
-
-      <Button
-        Padding="20,12"
-        Background="#606060"
-        Click="OnScreenshotClick"
-        CornerRadius="6">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="16"
-            Text="📷" />
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            FontWeight="Medium"
-            Foreground="White"
-            Text="画像として保存" />
-        </StackPanel>
-      </Button>
-
-      <TextBlock
-        VerticalAlignment="Center"
-        FontSize="14"
-        FontWeight="Medium"
-        Foreground="#2E7D32"
-        Text="{Binding StatusText}" />
-    </StackPanel>
-
-    <Border
-      Grid.Row="4"
-      Margin="0,10,0,0"
-      Background="White"
-      BorderBrush="#808080"
-      BorderThickness="1">
-      <Grid RowDefinitions="Auto, *">
-        <Border
-          Padding="10,5"
-          Background="#f0f0f0"
-          BorderBrush="#808080"
-          BorderThickness="0,0,0,1">
-          <TextBlock
-            FontWeight="Bold"
-            Foreground="#555555"
-            Text="📜 直近の履歴 (削除のみ)" />
-        </Border>
-
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-          <ItemsControl ItemsSource="{Binding HistoryList}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <Border
-                  Padding="10,8"
-                  BorderBrush="#e0e0e0"
-                  BorderThickness="0,0,0,1">
-                  <Grid ColumnDefinitions="160, 100, 100, *, Auto">
-                    <TextBlock
-                      Grid.Column="0"
-                      VerticalAlignment="Center"
-                      Foreground="#333333"
-                      Text="{Binding CreatedAt, StringFormat='yyyy/MM/dd HH:mm'}" />
-
-                    <StackPanel
-                      Grid.Column="1"
-                      VerticalAlignment="Center"
-                      Orientation="Horizontal"
-                      Spacing="5">
-                      <TextBlock Text="🏆" />
-                      <TextBlock FontWeight="Medium" Text="{Binding WinningTeam}" />
-                    </StackPanel>
-
-                    <TextBlock
-                      Grid.Column="2"
-                      VerticalAlignment="Center"
-                      Foreground="#666666"
-                      Text="{Binding Participants.Count, StringFormat='{}{0}名参加'}" />
-
-                    <Button
-                      Grid.Column="4"
-                      Padding="5"
-                      Background="Transparent"
-                      BorderThickness="0"
-                      Classes="Danger"
-                      Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
-                      CommandParameter="{Binding}">
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding HistoryList}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border
+                    Padding="10,8"
+                    BorderBrush="#e0e0e0"
+                    BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="160, 100, 100, *, Auto">
                       <TextBlock
-                        Cursor="Hand"
-                        Foreground="#D32F2F"
-                        Text="🗑️ 削除" />
-                    </Button>
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
-      </Grid>
-    </Border>
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="#333333"
+                        Text="{Binding CreatedAt, StringFormat='yyyy/MM/dd HH:mm'}" />
 
-  </Grid>
+                      <StackPanel
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="5">
+                        <TextBlock Text="🏆" />
+                        <TextBlock FontWeight="Medium" Text="{Binding WinningTeam}" />
+                      </StackPanel>
+
+                      <TextBlock
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        Foreground="#666666"
+                        Text="{Binding Participants.Count, StringFormat='{}{0}名参加'}" />
+
+                      <Button
+                        Grid.Column="4"
+                        Padding="5"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Classes="Danger"
+                        Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
+                        CommandParameter="{Binding}">
+                        <TextBlock
+                          Cursor="Hand"
+                          Foreground="#D32F2F"
+                          Text="🗑️ 削除" />
+                      </Button>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+  </ScrollViewer>
 </UserControl>

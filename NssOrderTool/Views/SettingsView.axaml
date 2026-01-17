@@ -10,143 +10,146 @@
   x:DataType="vm:SettingsViewModel"
   mc:Ignorable="d">
 
-  <Grid Margin="20" IsEnabled="{Binding !IsBusy}">
-    <StackPanel
-      MaxWidth="500"
-      HorizontalAlignment="Left"
-      Spacing="20">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-      <StackPanel Spacing="5">
-        <TextBlock
-          FontSize="20"
-          FontWeight="Bold"
-          Text="⚙️ アプリケーション設定" />
-        <TextBlock
-          FontSize="12"
-          Foreground="Gray"
-          Text="変更を反映するには保存後にアプリを再起動してください。" />
-      </StackPanel>
+    <Grid Margin="20" IsEnabled="{Binding !IsBusy}">
+      <StackPanel
+        MaxWidth="500"
+        HorizontalAlignment="Left"
+        Spacing="20">
 
-      <ProgressBar
-        Height="2"
-        IsIndeterminate="True"
-        IsVisible="{Binding IsBusy}" />
-
-      <Border
-        Padding="15"
-        BorderBrush="#DDDDDD"
-        BorderThickness="1"
-        CornerRadius="5">
-        <StackPanel Spacing="15">
-          <TextBlock FontWeight="Bold" Text="基本設定" />
-
-          <Grid ColumnDefinitions="180, *">
-            <TextBlock
-              Grid.Column="0"
-              VerticalAlignment="Center"
-              Text="環境 (Environment)" />
-            <ComboBox
-              Grid.Column="1"
-              HorizontalAlignment="Stretch"
-              ItemsSource="{Binding EnvironmentList}"
-              SelectedItem="{Binding Environment}" />
-          </Grid>
-        </StackPanel>
-      </Border>
-
-      <Border
-        Padding="15"
-        BorderBrush="#DDDDDD"
-        BorderThickness="1"
-        CornerRadius="5">
-        <StackPanel Spacing="15">
-          <CheckBox
-            Content="AWS SSM (Session Manager) を使用する"
+        <StackPanel Spacing="5">
+          <TextBlock
+            FontSize="20"
             FontWeight="Bold"
-            IsChecked="{Binding UseSsm}" />
+            Text="⚙️ アプリケーション設定" />
+          <TextBlock
+            FontSize="12"
+            Foreground="Gray"
+            Text="変更を反映するには保存後にアプリを再起動してください。" />
+        </StackPanel>
 
-          <StackPanel IsEnabled="{Binding UseSsm}" Spacing="10">
+        <ProgressBar
+          Height="2"
+          IsIndeterminate="True"
+          IsVisible="{Binding IsBusy}" />
+
+        <Border
+          Padding="15"
+          BorderBrush="#DDDDDD"
+          BorderThickness="1"
+          CornerRadius="5">
+          <StackPanel Spacing="15">
+            <TextBlock FontWeight="Bold" Text="基本設定" />
+
             <Grid ColumnDefinitions="180, *">
               <TextBlock
                 Grid.Column="0"
                 VerticalAlignment="Center"
-                Text="Instance ID" />
-              <TextBox
+                Text="環境 (Environment)" />
+              <ComboBox
                 Grid.Column="1"
-                Text="{Binding InstanceId}"
-                Watermark="i-xxxxxxxxxxxxxxxxx" />
-            </Grid>
-
-            <Grid ColumnDefinitions="180, *">
-              <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Text="Remote Host" />
-              <TextBox
-                Grid.Column="1"
-                Text="{Binding RemoteHost}"
-                Watermark="RDS Endpoint" />
-            </Grid>
-
-            <Grid ColumnDefinitions="180, *, 20, 180, *">
-              <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Text="Remote Port" />
-              <NumericUpDown
-                Grid.Column="1"
-                FormatString="0"
-                Value="{Binding RemotePort}" />
-
-              <TextBlock
-                Grid.Column="3"
-                VerticalAlignment="Center"
-                Text="Local Port" />
-              <NumericUpDown
-                Grid.Column="4"
-                FormatString="0"
-                Value="{Binding LocalPort}" />
+                HorizontalAlignment="Stretch"
+                ItemsSource="{Binding EnvironmentList}"
+                SelectedItem="{Binding Environment}" />
             </Grid>
           </StackPanel>
-        </StackPanel>
-      </Border>
+        </Border>
 
-      <StackPanel Spacing="10">
-        <TextBlock
-          FontWeight="Bold"
-          Foreground="{Binding StatusBrush}"
-          Text="{Binding StatusMessage}"
-          TextWrapping="Wrap" />
-        <Grid ColumnDefinitions="*, 10, *, 10, *">
+        <Border
+          Padding="15"
+          BorderBrush="#DDDDDD"
+          BorderThickness="1"
+          CornerRadius="5">
+          <StackPanel Spacing="15">
+            <CheckBox
+              Content="AWS SSM (Session Manager) を使用する"
+              FontWeight="Bold"
+              IsChecked="{Binding UseSsm}" />
 
-          <Button
-            Grid.Column="0"
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Center"
-            Command="{Binding TestConnectionCommand}"
-            Content="🔄 接続テスト" />
+            <StackPanel IsEnabled="{Binding UseSsm}" Spacing="10">
+              <Grid ColumnDefinitions="180, *">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  Text="Instance ID" />
+                <TextBox
+                  Grid.Column="1"
+                  Text="{Binding InstanceId}"
+                  Watermark="i-xxxxxxxxxxxxxxxxx" />
+              </Grid>
 
-          <Button
-            Grid.Column="2"
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Center"
-            Background="#007ACC"
-            Command="{Binding SaveSettingsCommand}"
-            Content="� 設定を保存"
+              <Grid ColumnDefinitions="180, *">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  Text="Remote Host" />
+                <TextBox
+                  Grid.Column="1"
+                  Text="{Binding RemoteHost}"
+                  Watermark="RDS Endpoint" />
+              </Grid>
+
+              <Grid ColumnDefinitions="180, *, 20, 180, *">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  Text="Remote Port" />
+                <NumericUpDown
+                  Grid.Column="1"
+                  FormatString="0"
+                  Value="{Binding RemotePort}" />
+
+                <TextBlock
+                  Grid.Column="3"
+                  VerticalAlignment="Center"
+                  Text="Local Port" />
+                <NumericUpDown
+                  Grid.Column="4"
+                  FormatString="0"
+                  Value="{Binding LocalPort}" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="10">
+          <TextBlock
             FontWeight="Bold"
-            Foreground="White" />
+            Foreground="{Binding StatusBrush}"
+            Text="{Binding StatusMessage}"
+            TextWrapping="Wrap" />
+          <Grid ColumnDefinitions="*, 10, *, 10, *">
 
-          <Button
-            Grid.Column="4"
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Center"
-            Background="#DDDDDD"
-            Command="{Binding RestartApplicationCommand}"
-            Content="🚀 アプリを再起動"
-            Foreground="Black" />
-        </Grid>
+            <Button
+              Grid.Column="0"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              Command="{Binding TestConnectionCommand}"
+              Content="🔄 接続テスト" />
+
+            <Button
+              Grid.Column="2"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              Background="#007ACC"
+              Command="{Binding SaveSettingsCommand}"
+              Content="� 設定を保存"
+              FontWeight="Bold"
+              Foreground="White" />
+
+            <Button
+              Grid.Column="4"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              Background="#DDDDDD"
+              Command="{Binding RestartApplicationCommand}"
+              Content="🚀 アプリを再起動"
+              Foreground="Black" />
+          </Grid>
+        </StackPanel>
+
       </StackPanel>
-
-    </StackPanel>
-  </Grid>
+    </Grid>
+  </ScrollViewer>
 </UserControl>
