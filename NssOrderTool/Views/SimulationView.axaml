@@ -67,10 +67,24 @@
       </StackPanel>
 
       <StackPanel Grid.Column="2" Spacing="10">
-        <TextBlock
-          FontSize="16"
-          FontWeight="Bold"
-          Text="📊 推定結果" />
+        <Grid ColumnDefinitions="Auto, *">
+          <TextBlock
+            Grid.Column="0"
+            VerticalAlignment="Center"
+            FontSize="16"
+            FontWeight="Bold"
+            Text="📊 推定結果" />
+
+          <Button
+            Grid.Column="1"
+            Margin="10,0,0,0"
+            Padding="8,2"
+            HorizontalAlignment="Right"
+            Command="{Binding TransferToArenaCommand}"
+            Content="➡️ アリーナ集計へ反映"
+            FontSize="14"
+            ToolTip.Tip="この順序をアリーナ集計タブへ反映します" />
+        </Grid>
         <TextBlock
           FontSize="12"
           Foreground="Gray"

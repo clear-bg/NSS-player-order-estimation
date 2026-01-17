@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
@@ -12,7 +14,7 @@ using NssOrderTool.ViewModels.Arena; // 👈 追加
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaViewModel : ViewModelBase
+  public partial class ArenaViewModel : ViewModelBase, IRecipient<TransferToArenaMessage>
   {
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
@@ -45,6 +47,8 @@ namespace NssOrderTool.ViewModels
       InitializeMatrix();
 
       _ = LoadHistoryAsync();
+
+      WeakReferenceMessenger.Default.Register(this);
     }
 
     // デザイナー用
@@ -221,6 +225,25 @@ namespace NssOrderTool.ViewModels
       finally
       {
         IsBusy = false;
+      }
+    }
+
+    public void Receive(TransferToArenaMessage message)
+    {
+      var names = message.Value; // List<string>
+
+      // PlayerRows (入力欄) に名前を上書きする
+      // ※PlayerRowsの数が8個ある前提で、先頭から順に埋めます
+      for (int i = 0; i < PlayerRows.Count; i++)
+      {
+        if (i < names.Count)
+        {
+          PlayerRows[i].Name = names[i];
+        }
+        else
+        {
+          PlayerRows[i].Name = string.Empty; // 余った欄はクリア
+        }
       }
     }
   }

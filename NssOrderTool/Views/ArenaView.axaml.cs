@@ -76,7 +76,7 @@ namespace NssOrderTool.Views
 
     private void OnNameInputKeyDown(object sender, KeyEventArgs e)
     {
-      if (e.Key == Key.Enter)
+      if (e.Key == Key.Enter || e.Key == Key.Escape)
       {
         this.Focus();
       }

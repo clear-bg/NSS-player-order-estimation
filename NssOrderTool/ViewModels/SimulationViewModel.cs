@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Avalonia.Media;
+using NssOrderTool.Messages;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
-using NssOrderTool.Messages;
 
 namespace NssOrderTool.ViewModels
 {
@@ -299,6 +299,19 @@ namespace NssOrderTool.ViewModels
       public string InputName { get; set; } = "";
       public string NormalizedName { get; set; } = "";
       public int GlobalRank { get; set; }
+    }
+
+    [RelayCommand]
+    private void TransferToArena()
+    {
+      if (SimulationResults.Count == 0) return;
+
+      // 結果リストからプレイヤー名だけを抽出してリスト化
+      // ※ SimulationResultItem.PlayerName プロパティを使用
+      var names = SimulationResults.Select(x => x.PlayerName).ToList();
+
+      // メッセージ送信
+      WeakReferenceMessenger.Default.Send(new TransferToArenaMessage(names));
     }
   }
 
