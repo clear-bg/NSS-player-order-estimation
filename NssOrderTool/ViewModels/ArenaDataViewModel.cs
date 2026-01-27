@@ -3,13 +3,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using NssOrderTool.Models; // DTO利用
+using CommunityToolkit.Mvvm.Messaging;
+using NssOrderTool.Messages;
+using NssOrderTool.Models;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaDataViewModel : ViewModelBase
+  public partial class ArenaDataViewModel : ViewModelBase, IRecipient<DataUpdatedMessage>
   {
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaRepository _arenaRepository;
@@ -53,6 +55,8 @@ namespace NssOrderTool.ViewModels
       _playerRepo = playerRepo;
       _arenaRepository = arenaRepository;
       _appConfig = appConfig;
+
+      WeakReferenceMessenger.Default.RegisterAll(this);
 
       _ = LoadPlayersAsync();
     }
@@ -154,6 +158,27 @@ namespace NssOrderTool.ViewModels
 
         // リストに追加
         TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.Id));
+      }
+    }
+
+    public void Receive(DataUpdatedMessage message)
+    {
+      // UIスレッドをブロックしないように再読み込みを実行
+      _ = ReloadAllAsync();
+    }
+
+    // 全データを最新の状態にリフレッシュする
+    private async Task ReloadAllAsync()
+    {
+      // 1. プレイヤーリストとランキングの更新
+      await LoadPlayersAsync();
+
+      // 2. もし誰かの詳細を開いているなら、その詳細情報も更新する
+      if (SelectedPlayer != null)
+      {
+        // LoadDetailsAsync は async void なので、メソッド内で直接呼び出し
+        // (本来は Task を返す形にリファクタリング推奨ですが、現状はこれで動きます)
+        LoadDetailsAsync(SelectedPlayer.Id);
       }
     }
   }

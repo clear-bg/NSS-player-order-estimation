@@ -196,6 +196,7 @@ namespace NssOrderTool.ViewModels
 
         // まとめて計算・更新を実行 (LogicServiceへ)
         await _arenaLogic.UpdateRatingsAsync(winCounts);
+        WeakReferenceMessenger.Default.Send(new DataUpdatedMessage());
 
         StatusText = "✅ 結果を保存し、レートを更新しました";
 
