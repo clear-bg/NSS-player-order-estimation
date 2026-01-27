@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Rating;
 
@@ -11,11 +12,16 @@ namespace NssOrderTool.Services.Domain
   {
     private readonly IRatingCalculator _ratingCalculator;
     private readonly PlayerRepository _playerRepository;
+    private readonly ArenaRepository _arenaRepository;
 
-    public ArenaLogicService(IRatingCalculator ratingCalculator, PlayerRepository playerRepository)
+    public ArenaLogicService(
+      IRatingCalculator ratingCalculator,
+      PlayerRepository playerRepository,
+      ArenaRepository arenaRepository)
     {
       _ratingCalculator = ratingCalculator;
       _playerRepository = playerRepository;
+      _arenaRepository = arenaRepository;
     }
 
     // ラウンドごとの「青チーム」に所属するランク順位（1始まりの提供データを0始まりのインデックスに変換して保持）
@@ -102,6 +108,22 @@ namespace NssOrderTool.Services.Domain
 
       // 3. 結果をDBに保存
       await _playerRepository.UpdatePlayerRatingsAsync(newRatings);
+
+      foreach (var kvp in newRatings)
+      {
+        string playerId = kvp.Key;
+        RatingData data = kvp.Value;
+
+        var history = new RateHistoryEntity
+        {
+          PlayerId = playerId,
+          Rate = data.Mean,         // 新しいレート
+          RecordedAt = DateTime.Now // 現在時刻
+        };
+
+        // Repositoryに追加したメソッドを呼ぶ
+        await _arenaRepository.AddRateHistoryAsync(history);
+      }
     }
   }
 }

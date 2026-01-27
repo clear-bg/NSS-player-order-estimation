@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -36,6 +37,10 @@ namespace NssOrderTool.ViewModels
     // 画面表示用のレート文字列
     [ObservableProperty]
     private string _displayRating = "-";
+
+    // グラフ用プロパティ
+    [ObservableProperty]
+    private List<RateHistoryEntity> _rateHistory = new();
 
     public ObservableCollection<PlayerEntity> Players { get; } = new();
     public record RankingItem(int Rank, string Name, string Rating, string Id);
@@ -83,6 +88,8 @@ namespace NssOrderTool.ViewModels
       IsLoadingDetails = true;
       DisplayRating = "Loading...";
 
+      RateHistory = new List<RateHistoryEntity>();
+
       try
       {
         // 1. 詳細データ(スタッツ)の取得
@@ -99,11 +106,13 @@ namespace NssOrderTool.ViewModels
           }
           else
           {
-            // 新規プレイヤー（まだDBにない場合）は初期値1500を表示しても良いですが、
-            // ここでは "New" または "-" のままでOKです
             DisplayRating = "New";
           }
         }
+
+        var history = await _arenaRepository.GetRateHistoryAsync(playerId);
+        RateHistory = history.OrderBy(h => h.RecordedAt).ToList();
+
       }
       catch (Exception ex)
       {

@@ -47,6 +47,9 @@ namespace NssOrderTool.Models
   // 全体まとめクラス
   public class PlayerDetailsDto
   {
+    public double WinRate { get; set; }
+    public double AverageRank { get; set; }
+    public int TotalMatches { get; set; }
     public PlayerStatsDto Stats { get; set; } = new();
     public List<MatchHistoryDto> History { get; set; } = new();
     public List<SynergyDto> BestPartners { get; set; } = new();
