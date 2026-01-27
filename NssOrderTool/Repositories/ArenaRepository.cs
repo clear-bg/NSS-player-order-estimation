@@ -166,6 +166,11 @@ namespace NssOrderTool.Repositories
 
       result.Stats = stats;
 
+      int totalWins = blueWins + orangeWins;
+      result.WinRate = stats.TotalRounds > 0
+          ? (double)totalWins / stats.TotalRounds
+          : 0.0;
+
       // 履歴リスト
       result.History = myParticipations
                 .Where(p => p.Session != null)
@@ -205,6 +210,20 @@ namespace NssOrderTool.Repositories
           .Take(3).ToList();
 
       return result;
+    }
+
+    public async Task AddRateHistoryAsync(RateHistoryEntity history)
+    {
+      _context.RateHistories.Add(history);
+      await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<RateHistoryEntity>> GetRateHistoryAsync(string playerId)
+    {
+      return await _context.RateHistories
+          .Where(h => h.PlayerId == playerId)
+          .OrderBy(h => h.RecordedAt)
+          .ToListAsync();
     }
   }
 }
