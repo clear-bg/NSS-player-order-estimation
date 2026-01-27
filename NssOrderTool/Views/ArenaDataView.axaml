@@ -133,7 +133,7 @@
           </Grid>
         </Border>
 
-        <Grid ColumnDefinitions="*, 20, *">
+        <Grid ColumnDefinitions="330, 20, *">
           <StackPanel Grid.Column="0" Spacing="20">
             <Border
               Padding="15"
@@ -190,84 +190,9 @@
                 </ItemsControl>
               </StackPanel>
             </Border>
+          </StackPanel>
 
-            <Border
-              Padding="15"
-              Background="#1E1E1E"
-              BorderBrush="#333333"
-              BorderThickness="1"
-              CornerRadius="5">
-              <StackPanel Spacing="10">
-                <TextBlock
-                  FontSize="16"
-                  FontWeight="Bold"
-                  Text="📊 チーム別ラウンド成績" />
-                <Grid ColumnDefinitions="*, Auto, *">
-                  <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      FontWeight="Bold"
-                      Foreground="#4488FF"
-                      Text="🔵 Blue" />
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      FontSize="18"
-                      Text="{Binding Details.Stats.BlueWinRate, StringFormat='勝率 {0:P1}'}" />
-                    <StackPanel
-                      HorizontalAlignment="Center"
-                      Orientation="Horizontal"
-                      Spacing="2">
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="{Binding Details.Stats.BlueWins}" />
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="/" />
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="{Binding Details.Stats.BlueRounds}" />
-                    </StackPanel>
-                  </StackPanel>
-                  <Border
-                    Grid.Column="1"
-                    Width="1"
-                    Margin="10,0"
-                    Background="#444444" />
-                  <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      FontWeight="Bold"
-                      Foreground="#FF8844"
-                      Text="🟠 Orange" />
-                    <TextBlock
-                      HorizontalAlignment="Center"
-                      FontSize="18"
-                      Text="{Binding Details.Stats.OrangeWinRate, StringFormat='勝率 {0:P1}'}" />
-                    <StackPanel
-                      HorizontalAlignment="Center"
-                      Orientation="Horizontal"
-                      Spacing="2">
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="{Binding Details.Stats.OrangeWins}" />
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="/" />
-                      <TextBlock
-                        FontSize="12"
-                        Foreground="Gray"
-                        Text="{Binding Details.Stats.OrangeRounds}" />
-                    </StackPanel>
-                  </StackPanel>
-                </Grid>
-              </StackPanel>
-            </Border>
-
+          <StackPanel Grid.Column="2" Spacing="20">
             <Border
               Background="#1E1E1E"
               BorderBrush="#333333"
@@ -316,9 +241,7 @@
                 </ItemsControl>
               </StackPanel>
             </Border>
-          </StackPanel>
 
-          <StackPanel Grid.Column="2" Spacing="20">
             <Border
               Background="#1E1E1E"
               BorderBrush="#333333"
@@ -426,6 +349,83 @@
                   FontSize="10"
                   Foreground="Gray"
                   Text="※5ラウンド以上対戦した相手のみ" />
+              </StackPanel>
+            </Border>
+
+            <Border
+              Padding="15"
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel Spacing="10">
+                <TextBlock
+                  FontSize="16"
+                  FontWeight="Bold"
+                  Text="📊 チーム別ラウンド成績" />
+                <Grid ColumnDefinitions="*, Auto, *">
+                  <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontWeight="Bold"
+                      Foreground="#4488FF"
+                      Text="🔵 Blue" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="18"
+                      Text="{Binding Details.Stats.BlueWinRate, StringFormat='勝率 {0:P1}'}" />
+                    <StackPanel
+                      HorizontalAlignment="Center"
+                      Orientation="Horizontal"
+                      Spacing="2">
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.BlueWins}" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="/" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.BlueRounds}" />
+                    </StackPanel>
+                  </StackPanel>
+                  <Border
+                    Grid.Column="1"
+                    Width="1"
+                    Margin="10,0"
+                    Background="#444444" />
+                  <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontWeight="Bold"
+                      Foreground="#FF8844"
+                      Text="🟠 Orange" />
+                    <TextBlock
+                      HorizontalAlignment="Center"
+                      FontSize="18"
+                      Text="{Binding Details.Stats.OrangeWinRate, StringFormat='勝率 {0:P1}'}" />
+                    <StackPanel
+                      HorizontalAlignment="Center"
+                      Orientation="Horizontal"
+                      Spacing="2">
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.OrangeWins}" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="/" />
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="Gray"
+                        Text="{Binding Details.Stats.OrangeRounds}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Grid>
               </StackPanel>
             </Border>
           </StackPanel>
