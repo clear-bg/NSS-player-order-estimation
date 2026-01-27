@@ -78,7 +78,7 @@ namespace NssOrderTool.Repositories
       return BlueTeamDefinitions[roundNumber].Contains(slotIndex);
     }
 
-    public async Task<PlayerDetailsDto> GetPlayerDetailsAsync(string playerId)
+    public virtual async Task<PlayerDetailsDto> GetPlayerDetailsAsync(string playerId)
     {
       using var scope = _services.CreateScope();
       var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -212,13 +212,13 @@ namespace NssOrderTool.Repositories
       return result;
     }
 
-    public async Task AddRateHistoryAsync(RateHistoryEntity history)
+    public virtual async Task AddRateHistoryAsync(RateHistoryEntity history)
     {
       _context.RateHistories.Add(history);
       await _context.SaveChangesAsync();
     }
 
-    public async Task<List<RateHistoryEntity>> GetRateHistoryAsync(string playerId)
+    public virtual async Task<List<RateHistoryEntity>> GetRateHistoryAsync(string playerId)
     {
       return await _context.RateHistories
           .Where(h => h.PlayerId == playerId)
