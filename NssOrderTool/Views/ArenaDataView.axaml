@@ -67,7 +67,7 @@
           BorderBrush="#3E3E42"
           BorderThickness="1"
           CornerRadius="5">
-          <Grid ColumnDefinitions="*, *, *, *">
+          <Grid ColumnDefinitions="*, *, *, *, *">
             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
               <TextBlock
                 HorizontalAlignment="Center"
@@ -98,6 +98,19 @@
                 HorizontalAlignment="Center"
                 FontSize="12"
                 Foreground="Gray"
+                Text="レーティング" />
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Foreground="#5eff00"
+                Text="{Binding DisplayRating}" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+              <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="Gray"
                 Text="勝率" />
               <TextBlock
                 HorizontalAlignment="Center"
@@ -105,7 +118,7 @@
                 FontWeight="Bold"
                 Text="{Binding Details.Stats.SessionWinRate, StringFormat='{}{0:P1}'}" />
             </StackPanel>
-            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+            <StackPanel Grid.Column="4" HorizontalAlignment="Center">
               <TextBlock
                 HorizontalAlignment="Center"
                 FontSize="12"

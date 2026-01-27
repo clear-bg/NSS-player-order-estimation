@@ -72,5 +72,14 @@ namespace NssOrderTool.Repositories
     {
       _context.ChangeTracker.Clear();
     }
+
+    public virtual async Task<PlayerEntity?> GetPlayerAsync(string id)
+    {
+      if (string.IsNullOrWhiteSpace(id)) return null;
+
+      return await _context.Players
+          .AsNoTracking() // 読み取り専用なので高速化
+          .FirstOrDefaultAsync(p => p.Id == id);
+    }
   }
 }
