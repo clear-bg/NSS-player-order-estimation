@@ -25,90 +25,180 @@ namespace NssOrderTool.Controls
       AffectsRender<SimpleLineChart>(ItemsSourceProperty);
     }
 
+    // テキスト描画用のヘルパーメソッド
+    private void DrawText(DrawingContext context, string text, Point origin, bool isRightAlign = false)
+    {
+      var formattedText = new FormattedText(
+          text,
+          CultureInfo.CurrentCulture,
+          FlowDirection.LeftToRight,
+          Typeface.Default,
+          10, // フォントサイズ
+          Brushes.LightGray // 文字色
+      );
+
+      // 右寄せしたい場合（Y軸の数値など）
+      var pos = origin;
+      if (isRightAlign)
+      {
+        pos = new Point(origin.X - formattedText.Width, origin.Y - formattedText.Height / 2);
+      }
+      else
+      {
+        // 中央揃えっぽい補正（X軸の数値など）
+        pos = new Point(origin.X - formattedText.Width / 2, origin.Y);
+      }
+
+      context.DrawText(formattedText, pos);
+    }
+
     public override void Render(DrawingContext context)
     {
       base.Render(context);
 
       var width = Bounds.Width;
       var height = Bounds.Height;
-
-      // サイズが確保できていない場合は描画しようがない
       if (width <= 0 || height <= 0) return;
 
-      // --- 1. 外枠とグリッド (データ有無に関わらず表示) ---
+      // --- 1. レイアウト設定 (余白の確保) ---
+      // 左側にレート数値、下側に試合数を入れるための余白
+      double paddingLeft = 40;
+      double paddingBottom = 30;
+      double paddingRight = 20;
+      double paddingTop = 20;
 
-      // 外枠を白で描画 (これで表示領域が確実にわかります)
-      context.DrawRectangle(null, new Pen(Brushes.White, 1), new Rect(0, 0, width, height));
+      // 実際にグラフを描くエリア
+      var graphRect = new Rect(
+          paddingLeft,
+          paddingTop,
+          width - paddingLeft - paddingRight,
+          height - paddingTop - paddingBottom
+      );
 
-      // グリッド線 (薄い白)
-      var gridBrush = new SolidColorBrush(Colors.White, 0.3); // 透明度30%の白
-      var gridPen = new Pen(gridBrush, 1);
-      context.DrawLine(gridPen, new Point(0, height * 0.25), new Point(width, height * 0.25));
-      context.DrawLine(gridPen, new Point(0, height * 0.50), new Point(width, height * 0.50));
-      context.DrawLine(gridPen, new Point(0, height * 0.75), new Point(width, height * 0.75));
+      // 外枠 (デバッグ用に見やすく)
+      // context.DrawRectangle(null, new Pen(Brushes.Gray, 1), new Rect(0, 0, width, height));
 
-      // --- データの取得 ---
+      // --- 2. 軸の名前 (ラベル) 表示 ---
+
+      // Y軸ラベル "Rate" (左上)
+      var rateLabel = new FormattedText("Rate", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12, Brushes.White);
+      context.DrawText(rateLabel, new Point(5, 0));
+
+      // X軸ラベル "Matches" (右下)
+      var matchLabel = new FormattedText("Matches", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12, Brushes.White);
+      context.DrawText(matchLabel, new Point(width - matchLabel.Width - 5, height - matchLabel.Height));
+
+
+      // データ取得
       var items = ItemsSource;
-
-      // データがない場合の表示
       if (items == null || items.Count == 0)
       {
-        // 中央に「NO DATA」と白文字で表示
-        var formattedText = new FormattedText(
-            "NO DATA",
-            CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            Typeface.Default,
-            24,
-            Brushes.White
-        );
-
-        context.DrawText(formattedText, new Point((width - formattedText.Width) / 2, (height - formattedText.Height) / 2));
+        // NO DATA 表示
+        var noDataText = new FormattedText("NO DATA", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 24, Brushes.White);
+        context.DrawText(noDataText, new Point((width - noDataText.Width) / 2, (height - noDataText.Height) / 2));
         return;
       }
 
-      // --- 2. Y軸 (レート) の計算 ---
+      // --- 3. データの範囲計算 ---
       var minRate = items.Min(x => x.Rate);
       var maxRate = items.Max(x => x.Rate);
 
+      // 少し余裕を持たせる
       var rateRange = maxRate - minRate;
       if (rateRange == 0) rateRange = 100;
-      var margin = rateRange * 0.2;
+      var marginRate = rateRange * 0.1; // 上下10%
 
-      var yMin = minRate - margin;
-      var yRange = (maxRate + margin) - yMin;
+      var yAxisMax = maxRate + marginRate;
+      var yAxisMin = minRate - marginRate;
+      var yAxisRange = yAxisMax - yAxisMin;
 
-      // --- 3. 座標変換 (横軸＝試合数等間隔) ---
-      Point GetPoint(int index, double rate)
+
+      // --- 4. Y軸の目盛りとグリッド線 ---
+      // 5分割してグリッドを引く
+      int ySteps = 5;
+      var gridPen = new Pen(new SolidColorBrush(Colors.White, 0.2), 1); // 薄いグリッド
+
+      for (int i = 0; i <= ySteps; i++)
+      {
+        // 割合 (0.0 ～ 1.0)
+        double ratio = i / (double)ySteps;
+
+        // グラフエリア内のY座標 (上から下へ計算されることに注意)
+        double yPos = graphRect.Bottom - (graphRect.Height * ratio);
+
+        // その位置のレート値
+        double rateVal = yAxisMin + (yAxisRange * ratio);
+
+        // グリッド線
+        context.DrawLine(gridPen, new Point(graphRect.Left, yPos), new Point(graphRect.Right, yPos));
+
+        // 数値描画 (左側の余白部分に)
+        DrawText(context, rateVal.ToString("F0"), new Point(paddingLeft - 5, yPos), isRightAlign: true);
+      }
+
+
+      // --- 5. X軸の目盛り ---
+      // データ数に応じて間引きながら表示
+      int count = items.Count;
+      int xSteps = Math.Min(count, 10); // 最大10個くらいまで目盛りを表示
+      int stepInterval = (int)Math.Ceiling((double)(count - 1) / (xSteps > 0 ? xSteps : 1));
+      if (stepInterval < 1) stepInterval = 1;
+
+      for (int i = 0; i < count; i += stepInterval)
+      {
+        // グラフエリア内のX座標
+        double xPos;
+        if (count <= 1) xPos = graphRect.Center.X;
+        else xPos = graphRect.Left + (graphRect.Width * (i / (double)(count - 1)));
+
+        // 数値描画 (下側の余白部分に)
+        // 試合数は 1 から始めたいので i + 1
+        DrawText(context, (i + 1).ToString(), new Point(xPos, graphRect.Bottom + 5), isRightAlign: false);
+      }
+
+      // 最後の試合数がループで漏れた場合、必ず描画する
+      if ((count - 1) % stepInterval != 0)
+      {
+        double xPos = graphRect.Right;
+        DrawText(context, count.ToString(), new Point(xPos, graphRect.Bottom + 5), isRightAlign: false);
+      }
+
+
+      // --- 6. データ線の描画 ---
+
+      // 座標変換関数 (graphRect の範囲内に収める)
+      Point ToPoint(int index, double rate)
       {
         double x;
-        if (items.Count <= 1)
-          x = width / 2;
+        if (count <= 1)
+          x = graphRect.Center.X;
         else
-          x = (index / (double)(items.Count - 1)) * width;
+          x = graphRect.Left + (index / (double)(count - 1)) * graphRect.Width;
 
-        var y = height - ((rate - yMin) / yRange * height);
+        // Y座標は上が0なので反転させる
+        // (レート - 最小) / 全体幅 * 高さ
+        double normalizedRate = (rate - yAxisMin) / yAxisRange;
+        double y = graphRect.Bottom - (normalizedRate * graphRect.Height);
+
         return new Point(x, y);
       }
 
-      // --- 4. 線の描画 (白) ---
-      // ★ここをご希望通り白に変更しました
-      var linePen = new Pen(Brushes.White, 2);
-      var dotBrush = Brushes.White;
+      var linePen = new Pen(Brushes.CornflowerBlue, 2); // 青い線
+      var dotBrush = Brushes.White; // 白い点
 
       // 線を引く
-      for (int i = 0; i < items.Count - 1; i++)
+      for (int i = 0; i < count - 1; i++)
       {
-        var p1 = GetPoint(i, items[i].Rate);
-        var p2 = GetPoint(i + 1, items[i + 1].Rate);
+        var p1 = ToPoint(i, items[i].Rate);
+        var p2 = ToPoint(i + 1, items[i + 1].Rate);
         context.DrawLine(linePen, p1, p2);
       }
 
       // 点を打つ
-      for (int i = 0; i < items.Count; i++)
+      for (int i = 0; i < count; i++)
       {
-        var p = GetPoint(i, items[i].Rate);
-        context.DrawEllipse(dotBrush, null, p, 4, 4);
+        var p = ToPoint(i, items[i].Rate);
+        context.DrawEllipse(dotBrush, null, p, 3, 3);
       }
     }
   }
