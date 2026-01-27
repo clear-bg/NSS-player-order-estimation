@@ -10,7 +10,7 @@ namespace NssOrderTool.Tests.Services.Domain
 
     public ArenaLogicServiceTests()
     {
-      _service = new ArenaLogicService();
+      _service = new ArenaLogicService(null!, null!);
     }
 
     [Theory]

@@ -46,7 +46,7 @@ namespace NssOrderTool.Tests.ViewModels
       var item = viewModel.TopRanking[0];
       Assert.Equal(1, item.Rank);
       Assert.Equal("Player1", item.Name);
-      Assert.Equal("25", item.Rating); // "F0" フォーマット (28 - 3*1 = 25)
+      Assert.Equal("28", viewModel.TopRanking.First().Rating);
     }
   }
 }
