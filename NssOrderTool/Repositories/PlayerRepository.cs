@@ -72,5 +72,24 @@ namespace NssOrderTool.Repositories
     {
       _context.ChangeTracker.Clear();
     }
+
+    public virtual async Task<PlayerEntity?> GetPlayerAsync(string id)
+    {
+      if (string.IsNullOrWhiteSpace(id)) return null;
+
+      return await _context.Players
+          .AsNoTracking() // 読み取り専用なので高速化
+          .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public virtual async Task<List<PlayerEntity>> GetTopRatedPlayersAsync(int count)
+    {
+      return await _context.Players
+          .AsNoTracking()
+          .Where(p => !p.IsDeleted) // 削除済みは除外
+          .OrderByDescending(p => p.RateMean - (3.0 * p.RateSigma)) // 表示レート順
+          .Take(count)
+          .ToListAsync();
+    }
   }
 }

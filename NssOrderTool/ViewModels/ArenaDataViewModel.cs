@@ -23,15 +23,21 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private PlayerEntity? _selectedPlayer;
 
-    // ★追加: 詳細データ
+    // 詳細データ
     [ObservableProperty]
     private PlayerDetailsDto? _details;
 
-    // ★追加: 読み込み中フラグ
+    // 読み込み中フラグ
     [ObservableProperty]
     private bool _isLoadingDetails;
 
+    // 画面表示用のレート文字列
+    [ObservableProperty]
+    private string _displayRating = "-";
+
     public ObservableCollection<PlayerEntity> Players { get; } = new();
+    public record RankingItem(int Rank, string Name, string Rating, string Id);
+    public ObservableCollection<RankingItem> TopRanking { get; } = new();
 
     // デザイン用
     public ArenaDataViewModel()
@@ -62,6 +68,7 @@ namespace NssOrderTool.ViewModels
       else
       {
         Details = null;
+        DisplayRating = "-";
       }
     }
 
@@ -70,15 +77,36 @@ namespace NssOrderTool.ViewModels
       if (_arenaRepository == null) return;
 
       IsLoadingDetails = true;
+      DisplayRating = "Loading...";
+
       try
       {
-        // 重い処理なのでTask.Runで実行
+        // 1. 詳細データ(スタッツ)の取得
         var data = await Task.Run(() => _arenaRepository.GetPlayerDetailsAsync(playerId));
         Details = data;
+
+        // 2. 最新レート情報の取得と計算
+        if (_playerRepo != null)
+        {
+          var player = await _playerRepo.GetPlayerAsync(playerId);
+          if (player != null)
+          {
+            // 表示用レート(Conservative Rating) = Mean - 3 * Sigma
+            double ordinal = player.RateMean - (3.0 * player.RateSigma);
+
+            // 整数で表示
+            DisplayRating = ordinal.ToString("F0");
+          }
+          else
+          {
+            DisplayRating = "New";
+          }
+        }
       }
       catch (Exception ex)
       {
         System.Diagnostics.Debug.WriteLine($"Error loading details: {ex.Message}");
+        DisplayRating = "Error";
       }
       finally
       {
@@ -105,10 +133,30 @@ namespace NssOrderTool.ViewModels
             SelectedPlayer = target;
           }
         }
+        await LoadRankingAsync();
       }
       catch (Exception ex)
       {
         System.Diagnostics.Debug.WriteLine($"Error loading players: {ex.Message}");
+      }
+    }
+
+    private async Task LoadRankingAsync()
+    {
+      if (_playerRepo == null) return;
+
+      var topPlayers = await _playerRepo.GetTopRatedPlayersAsync(20);
+      TopRanking.Clear();
+
+      int rank = 1;
+      foreach (var p in topPlayers)
+      {
+        double ordinal = p.RateMean - (3.0 * p.RateSigma);
+        // レートが0以下の場合は "New" 扱いにするか、そのまま数字を出すか選べます。
+        // ここではマイナスもそのまま表示しますが、必要なら if (ordinal < 0) ... で分岐してください。
+        string rateText = ordinal < 0 ? "0" : ordinal.ToString("F0");
+
+        TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.Id));
       }
     }
   }
