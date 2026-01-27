@@ -18,6 +18,12 @@ namespace NssOrderTool.Models.Entities
     [Column("first_seen")]
     public DateTime FirstSeen { get; set; } = DateTime.Now;
 
+    [Column("rate_mean")]
+    public double RateMean { get; set; } = 25.0;
+
+    [Column("rate_sigma")]
+    public double RateSigma { get; set; } = 25.0 / 3.0;
+
     [Column("is_deleted")]
     public bool IsDeleted { get; set; } = false;
 
