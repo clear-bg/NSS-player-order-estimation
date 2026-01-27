@@ -2,6 +2,7 @@
   x:Class="NssOrderTool.Views.ArenaDataView"
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:ctrl="using:NssOrderTool.Controls"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:vm="using:NssOrderTool.ViewModels"
@@ -130,6 +131,23 @@
                 FontWeight="Bold"
                 Text="{Binding Details.Stats.AverageRank, StringFormat='{}{0:F2} 位'}" />
             </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border
+          Height="250"
+          Padding="10"
+          Background="#1E1E1E"
+          BorderBrush="#333333"
+          BorderThickness="1"
+          CornerRadius="5">
+          <Grid RowDefinitions="Auto, *">
+            <TextBlock
+              Grid.Row="0"
+              Margin="0,0,0,10"
+              FontWeight="Bold"
+              Text="📈 レート推移" />
+            <ctrl:SimpleLineChart Grid.Row="1" ItemsSource="{Binding RateHistory}" />
           </Grid>
         </Border>
 
