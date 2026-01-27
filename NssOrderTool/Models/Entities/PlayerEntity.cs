@@ -19,10 +19,10 @@ namespace NssOrderTool.Models.Entities
     public DateTime FirstSeen { get; set; } = DateTime.Now;
 
     [Column("rate_mean")]
-    public double RateMean { get; set; } = 25.0;
+    public double RateMean { get; set; } = 1500;
 
     [Column("rate_sigma")]
-    public double RateSigma { get; set; } = 25.0 / 3.0;
+    public double RateSigma { get; set; } = 0.0;
 
     [Column("is_deleted")]
     public bool IsDeleted { get; set; } = false;
