@@ -14,7 +14,7 @@ using NssOrderTool.ViewModels.Arena;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaViewModel : ViewModelBase, IRecipient<TransferToArenaMessage>
+  public partial class ArenaViewModel : ViewModelBase, IRecipient<DatabaseUpdatedMessage>
   {
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
@@ -196,7 +196,7 @@ namespace NssOrderTool.ViewModels
 
         // まとめて計算・更新を実行 (LogicServiceへ)
         await _arenaLogic.UpdateRatingsAsync(winCounts);
-        WeakReferenceMessenger.Default.Send(new DataUpdatedMessage());
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
 
         StatusText = "✅ 結果を保存し、レートを更新しました";
 
@@ -267,23 +267,10 @@ namespace NssOrderTool.ViewModels
       }
     }
 
-    public void Receive(TransferToArenaMessage message)
+    public void Receive(DatabaseUpdatedMessage message)
     {
-      var names = message.Value; // List<string>
-
-      // PlayerRows (入力欄) に名前を上書きする
-      // ※PlayerRowsの数が8個ある前提で、先頭から順に埋めます
-      for (int i = 0; i < PlayerRows.Count; i++)
-      {
-        if (i < names.Count)
-        {
-          PlayerRows[i].Name = names[i];
-        }
-        else
-        {
-          PlayerRows[i].Name = string.Empty; // 余った欄はクリア
-        }
-      }
+      // データ更新通知が来たら、履歴リストをリロードする
+      _ = LoadHistoryAsync();
     }
   }
 }

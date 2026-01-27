@@ -11,7 +11,7 @@ using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaDataViewModel : ViewModelBase, IRecipient<DataUpdatedMessage>
+  public partial class ArenaDataViewModel : ViewModelBase, IRecipient<DatabaseUpdatedMessage>
   {
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaRepository _arenaRepository;
@@ -161,7 +161,7 @@ namespace NssOrderTool.ViewModels
       }
     }
 
-    public void Receive(DataUpdatedMessage message)
+    public void Receive(DatabaseUpdatedMessage message)
     {
       // UIスレッドをブロックしないように再読み込みを実行
       _ = ReloadAllAsync();
