@@ -14,7 +14,9 @@ using NssOrderTool.ViewModels.Arena;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaViewModel : ViewModelBase, IRecipient<TransferToArenaMessage>
+  public partial class ArenaViewModel : ViewModelBase,
+   IRecipient<TransferToArenaMessage>,
+   IRecipient<DatabaseUpdatedMessage>
   {
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
@@ -46,9 +48,9 @@ namespace NssOrderTool.ViewModels
       InitializeRounds();
       InitializeMatrix();
 
-      _ = LoadHistoryAsync();
+      WeakReferenceMessenger.Default.RegisterAll(this);
 
-      WeakReferenceMessenger.Default.Register(this);
+      _ = LoadHistoryAsync();
     }
 
     // デザイナー用
@@ -196,6 +198,7 @@ namespace NssOrderTool.ViewModels
 
         // まとめて計算・更新を実行 (LogicServiceへ)
         await _arenaLogic.UpdateRatingsAsync(winCounts);
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
 
         StatusText = "✅ 結果を保存し、レートを更新しました";
 
@@ -251,6 +254,8 @@ namespace NssOrderTool.ViewModels
       {
         await _arenaRepo.DeleteSessionAsync(session.Id);
 
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+
         StatusText = "🗑️ 履歴を削除しました";
 
         // リストから削除 (再読み込みするより高速)
@@ -283,6 +288,12 @@ namespace NssOrderTool.ViewModels
           PlayerRows[i].Name = string.Empty; // 余った欄はクリア
         }
       }
+    }
+
+    public void Receive(DatabaseUpdatedMessage message)
+    {
+      // データ更新通知が来たら、履歴リストをリロードする
+      _ = LoadHistoryAsync();
     }
   }
 }
