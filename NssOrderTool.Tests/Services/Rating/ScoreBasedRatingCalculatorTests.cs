@@ -37,7 +37,7 @@ namespace NssOrderTool.Tests.Services.Rating
     }
 
     [Fact]
-    public void CalculateSession_All1500_14Wins_ShouldIncreaseBy224()
+    public void CalculateSession_All1500_14Wins_ShouldIncreaseBy112()
     {
       // Arrange
       // P0が14勝(全勝)、他7人が6勝ずつ(負け越し)
@@ -53,11 +53,13 @@ namespace NssOrderTool.Tests.Services.Rating
       var results = _calculator.CalculateSession(participants);
 
       // Assert
-      // Winner: 32 * (14 - 7) = +224
-      results["Winner"].Mean.Should().Be(1724);
+      // Winner: 16 * (14 - 7) = 16 * 7 = +112
+      // 1500 + 112 = 1612
+      results["Winner"].Mean.Should().Be(1612); // ★修正: 1724 -> 1612
 
-      // Losers: 32 * (6 - 7) = -32
-      results["Loser1"].Mean.Should().Be(1468);
+      // Losers: 16 * (6 - 7) = 16 * -1 = -16
+      // 1500 - 16 = 1484
+      results["Loser1"].Mean.Should().Be(1484); // ★修正: 1468 -> 1484
     }
 
     [Fact]

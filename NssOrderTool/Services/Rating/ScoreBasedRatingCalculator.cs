@@ -6,8 +6,8 @@ namespace NssOrderTool.Services.Rating
 {
   public class ScoreBasedRatingCalculator : IRatingCalculator
   {
-    // 変動係数 K (今回は固定で32)
-    private const double K = 32.0;
+    // 変動係数 K (今回は固定で16)
+    private const double K = 16.0;
 
     // 全試合数 (期待値計算の分母)
     private const int TotalRounds = 14;
