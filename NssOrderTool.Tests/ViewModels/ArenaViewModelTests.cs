@@ -29,7 +29,9 @@ namespace NssOrderTool.Tests.ViewModels
 
       // 3. LogicService の初期化
       var mockCalculator = new Mock<IRatingCalculator>();
-      _realLogicService = new ArenaLogicService(mockCalculator.Object, _mockPlayerRepo.Object);
+
+      // ★修正: 3つ目の引数として _mockArenaRepo.Object を渡す
+      _realLogicService = new ArenaLogicService(mockCalculator.Object, _mockPlayerRepo.Object, _mockArenaRepo.Object);
     }
 
     [Fact]

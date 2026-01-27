@@ -10,7 +10,8 @@ namespace NssOrderTool.Tests.Services.Domain
 
     public ArenaLogicServiceTests()
     {
-      _service = new ArenaLogicService(null!, null!);
+      // ★修正: 3つ目の引数 (ArenaRepository) に null! を追加
+      _service = new ArenaLogicService(null!, null!, null!);
     }
 
     [Theory]
