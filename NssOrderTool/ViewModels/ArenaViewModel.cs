@@ -10,7 +10,7 @@ using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
-using NssOrderTool.ViewModels.Arena; // 👈 追加
+using NssOrderTool.ViewModels.Arena;
 
 namespace NssOrderTool.ViewModels
 {
@@ -128,9 +128,9 @@ namespace NssOrderTool.ViewModels
         var playerNames = PlayerRows.Select(p => p.Name).ToList();
 
         // 2. プレイヤーが存在しないとFKエラーになるため、事前に登録しておく
-        await _playerRepo.RegisterPlayersAsync(playerNames);
+        await _playerRepo.RegisterPlayersAsync(playerNames.Where(n => !string.IsNullOrWhiteSpace(n)));
 
-        // 3. セッション作成
+        // 3. セッション作成 (DB保存用データ)
         var session = new ArenaSessionEntity
         {
           CreatedAt = DateTime.Now
@@ -139,12 +139,14 @@ namespace NssOrderTool.ViewModels
         // 参加者情報の作成
         foreach (var row in PlayerRows)
         {
+          if (string.IsNullOrWhiteSpace(row.Name)) continue;
+
           session.Participants.Add(new ArenaParticipantEntity
           {
-            PlayerId = row.Name,       // FK (RegisterPlayersAsyncで登録済み)
-            SlotIndex = row.Index,     // 表示順
-            WinCount = row.WinCount,   // スナップショット
-            Rank = row.Rank            // スナップショット
+            PlayerId = row.Name,
+            SlotIndex = row.Index,
+            WinCount = row.WinCount,
+            Rank = row.Rank
           });
         }
 
@@ -158,9 +160,44 @@ namespace NssOrderTool.ViewModels
           });
         }
 
+        // DBにセッション保存
         await _arenaRepo.AddSessionAsync(session);
 
-        StatusText = "✅ 結果を保存しました";
+        // 4. 勝利数を集計してレート更新を実行
+        StatusText = "レーティング更新中...";
+
+        // IDごとの勝利数カウンターを用意
+        var winCounts = new Dictionary<string, int>();
+        foreach (var name in playerNames)
+        {
+          if (!string.IsNullOrWhiteSpace(name))
+          {
+            winCounts[name] = 0;
+          }
+        }
+
+        // 全14ラウンドの結果から、実際の勝利数をカウントアップ
+        foreach (var round in RoundInputs)
+        {
+          if (round.WinningTeam == 0) continue; // 勝敗なしはスキップ
+
+          for (int i = 0; i < 8; i++)
+          {
+            string pid = playerNames[i];
+            if (string.IsNullOrWhiteSpace(pid)) continue;
+
+            // そのラウンドで勝ったチームに所属していたら +1
+            if (_arenaLogic.IsWinner(round.RoundNumber, i, round.WinningTeam))
+            {
+              winCounts[pid]++;
+            }
+          }
+        }
+
+        // まとめて計算・更新を実行 (LogicServiceへ)
+        await _arenaLogic.UpdateRatingsAsync(winCounts);
+
+        StatusText = "✅ 結果を保存し、レートを更新しました";
 
         await LoadHistoryAsync();
 
@@ -168,6 +205,7 @@ namespace NssOrderTool.ViewModels
       catch (Exception ex)
       {
         StatusText = $"❌ エラー: {ex.Message}";
+        System.Diagnostics.Debug.WriteLine($"Save Error: {ex}");
       }
       finally
       {

@@ -18,6 +18,7 @@ using NssOrderTool.Repositories;
 using NssOrderTool.ViewModels;
 using NssOrderTool.Views;
 using NssOrderTool.Models;
+using NssOrderTool.Services.Rating;
 
 namespace NssOrderTool;
 
@@ -97,6 +98,7 @@ public partial class App : Application
     collection.AddTransient<OrderSorter>();
     collection.AddTransient<GraphVizService>();
     collection.AddTransient<ArenaLogicService>();
+    collection.AddSingleton<IRatingCalculator, ScoreBasedRatingCalculator>();
 
     // Repositories
     collection.AddTransient<OrderRepository>();

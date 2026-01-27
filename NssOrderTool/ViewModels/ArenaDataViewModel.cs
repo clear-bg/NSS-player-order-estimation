@@ -85,20 +85,18 @@ namespace NssOrderTool.ViewModels
         var data = await Task.Run(() => _arenaRepository.GetPlayerDetailsAsync(playerId));
         Details = data;
 
-        // 2. 最新レート情報の取得と計算
+        // 2. 最新レート情報の取得
         if (_playerRepo != null)
         {
           var player = await _playerRepo.GetPlayerAsync(playerId);
           if (player != null)
           {
-            // 表示用レート(Conservative Rating) = Mean - 3 * Sigma
-            double ordinal = player.RateMean - (3.0 * player.RateSigma);
-
-            // 整数で表示
-            DisplayRating = ordinal.ToString("F0");
+            DisplayRating = player.RateMean.ToString("F0");
           }
           else
           {
+            // 新規プレイヤー（まだDBにない場合）は初期値1500を表示しても良いですが、
+            // ここでは "New" または "-" のままでOKです
             DisplayRating = "New";
           }
         }
@@ -145,17 +143,16 @@ namespace NssOrderTool.ViewModels
     {
       if (_playerRepo == null) return;
 
+      // Repository側で RateMean順 になっているので、そのまま表示するだけでOK
       var topPlayers = await _playerRepo.GetTopRatedPlayersAsync(20);
       TopRanking.Clear();
 
       int rank = 1;
       foreach (var p in topPlayers)
       {
-        double ordinal = p.RateMean - (3.0 * p.RateSigma);
-        // レートが0以下の場合は "New" 扱いにするか、そのまま数字を出すか選べます。
-        // ここではマイナスもそのまま表示しますが、必要なら if (ordinal < 0) ... で分岐してください。
-        string rateText = ordinal < 0 ? "0" : ordinal.ToString("F0");
+        string rateText = p.RateMean.ToString("F0");
 
+        // リストに追加
         TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.Id));
       }
     }
