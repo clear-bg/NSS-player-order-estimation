@@ -36,6 +36,8 @@ namespace NssOrderTool.ViewModels
     private string _displayRating = "-";
 
     public ObservableCollection<PlayerEntity> Players { get; } = new();
+    public record RankingItem(int Rank, string Name, string Rating, string Id);
+    public ObservableCollection<RankingItem> TopRanking { get; } = new();
 
     // デザイン用
     public ArenaDataViewModel()
@@ -131,10 +133,30 @@ namespace NssOrderTool.ViewModels
             SelectedPlayer = target;
           }
         }
+        await LoadRankingAsync();
       }
       catch (Exception ex)
       {
         System.Diagnostics.Debug.WriteLine($"Error loading players: {ex.Message}");
+      }
+    }
+
+    private async Task LoadRankingAsync()
+    {
+      if (_playerRepo == null) return;
+
+      var topPlayers = await _playerRepo.GetTopRatedPlayersAsync(20);
+      TopRanking.Clear();
+
+      int rank = 1;
+      foreach (var p in topPlayers)
+      {
+        double ordinal = p.RateMean - (3.0 * p.RateSigma);
+        // レートが0以下の場合は "New" 扱いにするか、そのまま数字を出すか選べます。
+        // ここではマイナスもそのまま表示しますが、必要なら if (ordinal < 0) ... で分岐してください。
+        string rateText = ordinal < 0 ? "0" : ordinal.ToString("F0");
+
+        TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.Id));
       }
     }
   }

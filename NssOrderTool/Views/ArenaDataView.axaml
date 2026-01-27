@@ -142,6 +142,62 @@
               BorderThickness="1"
               CornerRadius="5">
               <StackPanel Spacing="10">
+                <Border
+                  Padding="0,0,0,5"
+                  BorderBrush="#333333"
+                  BorderThickness="0,0,0,1">
+                  <TextBlock
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FFD700"
+                    Text="🏆 Top 20 プレイヤー" />
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding TopRanking}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="0,4" ColumnDefinitions="30, *, Auto">
+                        <Border
+                          Grid.Column="0"
+                          Width="24"
+                          Height="24"
+                          Background="#333333"
+                          CornerRadius="12">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            Text="{Binding Rank}" />
+                        </Border>
+
+                        <TextBlock
+                          Grid.Column="1"
+                          Margin="10,0"
+                          VerticalAlignment="Center"
+                          Text="{Binding Name}"
+                          TextTrimming="CharacterEllipsis" />
+
+                        <TextBlock
+                          Grid.Column="2"
+                          VerticalAlignment="Center"
+                          FontWeight="Bold"
+                          Foreground="#5eff00"
+                          Text="{Binding Rating}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+
+            <Border
+              Padding="15"
+              Background="#1E1E1E"
+              BorderBrush="#333333"
+              BorderThickness="1"
+              CornerRadius="5">
+              <StackPanel Spacing="10">
                 <TextBlock
                   FontSize="16"
                   FontWeight="Bold"
