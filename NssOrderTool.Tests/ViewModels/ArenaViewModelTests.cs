@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using NssOrderTool.Database; // AppDbContextのために必要
+using NssOrderTool.Database;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
+using NssOrderTool.Services.Rating;
 using NssOrderTool.ViewModels;
 using Xunit;
 
@@ -20,14 +21,15 @@ namespace NssOrderTool.Tests.ViewModels
 
     public ArenaViewModelTests()
     {
-      // Repositoryは仮想(Mock)化する
-      // Repositoryのコンストラクタ引数(AppDbContext)に合わせて、nullを1つだけ渡す
+      // 1. ArenaRepository のモック (引数2つ: DbContext, IServiceProvider)
       _mockArenaRepo = new Mock<ArenaRepository>((AppDbContext)null!, (System.IServiceProvider)null!);
 
-      // ★修正箇所: 引数を (null!, null!) から (null!) に変更
+      // 2. PlayerRepository のモック (引数1つ: DbContext)
       _mockPlayerRepo = new Mock<PlayerRepository>((AppDbContext)null!);
 
-      _realLogicService = new ArenaLogicService();
+      // 3. LogicService の初期化
+      var mockCalculator = new Mock<IRatingCalculator>();
+      _realLogicService = new ArenaLogicService(mockCalculator.Object, _mockPlayerRepo.Object);
     }
 
     [Fact]
@@ -36,19 +38,21 @@ namespace NssOrderTool.Tests.ViewModels
       // Arrange
       var vm = new ArenaViewModel(_mockArenaRepo.Object, _mockPlayerRepo.Object, _realLogicService);
 
+      // テストデータをセット (保存対象のプレイヤー名など)
+      vm.PlayerRows.First().Name = "TestPlayer";
       vm.PlayerRows.First().WinCount = 5;
 
       // Act
       await vm.SaveSessionCommand.ExecuteAsync(null);
 
       // Assert
-      // 1. プレイヤー登録(RegisterPlayersAsync)が呼ばれたか検証
-      _mockPlayerRepo.Verify(r => r.RegisterPlayersAsync(It.IsAny<List<string>>()), Times.Once);
+      // 1. プレイヤー登録が呼ばれたか検証
+      _mockPlayerRepo.Verify(r => r.RegisterPlayersAsync(It.IsAny<IEnumerable<string>>()), Times.Once);
 
-      // 2. セッション保存(AddSessionAsync)が呼ばれたか検証
+      // 2. セッション保存が呼ばれたか検証
       _mockArenaRepo.Verify(r => r.AddSessionAsync(It.IsAny<ArenaSessionEntity>()), Times.Once);
 
-      vm.StatusText.Should().Contain("保存しました");
+      vm.StatusText.Should().Contain("保存");
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Services.Rating;
 
 namespace NssOrderTool.Repositories
 {
@@ -86,10 +87,35 @@ namespace NssOrderTool.Repositories
     {
       return await _context.Players
           .AsNoTracking()
-          .Where(p => !p.IsDeleted) // 削除済みは除外
-          .OrderByDescending(p => p.RateMean - (3.0 * p.RateSigma)) // 表示レート順
+          .Where(p => !p.IsDeleted)
+          // ★変更: RateMean (単純な高さ) でソート
+          .OrderByDescending(p => p.RateMean)
           .Take(count)
           .ToListAsync();
+    }
+
+    public virtual async Task UpdatePlayerRatingsAsync(Dictionary<string, NssOrderTool.Services.Rating.RatingData> newRatings)
+    {
+      if (newRatings == null || newRatings.Count == 0) return;
+
+      var ids = newRatings.Keys.ToList();
+
+      // 対象のプレイヤーをDBから取得
+      var players = await _context.Players
+          .Where(p => ids.Contains(p.Id))
+          .ToListAsync();
+
+      foreach (var player in players)
+      {
+        if (newRatings.TryGetValue(player.Id, out var rating))
+        {
+          player.RateMean = rating.Mean;
+          // player.RateSigma = rating.Sigma; // Sigmaを使わないならコメントアウトのままでOK
+          player.UpdatedAt = DateTime.Now;
+        }
+      }
+
+      await _context.SaveChangesAsync();
     }
   }
 }

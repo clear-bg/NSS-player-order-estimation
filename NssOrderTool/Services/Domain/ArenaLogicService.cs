@@ -1,11 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using NssOrderTool.Repositories;
+using NssOrderTool.Services.Rating;
 
 namespace NssOrderTool.Services.Domain
 {
   public class ArenaLogicService
   {
+    private readonly IRatingCalculator _ratingCalculator;
+    private readonly PlayerRepository _playerRepository;
+
+    public ArenaLogicService(IRatingCalculator ratingCalculator, PlayerRepository playerRepository)
+    {
+      _ratingCalculator = ratingCalculator;
+      _playerRepository = playerRepository;
+    }
+
     // ラウンドごとの「青チーム」に所属するランク順位（1始まりの提供データを0始まりのインデックスに変換して保持）
     // R1: 1, 2, 3, 4 -> {0, 1, 2, 3}
     private static readonly Dictionary<int, int[]> BlueTeamDefinitions = new()
@@ -59,6 +71,37 @@ namespace NssOrderTool.Services.Domain
       if (winningTeam == 0) return false;
       int myTeam = GetTeamId(roundNumber, rankIndex);
       return myTeam == winningTeam;
+    }
+
+    // セッション結果(各プレイヤーの勝利数)に基づいて、レート計算とDB更新を行う
+    public virtual async Task UpdateRatingsAsync(Dictionary<string, int> playerWinCounts)
+    {
+      if (playerWinCounts == null || playerWinCounts.Count == 0) return;
+
+      // 1. 全員の現在のレート情報をDBから取得
+      // 計算には (RatingData, 勝利数) のペアが必要
+      var participantsData = new Dictionary<string, (RatingData, int)>();
+
+      foreach (var kvp in playerWinCounts)
+      {
+        string playerId = kvp.Key;
+        int wins = kvp.Value;
+
+        var player = await _playerRepository.GetPlayerAsync(playerId);
+
+        // プレイヤー情報があればそのレート、なければデフォルト値(1500)
+        var currentRate = (player != null)
+            ? new RatingData(player.RateMean, player.RateSigma)
+            : RatingData.Default;
+
+        participantsData[playerId] = (currentRate, wins);
+      }
+
+      // 2. 計算機を呼び出して新しいレートを算出 (マリオカート方式)
+      var newRatings = _ratingCalculator.CalculateSession(participantsData);
+
+      // 3. 結果をDBに保存
+      await _playerRepository.UpdatePlayerRatingsAsync(newRatings);
     }
   }
 }
