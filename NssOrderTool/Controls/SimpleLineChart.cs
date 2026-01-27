@@ -66,6 +66,10 @@ namespace NssOrderTool.Controls
           height - paddingTop - paddingBottom
       );
 
+      // 外枠
+      var axisPen = new Pen(new SolidColorBrush(Colors.White, 0.5), 1);
+      context.DrawRectangle(null, axisPen, graphRect);
+
       // 軸ラベル
       var rateLabel = new FormattedText("Rate", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 12, Brushes.White);
       context.DrawText(rateLabel, new Point(5, 0));
@@ -76,7 +80,7 @@ namespace NssOrderTool.Controls
       var items = ItemsSource;
       int count = (items != null) ? items.Count : 0;
 
-      // データなし表示
+      // データなし
       if (count == 0)
       {
         var noDataText = new FormattedText("NO DATA", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 24, Brushes.White);
@@ -85,19 +89,14 @@ namespace NssOrderTool.Controls
         return;
       }
 
-      // --- 2. Y軸 (レート) の計算: 自動ステップ調整 ---
+      // --- 2. Y軸 (レート) の計算 ---
       double minRate = items.Min(x => x.Rate);
       double maxRate = items.Max(x => x.Rate);
-
-      // データの振れ幅
       double range = maxRate - minRate;
-      if (range < 10) range = 10; // 最低でも10幅は確保
+      if (range < 10) range = 10;
 
-      // 目標: 画面内に線を4～5本くらい引きたい
+      // 自動ステップ (10, 20, 50, 100...)
       double roughStep = range / 4.0;
-
-      // roughStep に近い「切りの良い数字」を選ぶ
-      // (10, 20, 50, 100, 200, 500...)
       double yStep = 10.0;
       if (roughStep > 200) yStep = 500.0;
       else if (roughStep > 100) yStep = 200.0;
@@ -106,75 +105,98 @@ namespace NssOrderTool.Controls
       else if (roughStep > 10) yStep = 20.0;
       else yStep = 10.0;
 
-      // yStepの倍数になるように最小・最大を丸める
       double yAxisMin = Math.Floor(minRate / yStep) * yStep;
       double yAxisMax = Math.Ceiling(maxRate / yStep) * yStep;
 
-      // データが境界線ギリギリすぎると見にくいので、窮屈なら1段広げる
       if (yAxisMax - yAxisMin < range * 1.1)
       {
         yAxisMax += yStep;
-        // それでもまだ狭ければ下も広げる
         if (minRate - yAxisMin < yStep * 0.1) yAxisMin -= yStep;
       }
-
       double yAxisRange = yAxisMax - yAxisMin;
 
 
       // --- 3. X軸 (試合数) の計算 ---
       int xMax = Math.Max(count, 5);
 
-      // X座標計算ヘルパー (前回と同じ: 0-1間を狭くするロジック)
+      // 座標計算ヘルパー
       double GetXPos(int matchNum)
       {
-        if (matchNum == 0) return graphRect.Left;
+        if (matchNum == 0) return graphRect.Left; // Y軸線
 
-        double gap0to1 = 15.0; // 0と1の間隔
+        double gap0to1 = 15.0;  // 左余白
+        double gapRight = 15.0; // 右余白
+
         double startX = graphRect.Left + gap0to1;
-        double remainingWidth = graphRect.Width - gap0to1;
+        double effectiveWidth = graphRect.Width - gap0to1 - gapRight;
 
-        if (xMax <= 1) return startX + remainingWidth / 2;
+        if (xMax <= 1) return startX + effectiveWidth / 2;
 
+        // matchNum=1 -> startX
+        // matchNum=xMax -> startX + effectiveWidth
         double ratio = (double)(matchNum - 1) / (xMax - 1);
-        return startX + (remainingWidth * ratio);
+        return startX + (effectiveWidth * ratio);
       }
 
 
       // --- 4. 描画開始 ---
       var gridPen = new Pen(new SolidColorBrush(Colors.White, 0.2), 1);
-      var axisPen = new Pen(new SolidColorBrush(Colors.White, 0.5), 1);
 
-      // Y軸グリッド (自動計算した yStep 刻み)
-      // 数値誤差対策で少しマージンを持たせてループ
+      // Y軸グリッド
       for (double r = yAxisMin; r <= yAxisMax + 0.1; r += yStep)
       {
         double normalized = (r - yAxisMin) / yAxisRange;
         double yPos = graphRect.Bottom - (graphRect.Height * normalized);
 
-        // 範囲外チェック
-        if (yPos < graphRect.Top - 1 || yPos > graphRect.Bottom + 1) continue;
+        // 外枠部分は描画しない
+        if (yPos < graphRect.Top + 1 || yPos > graphRect.Bottom - 1)
+        {
+          DrawText(context, r.ToString("F0"), new Point(paddingLeft - 5, yPos), isRightAlign: true);
+          continue;
+        }
 
         context.DrawLine(gridPen, new Point(graphRect.Left, yPos), new Point(graphRect.Right, yPos));
         DrawText(context, r.ToString("F0"), new Point(paddingLeft - 5, yPos), isRightAlign: true);
       }
 
       // X軸グリッド (縦線)
-      // Y軸線
-      context.DrawLine(axisPen, new Point(graphRect.Left, graphRect.Top), new Point(graphRect.Left, graphRect.Bottom));
+      // ★変更: 5や10の倍数を優先するロジック
 
-      // 目盛りの間引き設定
       int xStep = 1;
-      if (xMax > 100) xStep = 10;
-      else if (xMax > 50) xStep = 5;
-      else if (xMax > 20) xStep = 2;
+      // 20試合までは1刻み
+      if (xMax <= 20) xStep = 1;
+      // 50試合までは5刻み (5, 10, 15... 40)
+      else if (xMax <= 50) xStep = 5;
+      // 100試合までは10刻み
+      else if (xMax <= 100) xStep = 10;
+      // それ以上は20刻み
+      else xStep = 20;
 
-      // 目盛り (1 ～ xMax)
-      for (int x = 1; x <= xMax; x += xStep)
+      // 描画ヘルパー
+      void DrawXGrid(int val)
       {
-        double xPos = GetXPos(x);
+        double xPos = GetXPos(val);
         context.DrawLine(gridPen, new Point(xPos, graphRect.Top), new Point(xPos, graphRect.Bottom));
-        DrawText(context, x.ToString(), new Point(xPos, graphRect.Bottom + 5), isRightAlign: false);
+        DrawText(context, val.ToString(), new Point(xPos, graphRect.Bottom + 5), isRightAlign: false);
       }
+
+      // まず「1」は必ず描画したい (ただしxStep=1のときはループで描くので重複させない)
+      if (xStep > 1)
+      {
+        DrawXGrid(1);
+      }
+
+      // xStep刻みで描画 (5, 10, 15...)
+      // xStep=1 のときは 1, 2, 3... となる
+      // xStep=5 のときは 5, 10, 15... となる
+      for (int x = xStep; x <= xMax; x += xStep)
+      {
+        DrawXGrid(x);
+      }
+
+      // ※ここで「最後の半端な数値 (例:44)」は描画されません。
+      // ループ条件が x <= xMax なので、40の次は45になり、45 > 44 で止まるからです。
+      // これにより「右端は40、プロットだけ44まである」状態が実現されます。
 
 
       // --- 5. プロット描画 ---
@@ -195,7 +217,6 @@ namespace NssOrderTool.Controls
         var p1 = ToPoint(i, items[i].Rate);
         var p2 = ToPoint(i + 1, items[i + 1].Rate);
 
-        // クリッピング処理 (簡易)
         if (p1.Y >= graphRect.Top && p1.Y <= graphRect.Bottom &&
             p2.Y >= graphRect.Top && p2.Y <= graphRect.Bottom)
         {
