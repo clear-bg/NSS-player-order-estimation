@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using NssOrderTool.Messages;
 using NssOrderTool.Models;
 using NssOrderTool.Repositories;
 
@@ -124,6 +126,11 @@ namespace NssOrderTool.ViewModels
         else
         {
           StatusText = $"⚠️ {successCount} 件追加, エラー: {string.Join(", ", errors)}";
+        }
+
+        if (successCount > 0)
+        {
+          WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
         }
 
         // 一覧更新

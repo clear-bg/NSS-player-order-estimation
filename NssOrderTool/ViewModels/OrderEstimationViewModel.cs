@@ -246,6 +246,7 @@ namespace NssOrderTool.ViewModels
         var pairsToDecrement = _extractor.ExtractFromInput(item.Content);
         await _orderRepo.UndoObservationAsync(item.Id, pairsToDecrement);
 
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
         StatusText = $"✅ 履歴を取り消しました: {item.Content}";
 
         await LoadOrderAsync();
@@ -293,6 +294,7 @@ namespace NssOrderTool.ViewModels
         _playerRepo.ResetTracking();
         _aliasRepo.ResetTracking();
 
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
         StatusText = "🗑️ データを全削除しました";
         await LoadOrderAsync();
         await LoadHistoryAsync();

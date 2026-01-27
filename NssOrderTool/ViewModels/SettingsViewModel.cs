@@ -7,11 +7,13 @@ using System.IO;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using DotNetEnv;
 using Avalonia.Media;
+using NssOrderTool.Messages;
 using NssOrderTool.Models;
 using NssOrderTool.Services.Infrastructure;
 using NssOrderTool.Models.Entities;
@@ -19,7 +21,7 @@ using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class SettingsViewModel : ViewModelBase
+  public partial class SettingsViewModel : ViewModelBase, IRecipient<DatabaseUpdatedMessage>
   {
     private readonly AppConfig _currentConfig;
     private readonly ILogger<SettingsViewModel> _logger;
@@ -68,6 +70,8 @@ namespace NssOrderTool.ViewModels
       _logger = logger;
       _loggerFactory = loggerFactory;
       _playerRepository = playerRepository;
+
+      WeakReferenceMessenger.Default.RegisterAll(this);
 
       LoadSettings();
       // プレイヤーリスト読み込み開始
@@ -264,6 +268,12 @@ namespace NssOrderTool.ViewModels
         tempSsm?.Dispose();
         IsBusy = false;
       }
+    }
+
+    public void Receive(DatabaseUpdatedMessage message)
+    {
+      // プレイヤーリストを再読み込みしてドロップダウンを最新にする
+      _ = LoadPlayersAsync();
     }
   }
 }

@@ -252,6 +252,8 @@ namespace NssOrderTool.ViewModels
       {
         await _arenaRepo.DeleteSessionAsync(session.Id);
 
+        WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+
         StatusText = "🗑️ 履歴を削除しました";
 
         // リストから削除 (再読み込みするより高速)
