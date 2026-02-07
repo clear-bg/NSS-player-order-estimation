@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json;
 using NssOrderTool.Models.Interfaces;
 
 namespace NssOrderTool.Models.Entities
@@ -32,6 +33,8 @@ namespace NssOrderTool.Models.Entities
     // リレーション (1対多)
     public List<ArenaRoundEntity> Rounds { get; set; } = new();
 
+    public string PlayersJson { get; set; } = "[]";
+
     [NotMapped]
     public string WinningTeam
     {
@@ -48,6 +51,29 @@ namespace NssOrderTool.Models.Entities
         if (blueWins > orangeWins) return "Blue";
         if (orangeWins > blueWins) return "Orange";
         return "Draw";
+      }
+    }
+
+    [NotMapped]
+    public string HostName
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(PlayersJson))
+          return "Unknown";
+
+        try
+        {
+          // JSON文字列 ["Aさん", "Bさん", ...] をリストに復元
+          var players = JsonSerializer.Deserialize<List<string>>(PlayersJson);
+
+          // 1人目を返す（いなければ Unknown）
+          return players?.FirstOrDefault() ?? "Unknown";
+        }
+        catch
+        {
+          return "Error";
+        }
       }
     }
   }
