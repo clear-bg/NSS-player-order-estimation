@@ -115,9 +115,11 @@ namespace NssOrderTool.ViewModels
       {
         row.Rank = PlayerRows.Count(p => p.WinCount > row.WinCount) + 1;
       }
+
+      SaveSessionCommand.NotifyCanExecuteChanged();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveSession()
     {
       if (IsBusy) return;
@@ -214,6 +216,15 @@ namespace NssOrderTool.ViewModels
       {
         IsBusy = false;
       }
+    }
+
+    private bool CanSave()
+    {
+      // RoundInputsが存在し、要素数が14で、かつ全てのWinningTeamが0(未選択)以外であること
+      // (WinningTeam: 0=None, 1=Blue, 2=Orange と想定)
+      if (RoundInputs == null || RoundInputs.Count < 14) return false;
+
+      return RoundInputs.All(r => r.WinningTeam != 0);
     }
 
     public async Task LoadHistoryAsync()

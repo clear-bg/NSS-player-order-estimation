@@ -75,5 +75,43 @@ namespace NssOrderTool.Tests.ViewModels
       playerA.Rank.Should().Be(1);
       playerE.Rank.Should().Be(5);
     }
+
+    [Fact]
+    public void SaveSession_ShouldBeDisabled_WhenRoundsAreIncomplete()
+    {
+      // Arrange
+      var vm = new ArenaViewModel(_mockArenaRepo.Object, _mockPlayerRepo.Object, _realLogicService);
+
+      // Act & Assert
+      // 1. 初期状態では未入力があるはずなので False
+      vm.SaveSessionCommand.CanExecute(null).Should().BeFalse();
+
+      // 2. 13ラウンドだけ入力してみる (あと1つ足りない)
+      for (int i = 0; i < 13; i++)
+      {
+        vm.RoundInputs[i].WinningTeam = 1; // Blue勝ち
+      }
+
+      // まだ False であるべき
+      vm.SaveSessionCommand.CanExecute(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void SaveSession_ShouldBeEnabled_WhenAllRoundsAreSet()
+    {
+      // Arrange
+      var vm = new ArenaViewModel(_mockArenaRepo.Object, _mockPlayerRepo.Object, _realLogicService);
+
+      // Act
+      // 全14ラウンド入力する
+      for (int i = 0; i < 14; i++)
+      {
+        vm.RoundInputs[i].WinningTeam = 1; // Blue勝ち
+      }
+
+      // Assert
+      // すべて埋まったので True になるべき
+      vm.SaveSessionCommand.CanExecute(null).Should().BeTrue();
+    }
   }
 }
