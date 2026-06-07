@@ -60,8 +60,13 @@ public partial class App : Application
     // ▼ EF Core (AppDbContext) の登録
     collection.AddDbContext<AppDbContext>(options =>
     {
+      string envName = appConfig.AppSettings?.Environment?.ToUpper() ?? "TEST";
+      string dbFileName = (envName == "PROD" || envName == "PRODUCTION")
+                          ? "local_db_prod.db"
+                          : "local_db_test.db";
+
       // SQLiteのローカルファイルを指定
-      options.UseSqlite("Data Source=local_database.db");
+      options.UseSqlite($"Data Source={dbFileName}");
     }, ServiceLifetime.Transient);
 
     // Domain Services
