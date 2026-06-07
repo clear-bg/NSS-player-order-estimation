@@ -4,13 +4,14 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:vm="using:NssOrderTool.ViewModels"
   Title="セッション詳細"
-  Width="500"
-  Height="600"
+  Width="850"
+  Height="500"
   x:DataType="vm:ArenaSessionDetailViewModel"
   Background="#1E1E1E"
   WindowStartupLocation="CenterOwner">
 
   <Grid RowDefinitions="Auto, *">
+
     <Border
       Grid.Row="0"
       Padding="20"
@@ -27,32 +28,271 @@
       </StackPanel>
     </Border>
 
-    <ScrollViewer Grid.Row="1" Padding="20">
-      <ItemsControl ItemsSource="{Binding RoundDetails}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
+    <ScrollViewer
+      Grid.Row="1"
+      Padding="20"
+      HorizontalScrollBarVisibility="Auto">
+      <StackPanel HorizontalAlignment="Left" Spacing="0">
+
+        <Border
+          Background="#333333"
+          BorderBrush="#555555"
+          BorderThickness="1,1,1,1">
+          <Grid ColumnDefinitions="120, Auto, 60, 60">
+            <TextBlock
+              Grid.Column="0"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              FontWeight="Bold"
+              Foreground="#DDDDDD"
+              Text="Player" />
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R1"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R2"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R3"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R4"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R5"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R6"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R7"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R8"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R9"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R10"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R11"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R12"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R13"
+                  TextAlignment="Center" />
+              </Border>
+              <Border
+                Width="35"
+                BorderBrush="#555555"
+                BorderThickness="1,0,0,0">
+                <TextBlock
+                  Padding="0,5"
+                  Foreground="#DDDDDD"
+                  Text="R14"
+                  TextAlignment="Center" />
+              </Border>
+            </StackPanel>
+
             <Border
-              Margin="0,0,0,5"
-              Padding="15,10"
-              Background="#2A2A2D"
-              CornerRadius="5">
-              <Grid ColumnDefinitions="50, *">
-                <TextBlock
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  FontWeight="Bold"
-                  Text="{Binding RoundNumber, StringFormat='R{0}'}" />
-                <TextBlock
-                  Grid.Column="1"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Center"
-                  FontWeight="Bold"
-                  Text="{Binding WinnerName}" />
-              </Grid>
+              Grid.Column="2"
+              BorderBrush="#555555"
+              BorderThickness="1,0,0,0">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="Bold"
+                Foreground="#88FF88"
+                Text="Win"
+                TextAlignment="Center" />
             </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+            <Border
+              Grid.Column="3"
+              BorderBrush="#555555"
+              BorderThickness="1,0,0,0">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="Bold"
+                Foreground="#88FF88"
+                Text="Rank"
+                TextAlignment="Center" />
+            </Border>
+          </Grid>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding PlayerRows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border
+                Background="#252526"
+                BorderBrush="#555555"
+                BorderThickness="1,0,1,1">
+                <Grid ColumnDefinitions="120, Auto, 60, 60">
+
+                  <TextBlock
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Text="{Binding Name}"
+                    TextTrimming="CharacterEllipsis" />
+
+                  <ItemsControl Grid.Column="1" ItemsSource="{Binding RoundResults}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border
+                          Width="35"
+                          Height="30"
+                          Background="{Binding BackgroundColor}"
+                          BorderBrush="#555555"
+                          BorderThickness="1,0,0,0">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontWeight="Bold"
+                            Foreground="{Binding TextColor}"
+                            Text="{Binding ResultText}" />
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <Border
+                    Grid.Column="2"
+                    Background="#334433"
+                    BorderBrush="#555555"
+                    BorderThickness="1,0,0,0">
+                    <TextBlock
+                      VerticalAlignment="Center"
+                      FontSize="16"
+                      FontWeight="Bold"
+                      Foreground="White"
+                      Text="{Binding WinCount}"
+                      TextAlignment="Center" />
+                  </Border>
+
+                  <Border
+                    Grid.Column="3"
+                    Background="#334433"
+                    BorderBrush="#555555"
+                    BorderThickness="1,0,0,0">
+                    <TextBlock
+                      VerticalAlignment="Center"
+                      FontSize="16"
+                      FontWeight="Bold"
+                      Foreground="#FFD700"
+                      Text="{Binding Rank}"
+                      TextAlignment="Center" />
+                  </Border>
+
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+      </StackPanel>
     </ScrollViewer>
+
   </Grid>
 </Window>
