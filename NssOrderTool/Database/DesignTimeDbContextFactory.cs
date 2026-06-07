@@ -36,10 +36,7 @@ namespace NssOrderTool.Database
 
       // 4. OptionsBuilder の設定
       var builder = new DbContextOptionsBuilder<AppDbContext>();
-      builder.UseMySql(
-          connectionString,
-          new MySqlServerVersion(new Version(8, 0, 0)) // 8.0系固定
-      );
+      builder.UseSqlite("Data Source=local_database.db");
 
       return new AppDbContext(builder.Options);
     }
