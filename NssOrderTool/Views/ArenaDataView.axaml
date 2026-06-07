@@ -251,7 +251,7 @@
                             FontSize="11"
                             Foreground="Gray"
                             Text="{Binding PartnerName}"
-                            TextTrimming="CharacterEllipsis" />
+                            TextWrapping="Wrap" />
                         </Grid>
                       </Border>
                     </DataTemplate>

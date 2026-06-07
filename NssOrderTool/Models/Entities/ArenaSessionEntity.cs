@@ -76,5 +76,44 @@ namespace NssOrderTool.Models.Entities
         }
       }
     }
+
+    [NotMapped]
+    public string HistorySummaryText
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(PlayersJson))
+          return "データなし";
+
+        try
+        {
+          // JSON文字列からリストを復元
+          var players = JsonSerializer.Deserialize<List<string>>(PlayersJson);
+
+          if (players == null || players.Count == 0)
+            return "データなし";
+
+          // 1人目は必ずホスト
+          string host = players[0];
+
+          // 2人目以降をランキングとして処理（最大3位まで）
+          var ranks = new List<string>();
+          for (int i = 1; i < players.Count && i <= 3; i++)
+          {
+            ranks.Add($"{i}位: {players[i]}");
+          }
+
+          // ランキングがない場合はホスト名のみ、ある場合は結合して返す
+          if (ranks.Count == 0)
+            return $"ホスト: {host}";
+
+          return $"ホスト: {host} | {string.Join(", ", ranks)}";
+        }
+        catch
+        {
+          return "データ読み込みエラー";
+        }
+      }
+    }
   }
 }

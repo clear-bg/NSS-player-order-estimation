@@ -451,30 +451,25 @@
                     Padding="10,8"
                     BorderBrush="#e0e0e0"
                     BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="160, 100, 100, *, Auto">
+                    <Grid ColumnDefinitions="150, *, Auto">
+
                       <TextBlock
                         Grid.Column="0"
                         VerticalAlignment="Center"
                         Foreground="#333333"
                         Text="{Binding CreatedAt, StringFormat='yyyy/MM/dd HH:mm'}" />
 
-                      <StackPanel
-                        Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="5">
-                        <TextBlock Text="🏆" />
-                        <TextBlock FontWeight="Medium" Text="{Binding WinningTeam}" />
-                      </StackPanel>
-
                       <TextBlock
-                        Grid.Column="2"
+                        Grid.Column="1"
+                        Margin="10,0,10,0"
                         VerticalAlignment="Center"
+                        FontSize="12"
                         Foreground="#666666"
-                        Text="{Binding Participants.Count, StringFormat='{}{0}名参加'}" />
+                        Text="{Binding HistorySummaryText}"
+                        TextWrapping="Wrap" />
 
                       <Button
-                        Grid.Column="4"
+                        Grid.Column="2"
                         Padding="5"
                         Background="Transparent"
                         BorderThickness="0"
@@ -486,6 +481,7 @@
                           Foreground="#D32F2F"
                           Text="🗑️ 削除" />
                       </Button>
+
                     </Grid>
                   </Border>
                 </DataTemplate>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -134,10 +135,27 @@ namespace NssOrderTool.ViewModels
         // 2. プレイヤーが存在しないとFKエラーになるため、事前に登録しておく
         await _playerRepo.RegisterPlayersAsync(playerNames.Where(n => !string.IsNullOrWhiteSpace(n)));
 
+        // ホスト名を取得
+        string hostName = playerNames.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Unknown";
+
+        // ランキング上位最大3名を取得
+        var topPlayers = PlayerRows
+            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+            .OrderBy(p => p.Rank)
+            .Select(p => p.Name)
+            .Take(3)
+            .ToList();
+
+        // [ホスト名, 1位, 2位, 3位] のリストを作成してJSON化
+        var displayList = new List<string> { hostName };
+        displayList.AddRange(topPlayers);
+        string playersJson = JsonSerializer.Serialize(displayList);
+
         // 3. セッション作成 (DB保存用データ)
         var session = new ArenaSessionEntity
         {
-          CreatedAt = DateTime.Now
+          CreatedAt = DateTime.Now,
+          PlayersJson = playersJson
         };
 
         // 参加者情報の作成

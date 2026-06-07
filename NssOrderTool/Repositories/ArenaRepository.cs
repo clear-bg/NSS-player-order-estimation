@@ -181,7 +181,7 @@ namespace NssOrderTool.Repositories
                   Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
                   MyRank = p.Rank,
                   WinCount = p.WinCount,
-                  PartnerName = $"Host: {p.Session.Participants.FirstOrDefault(x => x.SlotIndex == 0)?.Player?.Name ?? "-"}"
+                  PartnerName = p.Session.HistorySummaryText
                 }).ToList();
 
       // 相性データ
