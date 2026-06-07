@@ -36,93 +36,21 @@
 
         <Border
           Padding="15"
-          BorderBrush="#DDDDDD"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
           BorderThickness="1"
           CornerRadius="5">
           <StackPanel Spacing="15">
-            <TextBlock FontWeight="Bold" Text="基本設定" />
-
-            <Grid ColumnDefinitions="180, *">
-              <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Text="環境 (Environment)" />
+            <TextBlock FontWeight="Bold" Text="🌍 環境設定" />
+            <StackPanel Spacing="5">
+              <TextBlock Text="動作環境 (Environment):" />
               <ComboBox
-                Grid.Column="1"
                 HorizontalAlignment="Stretch"
                 ItemsSource="{Binding EnvironmentList}"
                 SelectedItem="{Binding Environment}" />
-            </Grid>
-            <StackPanel Spacing="5">
-              <TextBlock FontWeight="Bold" Text="デフォルト表示プレイヤー" />
               <TextBlock
-                Margin="0,0,0,5"
-                FontSize="11"
+                FontSize="12"
                 Foreground="Gray"
-                Text="アリーナデータ画面を開いたときに初期表示するプレイヤーを選択します。" />
-              <ComboBox
-                HorizontalAlignment="Stretch"
-                DisplayMemberBinding="{Binding Name}"
-                ItemsSource="{Binding PlayerList}"
-                PlaceholderText="選択なし"
-                SelectedItem="{Binding SelectedDefaultPlayer}" />
-            </StackPanel>
-          </StackPanel>
-        </Border>
-
-        <Border
-          Padding="15"
-          BorderBrush="#DDDDDD"
-          BorderThickness="1"
-          CornerRadius="5">
-          <StackPanel Spacing="15">
-            <CheckBox
-              Content="AWS SSM (Session Manager) を使用する"
-              FontWeight="Bold"
-              IsChecked="{Binding UseSsm}" />
-
-            <StackPanel IsEnabled="{Binding UseSsm}" Spacing="10">
-              <Grid ColumnDefinitions="180, *">
-                <TextBlock
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  Text="Instance ID" />
-                <TextBox
-                  Grid.Column="1"
-                  Text="{Binding InstanceId}"
-                  Watermark="i-xxxxxxxxxxxxxxxxx" />
-              </Grid>
-
-              <Grid ColumnDefinitions="180, *">
-                <TextBlock
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  Text="Remote Host" />
-                <TextBox
-                  Grid.Column="1"
-                  Text="{Binding RemoteHost}"
-                  Watermark="RDS Endpoint" />
-              </Grid>
-
-              <Grid ColumnDefinitions="180, *, 20, 180, *">
-                <TextBlock
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  Text="Remote Port" />
-                <NumericUpDown
-                  Grid.Column="1"
-                  FormatString="0"
-                  Value="{Binding RemotePort}" />
-
-                <TextBlock
-                  Grid.Column="3"
-                  VerticalAlignment="Center"
-                  Text="Local Port" />
-                <NumericUpDown
-                  Grid.Column="4"
-                  FormatString="0"
-                  Value="{Binding LocalPort}" />
-              </Grid>
+                Text="※現在、データベースは local_database.db に固定されています。" />
             </StackPanel>
           </StackPanel>
         </Border>
@@ -148,7 +76,7 @@
               HorizontalContentAlignment="Center"
               Background="#007ACC"
               Command="{Binding SaveSettingsCommand}"
-              Content="� 設定を保存"
+              Content="💾 設定を保存"
               FontWeight="Bold"
               Foreground="White" />
 

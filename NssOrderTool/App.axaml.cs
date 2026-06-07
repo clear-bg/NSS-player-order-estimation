@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using DotNetEnv;
 using Serilog;
 using NssOrderTool.Services.Domain;
-using NssOrderTool.Services.Infrastructure;
 using NssOrderTool.Database;
 using NssOrderTool.Repositories;
 using NssOrderTool.ViewModels;
@@ -49,18 +47,12 @@ public partial class App : Application
     var jsonString = File.Exists(jsonPath) ? File.ReadAllText(jsonPath) : "{}";
     var appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString) ?? new AppConfig();
 
-    // --- 環境変数(.env)の読み込み ---
-    Env.Load();
-
     collection.AddSingleton(appConfig);
 
     collection.AddLogging(loggingBuilder =>
     {
       loggingBuilder.AddSerilog(dispose: true);
     });
-
-    // SSM Tunnel Service
-    collection.AddSingleton<SsmTunnelService>();
 
     // DbSchemaService
     collection.AddTransient<DbSchemaService>();
@@ -99,20 +91,6 @@ public partial class App : Application
 
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
-      // SSMトンネルの開始
-      try
-      {
-        var ssmService = Services.GetRequiredService<SsmTunnelService>();
-        // デッドロック回避のため Task.Run で実行して待機
-        Task.Run(() => ssmService.StartAsync()).GetAwaiter().GetResult();
-
-        desktop.Exit += (sender, args) => ssmService.Dispose();
-      }
-      catch (Exception ex)
-      {
-        Log.Fatal(ex, "AWS SSM接続の初期化に失敗しました。");
-      }
-
       desktop.MainWindow = new MainWindow();
 
       // 起動時のDB接続確認 (EF Core版)
@@ -132,7 +110,7 @@ public partial class App : Application
           }
           else
           {
-            Log.Error("❌ DB接続失敗: 接続できませんでした。接続設定やVPN/SSMを確認してください。");
+            Log.Error("❌ DB接続失敗: 接続できませんでした。");
           }
         }
       }
