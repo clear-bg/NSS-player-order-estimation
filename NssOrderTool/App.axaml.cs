@@ -68,29 +68,8 @@ public partial class App : Application
     // ▼ EF Core (AppDbContext) の登録
     collection.AddDbContext<AppDbContext>(options =>
     {
-      // 接続情報の構築
-      var ssm = appConfig.SsmSettings;
-      bool useSsm = ssm?.UseSsm == true;
-
-      string envName = appConfig.AppSettings?.Environment?.ToUpper() ?? "TEST";
-      string dbNameKey = (envName == "PROD" || envName == "PRODUCTION") ? "DB_NAME_PROD" : "DB_NAME_TEST";
-      string databaseName = Env.GetString(dbNameKey);
-
-      var builder = new MySqlConnector.MySqlConnectionStringBuilder
-      {
-        Server = useSsm ? "127.0.0.1" : Env.GetString("DB_HOST"),
-        Port = useSsm ? (uint)(ssm?.LocalPort ?? 3306) : uint.Parse(Env.GetString("DB_PORT", "3306")),
-        UserID = Env.GetString("DB_USER"),
-        Password = Env.GetString("DB_PASSWORD"),
-        Database = databaseName,
-        CharacterSet = "utf8mb4",
-        Pooling = true
-      };
-
-      options.UseMySql(
-              builder.ConnectionString,
-              new MySqlServerVersion(new Version(8, 0, 0))
-          );
+      // SQLiteのローカルファイルを指定
+      options.UseSqlite("Data Source=local_database.db");
     }, ServiceLifetime.Transient);
 
     // Domain Services

@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 using DotNetEnv;
 using Avalonia.Media;
 using NssOrderTool.Messages;
@@ -240,19 +239,11 @@ namespace NssOrderTool.ViewModels
         string dbNameKey = (Environment == "PROD") ? "DB_NAME_PROD" : "DB_NAME_TEST";
         string databaseName = Env.GetString(dbNameKey);
 
-        var builder = new MySqlConnectionStringBuilder
-        {
-          Server = tempConfig.SsmSettings.UseSsm ? "127.0.0.1" : Env.GetString("DB_HOST"),
-          Port = tempConfig.SsmSettings.UseSsm ? (uint)tempConfig.SsmSettings.LocalPort : uint.Parse(Env.GetString("DB_PORT", "3306")),
-          UserID = Env.GetString("DB_USER"),
-          Password = Env.GetString("DB_PASSWORD"),
-          Database = databaseName,
-          ConnectionTimeout = 5 // テストなので短めに
-        };
-
-        // 4. 接続試行
-        using var connection = new MySqlConnection(builder.ConnectionString);
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection("Data Source=local_database.db");
         await connection.OpenAsync();
+
+        StatusMessage = "✅ 接続成功！ (DB: SQLite ローカル)";
+        IsSuccess = true;
 
         StatusMessage = $"✅ 接続成功！ (DB: {databaseName})";
         IsSuccess = true;
