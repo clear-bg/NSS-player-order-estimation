@@ -451,41 +451,54 @@
                     Padding="10,8"
                     BorderBrush="#e0e0e0"
                     BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="160, 100, 100, *, Auto">
+                    <Grid ColumnDefinitions="150, *, Auto">
+
                       <TextBlock
                         Grid.Column="0"
                         VerticalAlignment="Center"
                         Foreground="#333333"
                         Text="{Binding CreatedAt, StringFormat='yyyy/MM/dd HH:mm'}" />
 
-                      <StackPanel
+                      <TextBlock
                         Grid.Column="1"
+                        Margin="10,0,10,0"
                         VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="#666666"
+                        Text="{Binding HistorySummaryText}"
+                        TextWrapping="Wrap" />
+
+                      <StackPanel
+                        Grid.Column="2"
                         Orientation="Horizontal"
                         Spacing="5">
-                        <TextBlock Text="🏆" />
-                        <TextBlock FontWeight="Medium" Text="{Binding WinningTeam}" />
+                        <Button
+                          Padding="5"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).ShowSessionDetailCommand}"
+                          CommandParameter="{Binding}">
+                          <TextBlock
+                            Cursor="Hand"
+                            Foreground="#4488FF"
+                            Text="📄 詳細" />
+                        </Button>
+
+                        <Button
+                          Padding="5"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Classes="Danger"
+                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
+                          CommandParameter="{Binding}">
+                          <TextBlock
+                            Cursor="Hand"
+                            Foreground="#D32F2F"
+                            Text="🗑️ 削除" />
+                        </Button>
+
                       </StackPanel>
 
-                      <TextBlock
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Foreground="#666666"
-                        Text="{Binding Participants.Count, StringFormat='{}{0}名参加'}" />
-
-                      <Button
-                        Grid.Column="4"
-                        Padding="5"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Classes="Danger"
-                        Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
-                        CommandParameter="{Binding}">
-                        <TextBlock
-                          Cursor="Hand"
-                          Foreground="#D32F2F"
-                          Text="🗑️ 削除" />
-                      </Button>
                     </Grid>
                   </Border>
                 </DataTemplate>
