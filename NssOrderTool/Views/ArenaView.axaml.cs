@@ -11,6 +11,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.ViewModels;
+using NssOrderTool.ViewModels.Arena;
 
 namespace NssOrderTool.Views
 {
@@ -71,6 +72,32 @@ namespace NssOrderTool.Views
           firstTextBox.Focus();
           e.Handled = true;
         }
+      }
+    }
+
+    protected override void OnDataContextChanged(System.EventArgs e)
+    {
+      base.OnDataContextChanged(e);
+
+      if (DataContext is ArenaViewModel vm)
+      {
+        // ViewModelの Action に、実際にウィンドウを開く処理を登録する
+        vm.ShowDetailDialogAction = async (session) =>
+        {
+          // 現在の画面の親ウィンドウ（MainWindow）を取得
+          var parentWindow = TopLevel.GetTopLevel(this) as Window;
+          if (parentWindow == null) return;
+
+          // 詳細用のViewModelとWindowを作成
+          var detailVm = new ArenaSessionDetailViewModel(session);
+          var detailWindow = new ArenaSessionDetailWindow
+          {
+            DataContext = detailVm
+          };
+
+          // ポップアップ（ダイアログ）として手前に表示
+          await detailWindow.ShowDialog(parentWindow);
+        };
       }
     }
 

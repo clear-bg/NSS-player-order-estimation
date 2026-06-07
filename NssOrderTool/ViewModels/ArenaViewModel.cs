@@ -34,6 +34,8 @@ namespace NssOrderTool.ViewModels
 
     public Func<string, Task<bool>>? ShowConfirmDialogAction { get; set; }
 
+    public Action<ArenaSessionEntity>? ShowDetailDialogAction { get; set; }
+
     [ObservableProperty]
     private string _statusText = "準備完了";
 
@@ -298,6 +300,15 @@ namespace NssOrderTool.ViewModels
       {
         IsBusy = false;
       }
+    }
+
+    [RelayCommand]
+    private void ShowSessionDetail(ArenaSessionEntity session)
+    {
+      if (session == null) return;
+
+      // View側で登録されたメソッドを呼び出して、ウィンドウを開く
+      ShowDetailDialogAction?.Invoke(session);
     }
 
     public void Receive(TransferToArenaMessage message)

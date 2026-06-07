@@ -468,19 +468,36 @@
                         Text="{Binding HistorySummaryText}"
                         TextWrapping="Wrap" />
 
-                      <Button
+                      <StackPanel
                         Grid.Column="2"
-                        Padding="5"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Classes="Danger"
-                        Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
-                        CommandParameter="{Binding}">
-                        <TextBlock
-                          Cursor="Hand"
-                          Foreground="#D32F2F"
-                          Text="🗑️ 削除" />
-                      </Button>
+                        Orientation="Horizontal"
+                        Spacing="5">
+                        <Button
+                          Padding="5"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).ShowSessionDetailCommand}"
+                          CommandParameter="{Binding}">
+                          <TextBlock
+                            Cursor="Hand"
+                            Foreground="#4488FF"
+                            Text="📄 詳細" />
+                        </Button>
+
+                        <Button
+                          Padding="5"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Classes="Danger"
+                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
+                          CommandParameter="{Binding}">
+                          <TextBlock
+                            Cursor="Hand"
+                            Foreground="#D32F2F"
+                            Text="🗑️ 削除" />
+                        </Button>
+
+                      </StackPanel>
 
                     </Grid>
                   </Border>

@@ -1,0 +1,58 @@
+<Window
+  x:Class="NssOrderTool.Views.ArenaSessionDetailWindow"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  Title="セッション詳細"
+  Width="500"
+  Height="600"
+  x:DataType="vm:ArenaSessionDetailViewModel"
+  Background="#1E1E1E"
+  WindowStartupLocation="CenterOwner">
+
+  <Grid RowDefinitions="Auto, *">
+    <Border
+      Grid.Row="0"
+      Padding="20"
+      Background="#252526"
+      BorderBrush="#333"
+      BorderThickness="0,0,0,1">
+      <StackPanel Spacing="10">
+        <TextBlock Foreground="Gray" Text="{Binding Session.CreatedAt, StringFormat='開催日時: yyyy/MM/dd HH:mm'}" />
+        <TextBlock
+          FontSize="16"
+          FontWeight="Bold"
+          Text="{Binding Session.HistorySummaryText}"
+          TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1" Padding="20">
+      <ItemsControl ItemsSource="{Binding RoundDetails}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border
+              Margin="0,0,0,5"
+              Padding="15,10"
+              Background="#2A2A2D"
+              CornerRadius="5">
+              <Grid ColumnDefinitions="50, *">
+                <TextBlock
+                  Grid.Column="0"
+                  VerticalAlignment="Center"
+                  FontWeight="Bold"
+                  Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                <TextBlock
+                  Grid.Column="1"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  FontWeight="Bold"
+                  Text="{Binding WinnerName}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+</Window>
