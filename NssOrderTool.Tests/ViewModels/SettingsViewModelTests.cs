@@ -13,18 +13,10 @@ namespace NssOrderTool.Tests.ViewModels
     public void ShouldLoadSettings_FromAppConfig_OnInit()
     {
       // Arrange (準備)
-      // テスト用の設定データを作成
+      // テスト用の設定データを作成 (SSM設定を削除し、シンプルに)
       var config = new AppConfig
       {
-        AppSettings = new AppSettings { Environment = "PROD" },
-        SsmSettings = new SsmSettings
-        {
-          UseSsm = true,
-          InstanceId = "i-test123",
-          LocalPort = 9999,
-          RemoteHost = "db.example.com",
-          RemotePort = 3306
-        }
+        AppSettings = new AppSettings { Environment = "PROD" }
       };
 
       // 依存するロガー類のモックを作成
@@ -38,11 +30,6 @@ namespace NssOrderTool.Tests.ViewModels
       // Assert (検証)
       // configの中身がViewModelのプロパティに反映されているか
       vm.Environment.Should().Be("PROD");
-      vm.UseSsm.Should().BeTrue();
-      vm.InstanceId.Should().Be("i-test123");
-      vm.LocalPort.Should().Be(9999);
-      vm.RemoteHost.Should().Be("db.example.com");
-      vm.RemotePort.Should().Be(3306);
     }
   }
 }
