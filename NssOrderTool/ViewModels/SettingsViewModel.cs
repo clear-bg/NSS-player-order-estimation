@@ -102,11 +102,16 @@ namespace NssOrderTool.ViewModels
 
       try
       {
-        // SQLiteローカルDBへの接続テスト
-        using var connection = new Microsoft.Data.Sqlite.SqliteConnection("Data Source=local_database.db");
+        // 画面で選択されている環境(Environment)に応じてテスト先ファイル名を決定
+        string dbFileName = (Environment == "PROD" || Environment == "PRODUCTION")
+                            ? "local_db_prod.db"
+                            : "local_db_test.db";
+
+        // 動的に決定したファイル名で接続テスト
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbFileName}");
         await connection.OpenAsync();
 
-        StatusMessage = "✅ 接続成功！ (DB: SQLite ローカル)";
+        StatusMessage = $"✅ 接続成功！ (DB: {dbFileName})";
         IsSuccess = true;
       }
       catch (Exception ex)
@@ -131,7 +136,17 @@ namespace NssOrderTool.ViewModels
         _currentConfig.AppSettings.Environment = Environment;
 
         string json = JsonSerializer.Serialize(_currentConfig, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText("appsettings.json", json);
+
+        // 1. 実行ファイルと同じディレクトリ (再起動時に確実に読み込まれる場所)
+        string exeConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+        File.WriteAllText(exeConfigPath, json);
+
+        // 2. カレントディレクトリ (開発時のプロジェクトルート) にファイルがあればそちらも更新
+        string currentDirConfigPath = Path.Combine(System.Environment.CurrentDirectory, "appsettings.json");
+        if (exeConfigPath != currentDirConfigPath && File.Exists(currentDirConfigPath))
+        {
+          File.WriteAllText(currentDirConfigPath, json);
+        }
 
         StatusMessage = "💾 設定を保存しました。(アプリを再起動して反映してください)";
         IsSuccess = true;

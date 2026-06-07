@@ -50,7 +50,7 @@
               <TextBlock
                 FontSize="12"
                 Foreground="Gray"
-                Text="※現在、データベースは local_database.db に固定されています。" />
+                Text="※選択した環境に応じて接続するデータベースファイル(local_db_test.db または local_db_prod.db)が切り替わります。" />
             </StackPanel>
           </StackPanel>
         </Border>
