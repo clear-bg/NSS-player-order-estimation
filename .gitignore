@@ -36,3 +36,8 @@ Thumbs.db
 NssOrderTool/logs
 logs/*
 起動ログ.log
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
