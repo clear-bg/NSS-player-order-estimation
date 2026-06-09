@@ -66,6 +66,7 @@ namespace NssOrderTool.ViewModels
     {
       _orderRepo = null!;
       _aliasRepo = null!;
+      _playerRepo = null!;
       _sorter = null!;
       _extractor = null!;
       InitializeInputs();
