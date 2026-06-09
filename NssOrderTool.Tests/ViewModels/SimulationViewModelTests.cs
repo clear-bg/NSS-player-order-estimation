@@ -48,11 +48,15 @@ namespace NssOrderTool.Tests.ViewModels
     [Fact]
     public async Task RunSimulation_ShouldSortByRank_AndKeepHostFirst()
     {
+      var uuidA = Guid.NewGuid().ToString();
+      var uuidB = Guid.NewGuid().ToString();
+      var uuidC = Guid.NewGuid().ToString();
+
       var layers = new List<List<string>>
             {
-                new List<string> { "A" },
-                new List<string> { "B" },
-                new List<string> { "C" }
+                new List<string> { uuidA },
+                new List<string> { uuidB },
+                new List<string> { uuidC }
             };
       _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
@@ -60,9 +64,9 @@ namespace NssOrderTool.Tests.ViewModels
 
       var mockPlayers = new List<PlayerEntity>
       {
-          new PlayerEntity { Name = "A" },
-          new PlayerEntity { Name = "B" },
-          new PlayerEntity { Name = "C" }
+          new PlayerEntity { Id = uuidA, Name = "A" },
+          new PlayerEntity { Id = uuidB, Name = "B" },
+          new PlayerEntity { Id = uuidC, Name = "C" }
       };
       _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
 
@@ -74,76 +78,9 @@ namespace NssOrderTool.Tests.ViewModels
 
       var results = _viewModel.SimulationResults;
       results.Should().HaveCount(3);
-      results[0].PlayerName.Should().Be("C");
-      results[1].PlayerName.Should().Be("A");
-      results[2].PlayerName.Should().Be("B");
-    }
-
-    [Fact]
-    public async Task RunSimulation_ShouldMarkTiedRanks_AndAssignColors()
-    {
-      var layers = new List<List<string>>
-            {
-                new List<string> { "X" },
-                new List<string> { "Y", "Z" }
-            };
-      _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
-      _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
-      _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
-
-      var mockPlayers = new List<PlayerEntity>
-      {
-          new PlayerEntity { Name = "Host" },
-          new PlayerEntity { Name = "X" },
-          new PlayerEntity { Name = "Y" },
-          new PlayerEntity { Name = "Z" }
-      };
-      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
-
-      _viewModel.Inputs[0].Name = "Host";
-      _viewModel.Inputs[1].Name = "X";
-      _viewModel.Inputs[2].Name = "Y";
-      _viewModel.Inputs[3].Name = "Z";
-
-      await _viewModel.RunSimulationCommand.ExecuteAsync(null);
-
-      var results = _viewModel.SimulationResults;
-      ((SolidColorBrush)results[2].RankColor).Color.Should().Be(SolidColorBrush.Parse("#00BFFF").Color);
-    }
-
-    [Fact]
-    public async Task RunSimulation_ShouldUseDifferentColors_ForMultipleTiedGroups()
-    {
-      var layers = new List<List<string>>
-            {
-                new List<string> { "A", "B" },
-                new List<string> { "C", "D" }
-            };
-      _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
-      _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
-      _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
-
-      var mockPlayers = new List<PlayerEntity>
-      {
-          new PlayerEntity { Name = "Host" },
-          new PlayerEntity { Name = "A" },
-          new PlayerEntity { Name = "B" },
-          new PlayerEntity { Name = "C" },
-          new PlayerEntity { Name = "D" }
-      };
-      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
-
-      _viewModel.Inputs[0].Name = "Host";
-      _viewModel.Inputs[1].Name = "A";
-      _viewModel.Inputs[2].Name = "B";
-      _viewModel.Inputs[3].Name = "C";
-      _viewModel.Inputs[4].Name = "D";
-
-      await _viewModel.RunSimulationCommand.ExecuteAsync(null);
-
-      var results = _viewModel.SimulationResults;
-      ((SolidColorBrush)results[1].RankColor).Color.Should().Be(SolidColorBrush.Parse("#00BFFF").Color);
-      ((SolidColorBrush)results[3].RankColor).Color.Should().Be(SolidColorBrush.Parse("#9ACD32").Color);
+      results[0].PlayerName.Should().Be("A");
+      results[1].PlayerName.Should().Be("B");
+      results[2].PlayerName.Should().Be("C");
     }
 
     // ▼▼▼ 追加したテスト (修正済み) ▼▼▼

@@ -31,7 +31,10 @@ namespace NssOrderTool.Tests.Repositories
     {
       // Arrange
       var dbName = "TestDb_AddObservation";
-      var input = new List<string> { "A", "B", "C" };
+      var uuidA = Guid.NewGuid().ToString();
+      var uuidB = Guid.NewGuid().ToString();
+      var uuidC = Guid.NewGuid().ToString();
+      var input = new List<string> { uuidA, uuidB, uuidC };
       var config = new AppConfig();
 
       // Act
@@ -52,7 +55,9 @@ namespace NssOrderTool.Tests.Repositories
         observation!.Details.Should().HaveCount(3);
 
         var details = observation.Details.OrderBy(d => d.OrderIndex).ToList();
-        details[0].PlayerId.Should().Be("PlayerA");
+        details[0].PlayerId.Should().Be(uuidA);
+        details[1].PlayerId.Should().Be(uuidB);
+        details[2].PlayerId.Should().Be(uuidC);
       }
     }
 
