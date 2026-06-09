@@ -337,12 +337,22 @@ namespace NssOrderTool.ViewModels
     {
       if (SimulationResults.Count == 0) return;
 
+      if (SimulationResults.Count < 8)
+      {
+        StatusText = "❌ エラー: アリーナ集計へ反映するには、8人全員の入力が必要です。";
+        StatusTextColor = Brushes.Red;
+        return;
+      }
+
       // 結果リストからプレイヤー名だけを抽出してリスト化
       // ※ SimulationResultItem.PlayerName プロパティを使用
       var names = SimulationResults.Select(x => x.PlayerName).ToList();
 
       // メッセージ送信
       WeakReferenceMessenger.Default.Send(new TransferToArenaMessage(names));
+
+      StatusText = "✅ アリーナ集計へ反映しました。";
+      StatusTextColor = Brushes.Green;
     }
   }
 
