@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NssOrderTool.Database;
 using NssOrderTool.Models;
+using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
 using NssOrderTool.ViewModels;
@@ -57,6 +58,14 @@ namespace NssOrderTool.Tests.ViewModels
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
 
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "A" },
+          new PlayerEntity { Name = "B" },
+          new PlayerEntity { Name = "C" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
+
       _viewModel.Inputs[0].Name = "C";
       _viewModel.Inputs[1].Name = "B";
       _viewModel.Inputs[2].Name = "A";
@@ -82,6 +91,15 @@ namespace NssOrderTool.Tests.ViewModels
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
 
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "Host" },
+          new PlayerEntity { Name = "X" },
+          new PlayerEntity { Name = "Y" },
+          new PlayerEntity { Name = "Z" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
+
       _viewModel.Inputs[0].Name = "Host";
       _viewModel.Inputs[1].Name = "X";
       _viewModel.Inputs[2].Name = "Y";
@@ -104,6 +122,16 @@ namespace NssOrderTool.Tests.ViewModels
       _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
+
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "Host" },
+          new PlayerEntity { Name = "A" },
+          new PlayerEntity { Name = "B" },
+          new PlayerEntity { Name = "C" },
+          new PlayerEntity { Name = "D" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
 
       _viewModel.Inputs[0].Name = "Host";
       _viewModel.Inputs[1].Name = "A";
