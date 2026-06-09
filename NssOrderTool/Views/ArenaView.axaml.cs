@@ -89,7 +89,7 @@ namespace NssOrderTool.Views
           if (parentWindow == null) return;
 
           // 詳細用のViewModelとWindowを作成
-          var detailVm = new ArenaSessionDetailViewModel(session);
+          var detailVm = vm.CreateDetailViewModel(session);
           var detailWindow = new ArenaSessionDetailWindow
           {
             DataContext = detailVm

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
@@ -10,6 +12,7 @@ namespace NssOrderTool.ViewModels
   {
     [ObservableProperty]
     private ArenaSessionEntity _session;
+    private readonly PlayerRepository _playerRepo;
 
     // プレイヤー1人につき1行のデータ
     public ObservableCollection<PlayerResultRow> PlayerRows { get; } = new();
@@ -24,24 +27,30 @@ namespace NssOrderTool.ViewModels
         { 13, new[] { 0, 1, 5, 6 } }, { 14, new[] { 0, 4, 5, 7 } }
     };
 
-    public ArenaSessionDetailViewModel(ArenaSessionEntity session)
+    public ArenaSessionDetailViewModel(ArenaSessionEntity session, PlayerRepository playerRepo)
     {
       Session = session;
-      LoadMatrix();
+      _playerRepo = playerRepo;
+      _ = LoadMatrixAsync();
     }
 
-    private void LoadMatrix()
+    private async Task LoadMatrixAsync()
     {
       if (Session?.Participants == null || Session?.Rounds == null) return;
+
+      var allPlayers = await _playerRepo.GetAllPlayersAsync();
 
       var participants = Session.Participants.OrderBy(p => p.SlotIndex).ToList();
       var rounds = Session.Rounds.OrderBy(r => r.RoundNumber).ToList();
 
       foreach (var p in participants)
       {
+        var player = allPlayers.FirstOrDefault(pl => pl.Id == p.PlayerId);
+        string displayName = player != null ? player.Name : $"Player {p.SlotIndex + 1}";
+
         var row = new PlayerResultRow
         {
-          Name = string.IsNullOrWhiteSpace(p.PlayerId) ? $"Player {p.SlotIndex + 1}" : p.PlayerId,
+          Name = displayName,
           WinCount = p.WinCount,
           Rank = p.Rank
         };
@@ -54,7 +63,7 @@ namespace NssOrderTool.ViewModels
           bool isBlue = BlueTeamDefinitions.ContainsKey(i) && BlueTeamDefinitions[i].Contains(p.SlotIndex);
           int myTeam = isBlue ? 1 : 2;
 
-          // ★変更: 常にチームカラーの背景色を設定（画像に近い淡い青とオレンジ）
+          // チームカラーの背景色を設定（画像に近い淡い青とオレンジ）
           string colorHex = isBlue ? "#99C2E8" : "#F4CA9F";
           string resultText = "";
 
@@ -62,7 +71,6 @@ namespace NssOrderTool.ViewModels
           if (winningTeam != 0)
           {
             bool isWin = (myTeam == winningTeam);
-            // ★変更: 勝ったら"1"、負けたら空文字
             resultText = isWin ? "1" : "";
           }
 

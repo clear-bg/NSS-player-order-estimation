@@ -349,5 +349,12 @@ namespace NssOrderTool.ViewModels
       // データ更新通知が来たら、履歴リストをリロードする
       _ = LoadHistoryAsync();
     }
+
+
+    public ArenaSessionDetailViewModel CreateDetailViewModel(ArenaSessionEntity session)
+    {
+      return new ArenaSessionDetailViewModel(session, _playerRepo);
+    }
+
   }
 }
