@@ -117,5 +117,44 @@ namespace NssOrderTool.Repositories
 
       await _context.SaveChangesAsync();
     }
+
+    public virtual async Task<PlayerEntity?> GetPlayerByNameAsync(string name)
+    {
+      return await _context.Players
+          .FirstOrDefaultAsync(p => p.Name == name && !p.IsDeleted);
+    }
+
+    public virtual async Task<PlayerEntity> UpsertPlayerAsync(string name)
+    {
+      // 既に同じ名前のプレイヤーがいるか探す
+      var player = await _context.Players.FirstOrDefaultAsync(p => p.Name == name);
+
+      if (player == null)
+      {
+        // 完全新規なら追加 (Idはエンティティ側でUUIDが自動生成される)
+        player = new PlayerEntity { Name = name };
+        _context.Players.Add(player);
+      }
+      else if (player.IsDeleted)
+      {
+        // 過去に削除されていれば復活させる
+        player.IsDeleted = false;
+        player.UpdatedAt = DateTime.Now;
+      }
+
+      await _context.SaveChangesAsync();
+      return player; // 採番されたUUIDを含むエンティティを返す
+    }
+
+    public virtual async Task SoftDeletePlayerAsync(string id)
+    {
+      var player = await _context.Players.FindAsync(id);
+      if (player != null)
+      {
+        player.IsDeleted = true;
+        player.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+      }
+    }
   }
 }

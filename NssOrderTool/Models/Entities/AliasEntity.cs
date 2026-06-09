@@ -9,6 +9,10 @@ namespace NssOrderTool.Models.Entities
   public class AliasEntity : ISoftDelete, ITimestamp
   {
     [Key]
+    [Column("alias_id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [Required]
     [Column("alias_name")]
     public string AliasName { get; set; } = "";
 

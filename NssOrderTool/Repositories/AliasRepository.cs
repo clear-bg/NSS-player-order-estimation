@@ -77,5 +77,31 @@ namespace NssOrderTool.Repositories
     {
       _context.ChangeTracker.Clear();
     }
+
+    public virtual async Task UpsertAliasAsync(string aliasName, string targetPlayerId)
+    {
+      var alias = await _context.Aliases.FirstOrDefaultAsync(a => a.AliasName == aliasName);
+      if (alias == null)
+      {
+        _context.Aliases.Add(new AliasEntity { AliasName = aliasName, TargetPlayerId = targetPlayerId });
+      }
+      else
+      {
+        // 既存のエイリアスがあれば、紐付け先を更新して復活
+        alias.TargetPlayerId = targetPlayerId;
+        alias.IsDeleted = false;
+        alias.UpdatedAt = DateTime.Now;
+      }
+      await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task SoftDeleteAliasesByPlayerIdAsync(string targetPlayerId)
+    {
+      // 特定のプレイヤーに紐づくエイリアスをすべて論理削除
+      await _context.Aliases
+          .Where(a => a.TargetPlayerId == targetPlayerId)
+          .ExecuteUpdateAsync(s => s.SetProperty(a => a.IsDeleted, true)
+                                    .SetProperty(a => a.UpdatedAt, DateTime.Now));
+    }
   }
 }

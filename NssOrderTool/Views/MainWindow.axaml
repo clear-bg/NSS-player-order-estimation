@@ -9,15 +9,15 @@
   Title="{Binding Title}"
   Width="880"
   Height="610"
-  d:DesignHeight="550"
+  d:DesignHeight="650"
   d:DesignWidth="800"
   x:DataType="vm:MainWindowViewModel"
   WindowStartupLocation="CenterScreen"
   mc:Ignorable="d">
 
-  <TabControl Margin="5">
-    <TabItem FontSize="16" Header="メイン">
-      <views:OrderEstimationView />
+  <TabControl Margin="5" SelectedIndex="{Binding SelectedTabIndex}">
+    <TabItem FontSize="16" Header="マスター管理 ">
+      <views:UserMasterView />
     </TabItem>
 
     <TabItem FontSize="16" Header="順序推定">
@@ -30,10 +30,6 @@
 
     <TabItem FontSize="16" Header="アリーナデータ">
       <views:ArenaDataView />
-    </TabItem>
-
-    <TabItem FontSize="16" Header="エイリアス">
-      <views:AliasSettingsView />
     </TabItem>
 
     <TabItem FontSize="16" Header="設定">
