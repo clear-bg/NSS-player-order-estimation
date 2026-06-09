@@ -33,6 +33,7 @@ namespace NssOrderTool.Repositories
       return await _context.ArenaSessions
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
+          .OrderByDescending(s => s.SessionDate)
           .OrderByDescending(s => s.CreatedAt)
           .ToListAsync();
     }
@@ -92,7 +93,8 @@ namespace NssOrderTool.Repositories
               .ThenInclude(s => s.Participants)
                   .ThenInclude(ap => ap.Player)
           .Where(p => p.PlayerId == playerId && !p.IsDeleted)
-          .OrderByDescending(p => p.Session!.CreatedAt)
+          .OrderByDescending(p => p.Session!.SessionDate)
+          .ThenByDescending(p => p.Session!.CreatedAt)
           .ToListAsync();
 
       var result = new PlayerDetailsDto();
@@ -177,7 +179,7 @@ namespace NssOrderTool.Repositories
                 .Take(10)
                 .Select(p => new MatchHistoryDto
                 {
-                  Date = p.Session!.CreatedAt,
+                  Date = p.Session!.SessionDate,
                   Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
                   MyRank = p.Rank,
                   WinCount = p.WinCount,

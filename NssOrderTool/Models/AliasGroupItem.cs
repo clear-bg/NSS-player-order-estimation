@@ -5,6 +5,7 @@ namespace NssOrderTool.Models
   // リスト表示用のデータクラス
   public class AliasGroupItem
   {
+    public string TargetPlayerId { get; set; } = "";
     public string TargetName { get; set; } = "";
     public List<string> Aliases { get; set; } = new();
 

@@ -39,6 +39,12 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _statusText = "準備完了";
 
+    [ObservableProperty]
+    private string _inputDate = DateTime.Now.ToString("yyyyMMdd");
+
+    [ObservableProperty]
+    private string _inputTime = DateTime.Now.ToString("HHmm");
+
     public ArenaViewModel(
       ArenaRepository arenaRepo,
       PlayerRepository playerRepo,
@@ -131,6 +137,13 @@ namespace NssOrderTool.ViewModels
 
       try
       {
+        if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out var parsedSessionDate))
+        {
+          StatusText = "❌ 保存失敗: 開催日時の形式が正しくありません (日付8桁、時刻4桁で入力してください)";
+          IsBusy = false;
+          return;
+        }
+
         // 1. プレイヤーID(名前)のリストを抽出
         var playerNames = PlayerRows.Select(p => p.Name).ToList();
 
@@ -157,6 +170,7 @@ namespace NssOrderTool.ViewModels
         var session = new ArenaSessionEntity
         {
           CreatedAt = DateTime.Now,
+          SessionDate = parsedSessionDate,
           PlayersJson = playersJson
         };
 

@@ -10,10 +10,11 @@ namespace NssOrderTool.Models.Entities
   {
     [Key] // 主キー
     [Column("player_id")]
-    public string Id { get; set; } = "";
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
+    [Required]
     [Column("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = "";
 
     [Column("first_seen")]
     public DateTime FirstSeen { get; set; } = DateTime.Now;
