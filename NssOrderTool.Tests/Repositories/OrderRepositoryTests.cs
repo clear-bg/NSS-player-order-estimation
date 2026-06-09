@@ -31,7 +31,7 @@ namespace NssOrderTool.Tests.Repositories
     {
       // Arrange
       var dbName = "TestDb_AddObservation";
-      var input = "PlayerA, PlayerB, PlayerC";
+      var input = new List<string> { "A", "B", "C" };
       var config = new AppConfig();
 
       // Act
@@ -68,7 +68,7 @@ namespace NssOrderTool.Tests.Repositories
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new OrderRepository(context, config);
-        await repo.AddObservationAsync("A, B");
+        await repo.AddObservationAsync(new List<string> { "A", "B" });
       }
 
       // Assert
@@ -95,7 +95,7 @@ namespace NssOrderTool.Tests.Repositories
       using (var context = CreateInMemoryContext(dbName))
       {
         var repo = new OrderRepository(context, config);
-        await repo.AddObservationAsync("DeleteMeA, DeleteMeB");
+        await repo.AddObservationAsync(new List<string> { "DeleteMeA", "DeleteMeB" });
         var obs = await context.Observations.FirstAsync();
         targetId = obs.Id;
       }
@@ -142,8 +142,8 @@ namespace NssOrderTool.Tests.Repositories
       using (var context = CreateInMemoryContext(dbName))
       {
         var repository = new OrderRepository(context, config);
-        await repository.AddObservationAsync("A, B");
-        await repository.AddObservationAsync("C, D");
+        await repository.AddObservationAsync(new List<string> { "A", "B" });
+        await repository.AddObservationAsync(new List<string> { "C", "D" });
       }
 
       // Act

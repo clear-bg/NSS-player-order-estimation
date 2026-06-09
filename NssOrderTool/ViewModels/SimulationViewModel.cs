@@ -119,165 +119,85 @@ namespace NssOrderTool.ViewModels
     [RelayCommand]
     private async Task RunSimulation()
     {
-      if (IsBusy) return;
-      IsBusy = true;
-      SimulationResults.Clear();
       StatusText = "計算中...";
-      StatusTextColor = Brushes.Gray;
+      StatusTextColor = Brushes.Black;
+      SimulationResults.Clear();
 
-      try
+      var inputNames = Inputs
+          .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+          .Select(x => x.Name.Trim())
+          .ToList();
+
+      if (inputNames.Count < 2)
       {
-        // 1. 全データの順序関係を取得して計算 (全体ランキング作成)
-        var allPairs = await _orderRepo.GetAllPairsAsync();
-        var globalLayers = _sorter.Sort(allPairs);
-
-        // 計算高速化のため、名前 -> ランク(階層ID) の辞書を作成
-        // ランクは数字が小さいほど上 (0, 1, 2...)
-        var rankMap = new Dictionary<string, int>();
-        for (int i = 0; i < globalLayers.Count; i++)
-        {
-          foreach (var name in globalLayers[i])
-          {
-            rankMap[name] = i; // 同じ階層なら同じランク値
-          }
-        }
-
-        // 2. 入力値の取得と正規化
-        var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
-
-        var allPlayers = await _playerRepo.GetAllPlayersAsync();
-        var activePlayerNames = allPlayers.Where(p => !p.IsDeleted).Select(p => p.Name).ToList();
-
-        var participants = new List<Participant>();
-        var unregisteredNames = new List<string>();
-
-        // 入力欄をループ
-        for (int i = 0; i < Inputs.Count; i++)
-        {
-          var rawName = Inputs[i].Name?.Trim();
-          if (string.IsNullOrWhiteSpace(rawName)) continue;
-
-          if (!aliasDict.ContainsKey(rawName) && !activePlayerNames.Contains(rawName))
-          {
-            unregisteredNames.Add(rawName);
-            continue; // 未登録が見つかっても、複数見つけるためにループは続ける
-          }
-
-          string normalized = rawName;
-          if (aliasDict.TryGetValue(rawName, out string? targetId))
-          {
-            // UUIDのIDから、本名の名前に変換し直す必要がある
-            var targetPlayer = allPlayers.FirstOrDefault(p => p.Id == targetId);
-            if (targetPlayer != null)
-            {
-              normalized = targetPlayer.Name;
-            }
-          }
-
-          // 参加者リストに追加
-          participants.Add(new Participant
-          {
-            OriginalIndex = i,      // 入力欄の位置 (0ならホスト)
-            InputName = rawName,
-            NormalizedName = normalized,
-            GlobalRank = rankMap.ContainsKey(normalized) ? rankMap[normalized] : int.MaxValue
-          });
-        }
-
-        if (unregisteredNames.Any())
-        {
-          var namesStr = string.Join(", ", unregisteredNames);
-          StatusText = $"❌ エラー: 未登録のユーザーが含まれています ({namesStr})";
-          StatusTextColor = Brushes.Red;
-          return;
-        }
-
-        if (!participants.Any())
-        {
-          StatusText = "⚠️ プレイヤー名を入力してください";
-          StatusTextColor = Brushes.Orange;
-          return;
-        }
-
-        // 3. 今回の部屋内でのソート実行
-        var sortedParticipants = participants.OrderBy(p =>
-        {
-          // ルール1: ホスト(1行目)は絶対に一番上
-          if (p.OriginalIndex == 0) return int.MinValue;
-
-          // ルール2: DBの推定ランク順
-          return p.GlobalRank;
-        })
-        .ThenBy(p => p.OriginalIndex) // 同率なら入力順
-        .ToList();
-
-        // 4. 結果表示
-        for (int i = 0; i < sortedParticipants.Count; i++)
-        {
-          var p = sortedParticipants[i];
-          var item = new SimulationResultItem { PlayerName = p.InputName };
-
-          // 順位決定ロジック
-          if (i == 0)
-          {
-            // 1人目は必ず1位
-            item.Rank = 1;
-          }
-          else
-          {
-            var prevP = sortedParticipants[i - 1];
-
-            // 直前の人とランク値が同じなら「同順位」とする
-            // ※ただし、直前の人がホスト(OriginalIndex==0)の場合は、ホストは特例なので同順位にしない
-            if (prevP.OriginalIndex != 0 && p.GlobalRank == prevP.GlobalRank)
-            {
-              // 同率処理: ランクは前の人と同じ
-              item.Rank = SimulationResults[i - 1].Rank;
-              item.IsTied = true;
-
-              // 前の人も「同率」フラグを立てる
-              SimulationResults[i - 1].IsTied = true;
-            }
-            else
-            {
-              // 通常処理: 現在のインデックス + 1 (1, 2, 2, 4... の形式)
-              item.Rank = i + 1;
-            }
-          }
-
-          // 付加情報の構築
-          if (p.OriginalIndex == 0)
-          {
-            item.IsHost = true;
-            item.Suffix = " (👑 固定)";
-          }
-          else if (p.GlobalRank == int.MaxValue)
-          {
-            item.Suffix = " (❓ データなし)";
-          }
-          else if (p.InputName != p.NormalizedName)
-          {
-            item.Suffix = $" (← {p.NormalizedName})";
-          }
-
-          SimulationResults.Add(item);
-        }
-
-        // 5. 同率グループの色分け処理
-        AssignTiedGroupColors();
-
-        StatusText = "✅ シミュレーション完了";
-        StatusTextColor = Brushes.Green;
-      }
-      catch (System.Exception ex)
-      {
-        StatusText = $"❌ エラー: {ex.Message}";
+        StatusText = "❌ エラー: 2人以上入力してください。";
         StatusTextColor = Brushes.Red;
+        return;
       }
-      finally
+
+      var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
+      var allPlayers = await _playerRepo.GetAllPlayersAsync();
+
+      var inputUuids = new List<string>();
+      var uuidToNameMap = new Dictionary<string, string>();
+
+      foreach (var name in inputNames)
       {
-        IsBusy = false;
+        string targetName = name;
+        // エイリアス辞書に登録があれば、UUID経由で本名を特定
+        if (aliasDict.TryGetValue(name, out string? targetId))
+        {
+          var aliasPlayer = allPlayers.FirstOrDefault(p => p.Id == targetId);
+          if (aliasPlayer != null) targetName = aliasPlayer.Name;
+        }
+
+        // 本名からUUIDを取得
+        var player = allPlayers.FirstOrDefault(p => p.Name == targetName && !p.IsDeleted);
+        if (player != null)
+        {
+          inputUuids.Add(player.Id);
+          uuidToNameMap[player.Id] = player.Name; // 出口のために「UUID = 名前」を記憶しておく
+        }
       }
+
+      // DBから既存の全ペア（UUID）を取得し、今回の入力の隣接ペア（UUID）を合流させる
+      var allPairs = await _orderRepo.GetAllPairsAsync();
+      var currentInputPairs = _extractor.ExtractPairs(inputUuids);
+      allPairs.AddRange(currentInputPairs);
+
+      // SorterにUUIDのグラフを渡してソート実行
+      var sortedUuidLayers = _sorter.Sort(allPairs);
+
+      int currentRank = 1;
+      foreach (var layer in sortedUuidLayers)
+      {
+        // この順位レイヤーに含まれるUUIDのうち、今回画面に入力された人だけを抽出
+        var targetUuidsInLayer = layer.Where(uuid => inputUuids.Contains(uuid)).ToList();
+
+        if (targetUuidsInLayer.Any())
+        {
+          bool isTied = targetUuidsInLayer.Count > 1; // 同着判定
+          foreach (var uuid in targetUuidsInLayer)
+          {
+            // 記憶しておいた辞書から本名を復元
+            if (uuidToNameMap.TryGetValue(uuid, out string? playerName))
+            {
+              SimulationResults.Add(new SimulationResultItem
+              {
+                Rank = currentRank,
+                PlayerName = playerName,
+                IsTied = isTied,
+                IsHost = (playerName == inputNames.FirstOrDefault()) // 先頭の人をホスト扱い
+              });
+            }
+          }
+          // 同着人数分だけ次の順位を飛ばす（例: 1位が2人なら次は3位）
+          currentRank += targetUuidsInLayer.Count;
+        }
+      }
+
+      StatusText = "✅ 計算完了";
+      StatusTextColor = Brushes.Green;
     }
 
     private void AssignTiedGroupColors()
