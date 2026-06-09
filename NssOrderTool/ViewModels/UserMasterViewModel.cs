@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using NssOrderTool.Models;
 using NssOrderTool.Repositories;
@@ -39,28 +40,70 @@ namespace NssOrderTool.ViewModels
     {
       _playerRepo = playerRepo;
       _aliasRepo = aliasRepo;
-    }
 
-    // --- 以下、コマンド用のメソッド（中身の実装はステップ4で行います） ---
+      _ = LoadDataAsync();
+    }
 
     public virtual async Task SaveAsync()
     {
-      // TODO: 入力チェック、PlayerとAliasのUpsert処理
+      var playerName = InputUserName?.Trim();
+      var aliasName = InputAliasName?.Trim();
+
+      // 正規名が空の場合は処理しない
+      if (string.IsNullOrEmpty(playerName)) return;
+
+      // 1. プレイヤーの登録または更新 (UUID付きのエンティティが返ってくる)
+      var player = await _playerRepo.UpsertPlayerAsync(playerName);
+
+      // 2. エイリアスの入力があれば、そのプレイヤーのUUIDに紐付けて登録
+      if (!string.IsNullOrEmpty(aliasName))
+      {
+        await _aliasRepo.UpsertAliasAsync(aliasName, player.Id);
+      }
+
+      // 3. 入力欄をクリアして、一覧を再読み込み
+      InputUserName = "";
+      InputAliasName = "";
+      await LoadDataAsync();
     }
 
     public virtual async Task DeleteUserAsync(string targetPlayerId)
     {
-      // TODO: ユーザーと紐づくエイリアスの論理削除処理
+      await _playerRepo.SoftDeletePlayerAsync(targetPlayerId);
+      await _aliasRepo.SoftDeleteAliasesByPlayerIdAsync(targetPlayerId);
+      await LoadDataAsync();
     }
 
     public virtual async Task DeleteAliasAsync(string aliasName)
     {
-      // TODO: エイリアスの論理削除処理
+      await _aliasRepo.DeleteAliasAsync(aliasName);
+      await LoadDataAsync();
     }
 
     public virtual async Task LoadDataAsync()
     {
-      // TODO: DBから登録済みユーザーとエイリアスを読み込み、UserListに格納する処理
+      UserList.Clear();
+
+      // 削除されていないプレイヤーとエイリアスをすべて取得
+      var allPlayers = await _playerRepo.GetAllPlayersAsync();
+      var activePlayers = allPlayers.Where(p => !p.IsDeleted).OrderBy(p => p.Name).ToList();
+      var activeAliases = await _aliasRepo.GetAliasDictionaryAsync(); // 内部でIsDeleted対応が必要な場合は後で調整
+
+      foreach (var p in activePlayers)
+      {
+        // このプレイヤーUUIDに紐づくエイリアス名を抽出
+        var pAliases = activeAliases
+            .Where(kvp => kvp.Value == p.Id)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        UserList.Add(new AliasGroupItem
+        {
+          TargetPlayerId = p.Id,
+          TargetName = p.Name, // 画面表示用
+          Aliases = pAliases
+        });
+      }
     }
   }
 }
