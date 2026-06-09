@@ -85,8 +85,7 @@ public partial class App : Application
 
     // ViewModels
     collection.AddTransient<MainWindowViewModel>();
-    collection.AddTransient<OrderEstimationViewModel>();
-    collection.AddTransient<AliasSettingsViewModel>();
+    collection.AddTransient<UserMasterViewModel>();
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
     collection.AddTransient<ArenaDataViewModel>();
