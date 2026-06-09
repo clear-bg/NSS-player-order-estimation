@@ -25,6 +25,9 @@ namespace NssOrderTool.Models.Entities
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; }
 
+    [Column("session_date")]
+    public DateTime SessionDate { get; set; }
+
     // --- Navigation Properties ---
 
     // 参加者リスト
