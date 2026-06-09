@@ -16,6 +16,7 @@ namespace NssOrderTool.ViewModels
   {
     private readonly OrderRepository _orderRepo;
     private readonly AliasRepository _aliasRepo;
+    private readonly PlayerRepository _playerRepo;
     private readonly OrderSorter _sorter;
     private readonly RelationshipExtractor _extractor;
 
@@ -33,14 +34,19 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _statusText = "";
 
+    [ObservableProperty]
+    private IBrush _statusTextColor = Brushes.Green;
+
     public SimulationViewModel(
         OrderRepository orderRepo,
         AliasRepository aliasRepo,
+        PlayerRepository playerRepo,
         OrderSorter sorter,
         RelationshipExtractor extractor)
     {
       _orderRepo = orderRepo;
       _aliasRepo = aliasRepo;
+      _playerRepo = playerRepo;
       _sorter = sorter;
       _extractor = extractor;
 
@@ -60,6 +66,7 @@ namespace NssOrderTool.ViewModels
     {
       _orderRepo = null!;
       _aliasRepo = null!;
+      _playerRepo = null!;
       _sorter = null!;
       _extractor = null!;
       InitializeInputs();
@@ -116,6 +123,7 @@ namespace NssOrderTool.ViewModels
       IsBusy = true;
       SimulationResults.Clear();
       StatusText = "計算中...";
+      StatusTextColor = Brushes.Gray;
 
       try
       {
@@ -136,7 +144,12 @@ namespace NssOrderTool.ViewModels
 
         // 2. 入力値の取得と正規化
         var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
+
+        var allPlayers = await _playerRepo.GetAllPlayersAsync();
+        var activePlayerNames = allPlayers.Where(p => !p.IsDeleted).Select(p => p.Name).ToList();
+
         var participants = new List<Participant>();
+        var unregisteredNames = new List<string>();
 
         // 入力欄をループ
         for (int i = 0; i < Inputs.Count; i++)
@@ -144,12 +157,21 @@ namespace NssOrderTool.ViewModels
           var rawName = Inputs[i].Name?.Trim();
           if (string.IsNullOrWhiteSpace(rawName)) continue;
 
-          // エイリアス変換 (例: Taka -> Takahiro)
-          // NormalizeInputはカンマ区切り用なので、ここでは単一名変換ロジックを簡易的に使用
-          string normalized = rawName;
-          if (aliasDict.TryGetValue(rawName, out string? target))
+          if (!aliasDict.ContainsKey(rawName) && !activePlayerNames.Contains(rawName))
           {
-            normalized = target;
+            unregisteredNames.Add(rawName);
+            continue; // 未登録が見つかっても、複数見つけるためにループは続ける
+          }
+
+          string normalized = rawName;
+          if (aliasDict.TryGetValue(rawName, out string? targetId))
+          {
+            // UUIDのIDから、本名の名前に変換し直す必要がある
+            var targetPlayer = allPlayers.FirstOrDefault(p => p.Id == targetId);
+            if (targetPlayer != null)
+            {
+              normalized = targetPlayer.Name;
+            }
           }
 
           // 参加者リストに追加
@@ -158,14 +180,22 @@ namespace NssOrderTool.ViewModels
             OriginalIndex = i,      // 入力欄の位置 (0ならホスト)
             InputName = rawName,
             NormalizedName = normalized,
-            // ランク取得 (データがない場合は int.MaxValue で最下位扱い)
             GlobalRank = rankMap.ContainsKey(normalized) ? rankMap[normalized] : int.MaxValue
           });
+        }
+
+        if (unregisteredNames.Any())
+        {
+          var namesStr = string.Join(", ", unregisteredNames);
+          StatusText = $"❌ エラー: 未登録のユーザーが含まれています ({namesStr})";
+          StatusTextColor = Brushes.Red;
+          return;
         }
 
         if (!participants.Any())
         {
           StatusText = "⚠️ プレイヤー名を入力してください";
+          StatusTextColor = Brushes.Orange;
           return;
         }
 
@@ -237,10 +267,12 @@ namespace NssOrderTool.ViewModels
         AssignTiedGroupColors();
 
         StatusText = "✅ シミュレーション完了";
+        StatusTextColor = Brushes.Green;
       }
       catch (System.Exception ex)
       {
         StatusText = $"❌ エラー: {ex.Message}";
+        StatusTextColor = Brushes.Red;
       }
       finally
       {
@@ -306,12 +338,22 @@ namespace NssOrderTool.ViewModels
     {
       if (SimulationResults.Count == 0) return;
 
+      if (SimulationResults.Count < 8)
+      {
+        StatusText = "❌ エラー: アリーナ集計へ反映するには、8人全員の入力が必要です。";
+        StatusTextColor = Brushes.Red;
+        return;
+      }
+
       // 結果リストからプレイヤー名だけを抽出してリスト化
       // ※ SimulationResultItem.PlayerName プロパティを使用
       var names = SimulationResults.Select(x => x.PlayerName).ToList();
 
       // メッセージ送信
       WeakReferenceMessenger.Default.Send(new TransferToArenaMessage(names));
+
+      StatusText = "✅ アリーナ集計へ反映しました。";
+      StatusTextColor = Brushes.Green;
     }
   }
 

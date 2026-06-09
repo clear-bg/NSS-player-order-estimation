@@ -61,7 +61,7 @@
 
         <TextBlock
           Margin="0,5,0,0"
-          Foreground="Green"
+          Foreground="{Binding StatusTextColor}"
           Text="{Binding StatusText}"
           TextWrapping="Wrap" />
       </StackPanel>

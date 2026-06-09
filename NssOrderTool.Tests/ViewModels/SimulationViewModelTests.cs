@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NssOrderTool.Database;
 using NssOrderTool.Models;
+using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
 using NssOrderTool.ViewModels;
@@ -19,6 +20,7 @@ namespace NssOrderTool.Tests.ViewModels
   {
     private readonly Mock<OrderRepository> _mockOrderRepo;
     private readonly Mock<AliasRepository> _mockAliasRepo;
+    private readonly Mock<PlayerRepository> _mockPlayerRepo;
     private readonly Mock<OrderSorter> _mockSorter;
     private readonly Mock<RelationshipExtractor> _mockExtractor;
     private readonly SimulationViewModel _viewModel;
@@ -27,6 +29,7 @@ namespace NssOrderTool.Tests.ViewModels
     {
       _mockOrderRepo = new Mock<OrderRepository>((AppDbContext)null!, (AppConfig)null!);
       _mockAliasRepo = new Mock<AliasRepository>((AppDbContext)null!);
+      _mockPlayerRepo = new Mock<PlayerRepository>((AppDbContext)null!);
 
       var mockLogger = new Mock<ILogger<OrderSorter>>();
       _mockSorter = new Mock<OrderSorter>(mockLogger.Object);
@@ -36,6 +39,7 @@ namespace NssOrderTool.Tests.ViewModels
       _viewModel = new SimulationViewModel(
           _mockOrderRepo.Object,
           _mockAliasRepo.Object,
+          _mockPlayerRepo.Object,
           _mockSorter.Object,
           _mockExtractor.Object
       );
@@ -53,6 +57,14 @@ namespace NssOrderTool.Tests.ViewModels
       _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
+
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "A" },
+          new PlayerEntity { Name = "B" },
+          new PlayerEntity { Name = "C" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
 
       _viewModel.Inputs[0].Name = "C";
       _viewModel.Inputs[1].Name = "B";
@@ -79,6 +91,15 @@ namespace NssOrderTool.Tests.ViewModels
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
 
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "Host" },
+          new PlayerEntity { Name = "X" },
+          new PlayerEntity { Name = "Y" },
+          new PlayerEntity { Name = "Z" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
+
       _viewModel.Inputs[0].Name = "Host";
       _viewModel.Inputs[1].Name = "X";
       _viewModel.Inputs[2].Name = "Y";
@@ -101,6 +122,16 @@ namespace NssOrderTool.Tests.ViewModels
       _mockOrderRepo.Setup(r => r.GetAllPairsAsync()).ReturnsAsync(new List<OrderPair>());
       _mockSorter.Setup(s => s.Sort(It.IsAny<List<OrderPair>>())).Returns(layers);
       _mockAliasRepo.Setup(r => r.GetAliasDictionaryAsync()).ReturnsAsync(new Dictionary<string, string>());
+
+      var mockPlayers = new List<PlayerEntity>
+      {
+          new PlayerEntity { Name = "Host" },
+          new PlayerEntity { Name = "A" },
+          new PlayerEntity { Name = "B" },
+          new PlayerEntity { Name = "C" },
+          new PlayerEntity { Name = "D" }
+      };
+      _mockPlayerRepo.Setup(r => r.GetAllPlayersAsync()).ReturnsAsync(mockPlayers);
 
       _viewModel.Inputs[0].Name = "Host";
       _viewModel.Inputs[1].Name = "A";
@@ -133,6 +164,7 @@ namespace NssOrderTool.Tests.ViewModels
       var vm = new SimulationViewModel(
           _mockOrderRepo.Object,
           _mockAliasRepo.Object,
+          _mockPlayerRepo.Object,
           _mockSorter.Object,
           _mockExtractor.Object);
 
@@ -143,66 +175,5 @@ namespace NssOrderTool.Tests.ViewModels
       vm.AllPlayerNames.Should().HaveCount(3);
       vm.AllPlayerNames.Should().Contain(new[] { "A", "B", "C" });
     }
-
-    // [Fact]
-    // public async Task ReceiveUpdateMessage_ShouldReloadPlayerNames()
-    // {
-    //     // Arrange
-    //     var pairsInitial = new List<OrderPair> { new OrderPair("Old", "Boy") };
-    //     var pairsUpdated = new List<OrderPair> { new OrderPair("New", "Comer") };
-
-    //     _mockOrderRepo.SetupSequence(r => r.GetAllPairsAsync())
-    //         .ReturnsAsync(pairsInitial)
-    //         .ReturnsAsync(pairsUpdated);
-
-    //     var vm = new SimulationViewModel(
-    //         _mockOrderRepo.Object,
-    //         _mockAliasRepo.Object,
-    //         _mockSorter.Object,
-    //         _mockExtractor.Object);
-
-    //     // 初回ロード完了を簡易的に待つ（ここは同期的に近い動きをするためDelayでも比較的安全）
-    //     await Task.Delay(100); 
-    //     vm.AllPlayerNames.Should().Contain("Old");
-
-    //     // ▼▼▼ 修正: イベント監視による待機 ▼▼▼
-    //     // 「コレクションが変更されたら完了とする」タスクを作成
-    //     var tcs = new TaskCompletionSource<bool>();
-
-    //     void Handler(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-    //     {
-    //         // "New" が追加されたら完了とみなす
-    //         if (vm.AllPlayerNames.Contains("New"))
-    //         {
-    //             tcs.TrySetResult(true);
-    //         }
-    //     }
-
-    //     vm.AllPlayerNames.CollectionChanged += Handler;
-
-    //     try
-    //     {
-    //         // Act: メッセージ送信
-    //         WeakReferenceMessenger.Default.Send(new NssOrderTool.Messages.DatabaseUpdatedMessage());
-
-    //         // タイムアウト付きで変更イベントを待つ (最大1秒)
-    //         var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(1000));
-
-    //         if (completedTask != tcs.Task)
-    //         {
-    //             // タイムアウトした場合
-    //             throw new System.TimeoutException("The player list was not updated within the timeout period.");
-    //         }
-    //     }
-    //     finally
-    //     {
-    //         // イベント購読の解除 (メモリリーク防止)
-    //         vm.AllPlayerNames.CollectionChanged -= Handler;
-    //     }
-
-    //     // Assert
-    //     vm.AllPlayerNames.Should().Contain("New");
-    //     vm.AllPlayerNames.Should().Contain("Comer");
-    // }
   }
 }
