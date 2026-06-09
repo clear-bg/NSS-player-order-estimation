@@ -16,6 +16,7 @@ namespace NssOrderTool.ViewModels
   {
     private readonly OrderRepository _orderRepo;
     private readonly AliasRepository _aliasRepo;
+    private readonly PlayerRepository _playerRepo;
     private readonly OrderSorter _sorter;
     private readonly RelationshipExtractor _extractor;
 
@@ -36,11 +37,13 @@ namespace NssOrderTool.ViewModels
     public SimulationViewModel(
         OrderRepository orderRepo,
         AliasRepository aliasRepo,
+        PlayerRepository playerRepo,
         OrderSorter sorter,
         RelationshipExtractor extractor)
     {
       _orderRepo = orderRepo;
       _aliasRepo = aliasRepo;
+      _playerRepo = playerRepo;
       _sorter = sorter;
       _extractor = extractor;
 
@@ -136,7 +139,12 @@ namespace NssOrderTool.ViewModels
 
         // 2. 入力値の取得と正規化
         var aliasDict = await _aliasRepo.GetAliasDictionaryAsync();
+
+        var allPlayers = await _playerRepo.GetAllPlayersAsync();
+        var activePlayerNames = allPlayers.Where(p => !p.IsDeleted).Select(p => p.Name).ToList();
+
         var participants = new List<Participant>();
+        var unregisteredNames = new List<string>();
 
         // 入力欄をループ
         for (int i = 0; i < Inputs.Count; i++)
@@ -144,12 +152,21 @@ namespace NssOrderTool.ViewModels
           var rawName = Inputs[i].Name?.Trim();
           if (string.IsNullOrWhiteSpace(rawName)) continue;
 
-          // エイリアス変換 (例: Taka -> Takahiro)
-          // NormalizeInputはカンマ区切り用なので、ここでは単一名変換ロジックを簡易的に使用
-          string normalized = rawName;
-          if (aliasDict.TryGetValue(rawName, out string? target))
+          if (!aliasDict.ContainsKey(rawName) && !activePlayerNames.Contains(rawName))
           {
-            normalized = target;
+            unregisteredNames.Add(rawName);
+            continue; // 未登録が見つかっても、複数見つけるためにループは続ける
+          }
+
+          string normalized = rawName;
+          if (aliasDict.TryGetValue(rawName, out string? targetId))
+          {
+            // UUIDのIDから、本名の名前に変換し直す必要がある
+            var targetPlayer = allPlayers.FirstOrDefault(p => p.Id == targetId);
+            if (targetPlayer != null)
+            {
+              normalized = targetPlayer.Name;
+            }
           }
 
           // 参加者リストに追加
@@ -158,9 +175,15 @@ namespace NssOrderTool.ViewModels
             OriginalIndex = i,      // 入力欄の位置 (0ならホスト)
             InputName = rawName,
             NormalizedName = normalized,
-            // ランク取得 (データがない場合は int.MaxValue で最下位扱い)
             GlobalRank = rankMap.ContainsKey(normalized) ? rankMap[normalized] : int.MaxValue
           });
+        }
+
+        if (unregisteredNames.Any())
+        {
+          var namesStr = string.Join(", ", unregisteredNames);
+          StatusText = $"❌ エラー: 未登録のユーザーが含まれています ({namesStr})";
+          return; // 処理をストップ！
         }
 
         if (!participants.Any())
