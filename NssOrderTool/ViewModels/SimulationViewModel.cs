@@ -34,6 +34,9 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _statusText = "";
 
+    [ObservableProperty]
+    private IBrush _statusTextColor = Brushes.Green;
+
     public SimulationViewModel(
         OrderRepository orderRepo,
         AliasRepository aliasRepo,
@@ -119,6 +122,7 @@ namespace NssOrderTool.ViewModels
       IsBusy = true;
       SimulationResults.Clear();
       StatusText = "計算中...";
+      StatusTextColor = Brushes.Gray;
 
       try
       {
@@ -183,12 +187,14 @@ namespace NssOrderTool.ViewModels
         {
           var namesStr = string.Join(", ", unregisteredNames);
           StatusText = $"❌ エラー: 未登録のユーザーが含まれています ({namesStr})";
-          return; // 処理をストップ！
+          StatusTextColor = Brushes.Red;
+          return;
         }
 
         if (!participants.Any())
         {
           StatusText = "⚠️ プレイヤー名を入力してください";
+          StatusTextColor = Brushes.Orange;
           return;
         }
 
@@ -260,10 +266,12 @@ namespace NssOrderTool.ViewModels
         AssignTiedGroupColors();
 
         StatusText = "✅ シミュレーション完了";
+        StatusTextColor = Brushes.Green;
       }
       catch (System.Exception ex)
       {
         StatusText = $"❌ エラー: {ex.Message}";
+        StatusTextColor = Brushes.Red;
       }
       finally
       {
