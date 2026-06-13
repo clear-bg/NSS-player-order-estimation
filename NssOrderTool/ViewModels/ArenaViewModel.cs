@@ -147,8 +147,17 @@ namespace NssOrderTool.ViewModels
         // 1. プレイヤーID(名前)のリストを抽出
         var playerNames = PlayerRows.Select(p => p.Name).ToList();
 
-        // 2. プレイヤーが存在しないとFKエラーになるため、事前に登録しておく
-        await _playerRepo.RegisterPlayersAsync(playerNames.Where(n => !string.IsNullOrWhiteSpace(n)));
+        // 2. 新規登録は許可せず、DBに存在するかチェックして UUID の対応表をもらう
+        var nameToIdMap = await _playerRepo.GetOrCreatePlayersAsync(playerNames, allowCreate: false);
+
+        // 未登録のプレイヤーを探す
+        var missingPlayers = playerNames.Where(n => !string.IsNullOrWhiteSpace(n) && !nameToIdMap.ContainsKey(n)).ToList();
+        if (missingPlayers.Any())
+        {
+          StatusText = $"❌ 保存失敗: 未登録のプレイヤーが含まれています ({string.Join(", ", missingPlayers)})";
+          IsBusy = false;
+          return; // 保存をストップ
+        }
 
         // ホスト名を取得
         string hostName = playerNames.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Unknown";
@@ -181,7 +190,7 @@ namespace NssOrderTool.ViewModels
 
           session.Participants.Add(new ArenaParticipantEntity
           {
-            PlayerId = row.Name,
+            PlayerId = nameToIdMap[row.Name], // ★修正: 名前ではなく UUID を保存する
             SlotIndex = row.Index,
             WinCount = row.WinCount,
             Rank = row.Rank
@@ -210,7 +219,7 @@ namespace NssOrderTool.ViewModels
         {
           if (!string.IsNullOrWhiteSpace(name))
           {
-            winCounts[name] = 0;
+            winCounts[nameToIdMap[name]] = 0;
           }
         }
 
@@ -227,7 +236,7 @@ namespace NssOrderTool.ViewModels
             // そのラウンドで勝ったチームに所属していたら +1
             if (_arenaLogic.IsWinner(round.RoundNumber, i, round.WinningTeam))
             {
-              winCounts[pid]++;
+              winCounts[nameToIdMap[pid]]++;
             }
           }
         }

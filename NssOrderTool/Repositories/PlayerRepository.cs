@@ -22,34 +22,49 @@ namespace NssOrderTool.Repositories
     /// プレイヤー名を登録する（存在しない場合のみ新規作成）
     /// テストでモック化可能にするため virtual を付与
     /// </summary>
-    public virtual async Task RegisterPlayersAsync(IEnumerable<string> players)
+    // 既存の RegisterPlayersAsync を以下のメソッドに置き換えてください
+    /// <summary>
+    /// 名前からUUIDを取得する。allowCreateがtrueなら未登録プレイヤーを新規作成する。
+    /// </summary>
+    public virtual async Task<Dictionary<string, string>> GetOrCreatePlayersAsync(IEnumerable<string> playerNames, bool allowCreate = false)
     {
-      // 重複排除
-      var uniqueNames = players.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-      if (!uniqueNames.Any()) return;
+      var uniqueNames = playerNames.Where(n => !string.IsNullOrWhiteSpace(n))
+                                   .Distinct(StringComparer.OrdinalIgnoreCase)
+                                   .ToList();
+      if (!uniqueNames.Any()) return new Dictionary<string, string>();
 
-      // 1. 既にDBに存在する名前を取得
-      var existingNames = await _context.Players
-          .Where(p => uniqueNames.Contains(p.Id))
-          .Select(p => p.Id)
+      // 1. 「名前」でDBを検索
+      var existingPlayers = await _context.Players
+          .Where(p => uniqueNames.Contains(p.Name!))
           .ToListAsync();
 
-      // 2. DBにない名前だけを抽出 (LINQで差分を取る)
-      var newNames = uniqueNames.Except(existingNames, StringComparer.OrdinalIgnoreCase).ToList();
+      var resultMap = existingPlayers.ToDictionary(p => p.Name!, p => p.Id, StringComparer.OrdinalIgnoreCase);
 
-      if (newNames.Any())
+      // 2. 新規作成が許可されている場合 (順序推定ツール側など)
+      if (allowCreate)
       {
-        // 3. 新しいプレイヤーを作成して追加
-        var newEntities = newNames.Select(name => new PlayerEntity
-        {
-          Id = name,
-          Name = name,
-          // FirstSeen はデフォルトで現在時刻が入る
-        });
+        var existingNames = existingPlayers.Select(p => p.Name!);
+        var newNames = uniqueNames.Except(existingNames, StringComparer.OrdinalIgnoreCase).ToList();
 
-        await _context.Players.AddRangeAsync(newEntities);
-        await _context.SaveChangesAsync();
+        if (newNames.Any())
+        {
+          var newEntities = newNames.Select(name => new PlayerEntity
+          {
+            // IdはGuid.NewGuid()で自動生成される
+            Name = name
+          }).ToList();
+
+          await _context.Players.AddRangeAsync(newEntities);
+          await _context.SaveChangesAsync();
+
+          foreach (var entity in newEntities)
+          {
+            resultMap[entity.Name!] = entity.Id; // 新しいUUIDを辞書に追加
+          }
+        }
       }
+
+      return resultMap;
     }
 
     /// <summary>

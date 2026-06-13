@@ -17,23 +17,27 @@ namespace NssOrderTool.Repositories
       _context = context;
     }
 
-    public virtual async Task AddAliasAsync(string alias, string target)
+    public virtual async Task AddAliasAsync(string alias, string targetName)
     {
       // 1. 重複チェック (MySQLのエラーコード判定ではなく、アプリ側で事前にチェックする)
       // これにより SQLite など他のDBでも同じ挙動になります。
-      var exists = await _context.Aliases
-                                 .AnyAsync(a => a.AliasName == alias);
-
+      var exists = await _context.Aliases.AnyAsync(a => a.AliasName == alias);
       if (exists)
       {
         throw new InvalidOperationException($"エイリアス '{alias}' は既に登録されています。");
+      }
+
+      var targetPlayer = await _context.Players.FirstOrDefaultAsync(p => p.Name == targetName);
+      if (targetPlayer == null)
+      {
+        throw new InvalidOperationException($"対象プレイヤー '{targetName}' が見つかりません。");
       }
 
       // 2. 追加
       var entity = new AliasEntity
       {
         AliasName = alias,
-        TargetPlayerId = target
+        TargetPlayerId = targetPlayer.Id
       };
 
       _context.Aliases.Add(entity);
@@ -50,13 +54,19 @@ namespace NssOrderTool.Repositories
 
     public virtual async Task<Dictionary<string, string>> GetAliasDictionaryAsync()
     {
-      // 全件取得して辞書化
-      return await _context.Aliases
-          .ToDictionaryAsync(
-              a => a.AliasName,
-              a => a.TargetPlayerId,
-              StringComparer.OrdinalIgnoreCase // 大文字小文字を区別しない設定
-          );
+      var aliases = await _context.Aliases
+          .Select(a => new
+          {
+            a.AliasName,
+            TargetName = _context.Players.Where(p => p.Id == a.TargetPlayerId).Select(p => p.Name).FirstOrDefault()
+          })
+          .ToListAsync();
+
+      return aliases.ToDictionary(
+          a => a.AliasName,
+          a => a.TargetName ?? "Unknown",
+          StringComparer.OrdinalIgnoreCase
+      );
     }
 
     public virtual async Task<List<string>> GetAliasesByTargetAsync(string targetName)

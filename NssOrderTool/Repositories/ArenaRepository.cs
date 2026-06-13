@@ -33,6 +33,7 @@ namespace NssOrderTool.Repositories
       return await _context.ArenaSessions
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
+            .ThenInclude(p => p.Player)
           .OrderByDescending(s => s.SessionDate)
           .OrderByDescending(s => s.CreatedAt)
           .ToListAsync();
@@ -43,6 +44,7 @@ namespace NssOrderTool.Repositories
       return await _context.ArenaSessions
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
+            .ThenInclude(p => p.Player)
           .FirstOrDefaultAsync(s => s.Id == sessionId);
     }
 
