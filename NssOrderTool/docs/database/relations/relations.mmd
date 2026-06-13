@@ -1,0 +1,14 @@
+%% --- Player relationships ---
+  Players ||--o{ Aliases : "has aliases (target_player_id)"
+  Players ||--o{ ArenaParticipants : "participates in (player_id)"
+  Players ||--o{ ObservationDetails : "ordered in (player_id)"
+  Players ||--o{ RateHistories : "has rate history (player_id)"
+  Players ||--o{ SequencePairs : "wins against (predecessor_id)"
+  Players ||--o{ SequencePairs : "loses to (successor_id)"
+
+  %% --- ArenaSession relationships ---
+  ArenaSessions ||--o{ ArenaParticipants : "has participants (session_id)"
+  ArenaSessions ||--o{ ArenaRounds : "has rounds (session_id)"
+
+  %% --- Observation relationships ---
+  Observations ||--o{ ObservationDetails : "contains details (observation_id)"
