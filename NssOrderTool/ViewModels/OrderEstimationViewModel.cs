@@ -173,13 +173,19 @@ namespace NssOrderTool.ViewModels
                                .Distinct();
 
         // まずプレイヤーマスタに存在しない名前を登録する
-        await _playerRepo.RegisterPlayersAsync(playerNames);
+        var nameToIdMap = await _playerRepo.GetOrCreatePlayersAsync(playerNames, allowCreate: true);
 
         // 5. 観測データ保存 (プレイヤーが存在する状態なので成功する)
-        await _orderRepo.AddObservationAsync(normalizedInput);
+        var uuidList = normalizedInput.Split(',')
+                                      .Select(n => n.Trim())
+                                      .Where(n => !string.IsNullOrEmpty(n) && nameToIdMap.ContainsKey(n))
+                                      .Select(n => nameToIdMap[n])
+                                      .ToList();
+        await _orderRepo.AddObservationAsync(uuidList);
 
         // 6. ペア関係更新
-        await _orderRepo.UpdatePairsAsync(newPairs);
+        var uuidPairs = newPairs.Select(p => new OrderPair(nameToIdMap[p.Predecessor], nameToIdMap[p.Successor])).ToList();
+        await _orderRepo.UpdatePairsAsync(uuidPairs);
 
         WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
 
@@ -187,7 +193,7 @@ namespace NssOrderTool.ViewModels
         if (InputText != normalizedInput)
           StatusText = $"✅ 登録完了 (変換あり): \n'{InputText}' \n→ '{normalizedInput}'";
         else
-          StatusText = $"✅ 登録完了: {newPairs.Count} 件の関係を更新しました";
+          StatusText = $"✅ 登録完了: {uuidPairs.Count()} 件の関係を更新しました";
 
         InputText = ""; // 入力欄クリア
 
@@ -219,7 +225,7 @@ namespace NssOrderTool.ViewModels
         {
           var reconstructedList = string.Join(", ", e.Details
               .OrderBy(d => d.OrderIndex)
-              .Select(d => d.PlayerId));
+              .Select(d => d.Player?.Name ?? "Unknown"));
 
           HistoryList.Add(new HistoryItem
           {
@@ -244,7 +250,16 @@ namespace NssOrderTool.ViewModels
       try
       {
         var pairsToDecrement = _extractor.ExtractFromInput(item.Content);
-        await _orderRepo.UndoObservationAsync(item.Id, pairsToDecrement);
+
+        var names = pairsToDecrement.Select(p => p.Predecessor).Concat(pairsToDecrement.Select(p => p.Successor)).Distinct();
+        var nameToIdMap = await _playerRepo.GetOrCreatePlayersAsync(names, allowCreate: false);
+
+        var uuidPairs = pairsToDecrement
+            .Where(p => nameToIdMap.ContainsKey(p.Predecessor) && nameToIdMap.ContainsKey(p.Successor))
+            .Select(p => new OrderPair(nameToIdMap[p.Predecessor], nameToIdMap[p.Successor]))
+            .ToList();
+
+        await _orderRepo.UndoObservationAsync(item.Id, uuidPairs);
 
         WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
         StatusText = $"✅ 履歴を取り消しました: {item.Content}";

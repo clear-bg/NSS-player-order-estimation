@@ -41,7 +41,7 @@ namespace NssOrderTool.ViewModels
       {
         var row = new PlayerResultRow
         {
-          Name = string.IsNullOrWhiteSpace(p.PlayerId) ? $"Player {p.SlotIndex + 1}" : p.PlayerId,
+          Name = string.IsNullOrWhiteSpace(p.Player?.Name ?? "Unknown") ? $"Player {p.SlotIndex + 1}" : p.Player?.Name ?? "Unknown",
           WinCount = p.WinCount,
           Rank = p.Rank
         };

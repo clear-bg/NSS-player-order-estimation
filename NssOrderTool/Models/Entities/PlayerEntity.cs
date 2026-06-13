@@ -10,7 +10,7 @@ namespace NssOrderTool.Models.Entities
   {
     [Key] // 主キー
     [Column("player_id")]
-    public string Id { get; set; } = "";
+    public string Id { get; set; } = Guid.NewGuid().ToString(); // UUIDを自動生成
 
     [Column("name")]
     public string? Name { get; set; }
