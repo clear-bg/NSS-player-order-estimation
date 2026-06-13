@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -96,17 +97,32 @@ public partial class App : Application
 
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
+      var args = desktop.Args ?? Array.Empty<string>();
+
+      // 2. 引数に "reset-db" が含まれているかチェック
+      if (args.Contains("reset-db"))
+      {
+        // 初期化対象を取得 (例: "test", "prod", "all")
+        string target = args.Length > 1 ? args[1].ToLower() : "";
+        RunDbResetMode(target);
+
+        // 処理が終わったら、メイン画面を立ち上げずにアプリを即終了させる
+        desktop.Shutdown();
+        return;
+      }
+
+      // --- 以下は通常の起動処理 (合言葉がない場合) ---
       desktop.MainWindow = new MainWindow();
 
-      // 起動時のDB接続確認 (EF Core版)
       try
       {
-        // AppDbContext は Scoped なので Scope を作って取得する
         using (var scope = Services.CreateScope())
         {
           var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-          // CanConnectAsync で接続確認
+          // DBが存在しなければ作成し、未適用のマイグレーションがあれば適用する
+          db.Database.Migrate();
+
           bool canConnect = Task.Run(() => db.Database.CanConnectAsync()).GetAwaiter().GetResult();
 
           if (canConnect)
@@ -131,5 +147,52 @@ public partial class App : Application
   private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
   {
     Log.CloseAndFlush();
+  }
+
+  /// <summary>
+  /// コマンドラインから呼び出されるDB初期化（物理削除）モード
+  /// </summary>
+  private void RunDbResetMode(string target)
+  {
+    Console.WriteLine($"\n=== データベース初期化モード ({target}) ===");
+
+    string prodDb = "local_db_prod.db";
+    string testDb = "local_db_test.db";
+
+    try
+    {
+      if (target == "prod" || target == "all")
+      {
+        if (File.Exists(prodDb))
+        {
+          File.Delete(prodDb);
+          Console.WriteLine("✅ 本番用DB (local_db_prod.db) を削除しました。");
+        }
+        else
+        {
+          Console.WriteLine("ℹ️ 本番用DBは見つかりませんでした。");
+        }
+      }
+
+      if (target == "test" || target == "all")
+      {
+        if (File.Exists(testDb))
+        {
+          File.Delete(testDb);
+          Console.WriteLine("✅ テスト用DB (local_db_test.db) を削除しました。");
+        }
+        else
+        {
+          Console.WriteLine("ℹ️ テスト用DBは見つかりませんでした。");
+        }
+      }
+
+      Console.WriteLine("※次回のアプリ起動時に、最新の設計図で自動的に再構築(Migrate)されます。");
+      Console.WriteLine("=======================================\n");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"❌ 削除中にエラーが発生しました。ファイルが開かれていないか確認してください。\nエラー詳細: {ex.Message}");
+    }
   }
 }
