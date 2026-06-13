@@ -1,0 +1,112 @@
+erDiagram
+
+    %% --- Tables ---
+Aliases {
+    string alias_name PK
+    string target_player_id FK
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+ArenaParticipants {
+    int participant_id PK
+    int session_id FK
+    string player_id FK
+    int slot_index
+    int win_count
+    int rank
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+ArenaRounds {
+    int round_id PK
+    int session_id FK
+    int round_number
+    int winning_team
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+ArenaSessions {
+    int session_id PK
+    datetime session_date
+    string players_json
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+ObservationDetails {
+    int detail_id PK
+    int observation_id FK
+    string player_id FK
+    int order_index
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+Observations {
+    int observation_id PK
+    datetime observation_time
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+Players {
+    string player_id PK
+    string name
+    datetime first_seen
+    double rate_mean
+    double rate_sigma
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+RateHistories {
+    int id PK
+    string player_id FK
+    double rate
+    datetime recorded_at
+  }
+
+
+SequencePairs {
+    string predecessor_id PK,FK
+    string successor_id PK,FK
+    int frequency
+    bool is_deleted
+    datetime created_at
+    datetime updated_at
+  }
+
+
+
+    %% --- Relationships ---
+%% --- Player relationships ---
+  Players ||--o{ Aliases : "has aliases (target_player_id)"
+  Players ||--o{ ArenaParticipants : "participates in (player_id)"
+  Players ||--o{ ObservationDetails : "ordered in (player_id)"
+  Players ||--o{ RateHistories : "has rate history (player_id)"
+  Players ||--o{ SequencePairs : "wins against (predecessor_id)"
+  Players ||--o{ SequencePairs : "loses to (successor_id)"
+
+  %% --- ArenaSession relationships ---
+  ArenaSessions ||--o{ ArenaParticipants : "has participants (session_id)"
+  ArenaSessions ||--o{ ArenaRounds : "has rounds (session_id)"
+
+  %% --- Observation relationships ---
+  Observations ||--o{ ObservationDetails : "contains details (observation_id)"
