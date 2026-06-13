@@ -2,7 +2,8 @@ erDiagram
 
     %% --- Tables ---
 Aliases {
-    string alias_name PK
+    int id PK
+    string alias_name
     string target_player_id FK
     bool is_deleted
     datetime created_at
@@ -110,3 +111,5 @@ SequencePairs {
 
   %% --- Observation relationships ---
   Observations ||--o{ ObservationDetails : "contains details (observation_id)"
+
+
