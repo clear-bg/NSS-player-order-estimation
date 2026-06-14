@@ -1,3 +1,5 @@
+using NssOrderTool.Models.Domain;
+
 namespace NssOrderTool.Services.Rating
 {
   /// <summary>
@@ -6,6 +8,6 @@ namespace NssOrderTool.Services.Rating
   public record RatingData(double Mean, double Sigma)
   {
     // 初期レート: 1500
-    public static RatingData Default => new(1500.0, 0.0);
+    public static RatingData Default => new(RatingConstants.DefaultRateMean, RatingConstants.DefaultRateSigma);
   }
 }

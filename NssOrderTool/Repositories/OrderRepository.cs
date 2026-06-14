@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
-using NssOrderTool.Models.Entities; // Entityを使う
+using NssOrderTool.Models.Configuration;
+using NssOrderTool.Models.Domain;
+using NssOrderTool.Models.Entities;
 
 namespace NssOrderTool.Repositories
 {
@@ -21,27 +22,20 @@ namespace NssOrderTool.Repositories
       _config = config;
     }
 
-    public virtual async Task AddObservationAsync(string rawInput)
+    public virtual async Task AddObservationAsync(List<string> playerIds)
     {
-      // 1. カンマ区切りを分解して整形
-      var names = rawInput.Split(',')
-                          .Select(n => n.Trim())
-                          .Where(n => !string.IsNullOrEmpty(n))
-                          .ToList();
-
-      if (!names.Any()) return;
+      if (playerIds == null || !playerIds.Any()) return;
 
       var entity = new ObservationEntity
       {
         ObservationTime = DateTime.Now
       };
 
-      // 2. 詳細データ(Details)を作成
-      for (int i = 0; i < names.Count; i++)
+      for (int i = 0; i < playerIds.Count; i++)
       {
         entity.Details.Add(new ObservationDetailEntity
         {
-          PlayerId = names[i],
+          PlayerId = playerIds[i], // ここにはUUIDが入る
           OrderIndex = i
         });
       }
@@ -104,9 +98,15 @@ namespace NssOrderTool.Repositories
 
     public virtual async Task<List<OrderPair>> GetAllPairsAsync()
     {
-      return await _context.SequencePairs
-          .Select(p => new OrderPair(p.PredecessorId, p.SuccessorId))
+      var pairs = await _context.SequencePairs
+          .Select(p => new
+          {
+            PredName = _context.Players.Where(pl => pl.Id == p.PredecessorId).Select(pl => pl.Name).FirstOrDefault(),
+            SuccName = _context.Players.Where(pl => pl.Id == p.SuccessorId).Select(pl => pl.Name).FirstOrDefault()
+          })
           .ToListAsync();
+
+      return pairs.Select(p => new OrderPair(p.PredName ?? "Unknown", p.SuccName ?? "Unknown")).ToList();
     }
 
     public virtual async Task ClearAllDataAsync()
@@ -126,6 +126,7 @@ namespace NssOrderTool.Repositories
     {
       return await _context.Observations
           .Include(o => o.Details)
+              .ThenInclude(d => d.Player)
           .OrderByDescending(o => o.ObservationTime)
           .Take(limit)
           .ToListAsync();
@@ -287,7 +288,9 @@ namespace NssOrderTool.Repositories
             {
               Id = newName,
               Name = newName,
-              FirstSeen = oldPlayer.FirstSeen
+              FirstSeen = oldPlayer.FirstSeen,
+              RateMean = oldPlayer.RateMean,
+              RateSigma = oldPlayer.RateSigma
             });
             _context.Players.Remove(oldPlayer);
           }

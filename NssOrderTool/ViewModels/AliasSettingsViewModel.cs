@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
-using NssOrderTool.Models;
+using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels

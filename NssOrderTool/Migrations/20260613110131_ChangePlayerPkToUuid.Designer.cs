@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NssOrderTool.Database;
 
@@ -10,22 +11,18 @@ using NssOrderTool.Database;
 namespace NssOrderTool.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613110131_ChangePlayerPkToUuid")]
+    partial class ChangePlayerPkToUuid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("NssOrderTool.Models.Entities.AliasEntity", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
-
                     b.Property<string>("AliasName")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("alias_name");
 
@@ -46,7 +43,7 @@ namespace NssOrderTool.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("AliasName");
 
                     b.ToTable("Aliases");
                 });
@@ -152,6 +149,10 @@ namespace NssOrderTool.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("PlayersJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("SessionDate")
                         .HasColumnType("TEXT")

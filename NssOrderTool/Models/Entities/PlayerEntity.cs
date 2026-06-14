@@ -10,7 +10,7 @@ namespace NssOrderTool.Models.Entities
   {
     [Key] // 主キー
     [Column("player_id")]
-    public string Id { get; set; } = "";
+    public string Id { get; set; } = Guid.NewGuid().ToString(); // UUIDを自動生成
 
     [Column("name")]
     public string? Name { get; set; }
@@ -19,10 +19,10 @@ namespace NssOrderTool.Models.Entities
     public DateTime FirstSeen { get; set; } = DateTime.Now;
 
     [Column("rate_mean")]
-    public double RateMean { get; set; } = 1500;
+    public double RateMean { get; set; }
 
     [Column("rate_sigma")]
-    public double RateSigma { get; set; } = 0.0;
+    public double RateSigma { get; set; }
 
     [Column("is_deleted")]
     public bool IsDeleted { get; set; } = false;

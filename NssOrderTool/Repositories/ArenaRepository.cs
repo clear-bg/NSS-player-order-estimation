@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
+using NssOrderTool.Models.DTOs;
 using NssOrderTool.Models.Entities;
-
+using NssOrderTool.Models.UI;
 namespace NssOrderTool.Repositories
 {
   public class ArenaRepository
@@ -33,6 +33,7 @@ namespace NssOrderTool.Repositories
       return await _context.ArenaSessions
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
+            .ThenInclude(p => p.Player)
           .OrderByDescending(s => s.SessionDate)
           .OrderByDescending(s => s.CreatedAt)
           .ToListAsync();
@@ -43,6 +44,7 @@ namespace NssOrderTool.Repositories
       return await _context.ArenaSessions
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
+            .ThenInclude(p => p.Player)
           .FirstOrDefaultAsync(s => s.Id == sessionId);
     }
 
@@ -91,7 +93,7 @@ namespace NssOrderTool.Repositories
               .ThenInclude(s => s.Rounds)
           .Include(p => p.Session!)
               .ThenInclude(s => s.Participants)
-                  .ThenInclude(ap => ap.Player)
+                  .ThenInclude(part => part.Player)
           .Where(p => p.PlayerId == playerId && !p.IsDeleted)
           .OrderByDescending(p => p.Session!.SessionDate)
           .ThenByDescending(p => p.Session!.CreatedAt)
@@ -183,7 +185,7 @@ namespace NssOrderTool.Repositories
                   Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
                   MyRank = p.Rank,
                   WinCount = p.WinCount,
-                  PartnerName = p.Session.HistorySummaryText
+                  PartnerName = new ArenaSessionDisplayModel(p.Session).HistorySummaryText
                 }).ToList();
 
       // 相性データ

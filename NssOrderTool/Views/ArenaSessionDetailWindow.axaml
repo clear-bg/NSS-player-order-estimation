@@ -23,7 +23,7 @@
         <TextBlock
           FontSize="16"
           FontWeight="Bold"
-          Text="{Binding Session.HistorySummaryText}"
+          Text="{Binding HistorySummaryText}"
           TextWrapping="Wrap" />
       </StackPanel>
     </Border>

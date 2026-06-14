@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
 using NssOrderTool.ViewModels.Arena;
@@ -30,7 +31,7 @@ namespace NssOrderTool.ViewModels
     // 子ViewModelのコレクション
     public ObservableCollection<ArenaRowViewModel> PlayerRows { get; } = new();
 
-    public ObservableCollection<ArenaSessionEntity> HistoryList { get; } = new();
+    public ObservableCollection<ArenaSessionDisplayModel> HistoryList { get; } = new();
 
     public Func<string, Task<bool>>? ShowConfirmDialogAction { get; set; }
 
@@ -147,31 +148,23 @@ namespace NssOrderTool.ViewModels
         // 1. プレイヤーID(名前)のリストを抽出
         var playerNames = PlayerRows.Select(p => p.Name).ToList();
 
-        // 2. プレイヤーが存在しないとFKエラーになるため、事前に登録しておく
-        await _playerRepo.RegisterPlayersAsync(playerNames.Where(n => !string.IsNullOrWhiteSpace(n)));
+        // 2. 新規登録は許可せず、DBに存在するかチェックして UUID の対応表をもらう
+        var nameToIdMap = await _playerRepo.GetOrCreatePlayersAsync(playerNames, allowCreate: false);
 
-        // ホスト名を取得
-        string hostName = playerNames.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Unknown";
-
-        // ランキング上位最大3名を取得
-        var topPlayers = PlayerRows
-            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
-            .OrderBy(p => p.Rank)
-            .Select(p => p.Name)
-            .Take(3)
-            .ToList();
-
-        // [ホスト名, 1位, 2位, 3位] のリストを作成してJSON化
-        var displayList = new List<string> { hostName };
-        displayList.AddRange(topPlayers);
-        string playersJson = JsonSerializer.Serialize(displayList);
+        // 未登録のプレイヤーを探す
+        var missingPlayers = playerNames.Where(n => !string.IsNullOrWhiteSpace(n) && !nameToIdMap.ContainsKey(n)).ToList();
+        if (missingPlayers.Any())
+        {
+          StatusText = $"❌ 保存失敗: 未登録のプレイヤーが含まれています ({string.Join(", ", missingPlayers)})";
+          IsBusy = false;
+          return; // 保存をストップ
+        }
 
         // 3. セッション作成 (DB保存用データ)
         var session = new ArenaSessionEntity
         {
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
-          PlayersJson = playersJson
         };
 
         // 参加者情報の作成
@@ -181,7 +174,7 @@ namespace NssOrderTool.ViewModels
 
           session.Participants.Add(new ArenaParticipantEntity
           {
-            PlayerId = row.Name,
+            PlayerId = nameToIdMap[row.Name], // ★修正: 名前ではなく UUID を保存する
             SlotIndex = row.Index,
             WinCount = row.WinCount,
             Rank = row.Rank
@@ -210,7 +203,7 @@ namespace NssOrderTool.ViewModels
         {
           if (!string.IsNullOrWhiteSpace(name))
           {
-            winCounts[name] = 0;
+            winCounts[nameToIdMap[name]] = 0;
           }
         }
 
@@ -227,7 +220,7 @@ namespace NssOrderTool.ViewModels
             // そのラウンドで勝ったチームに所属していたら +1
             if (_arenaLogic.IsWinner(round.RoundNumber, i, round.WinningTeam))
             {
-              winCounts[pid]++;
+              winCounts[nameToIdMap[pid]]++;
             }
           }
         }
@@ -270,7 +263,7 @@ namespace NssOrderTool.ViewModels
         HistoryList.Clear();
         foreach (var s in sessions)
         {
-          HistoryList.Add(s);
+          HistoryList.Add(new ArenaSessionDisplayModel(s));
         }
       }
       catch (Exception ex)
@@ -281,7 +274,7 @@ namespace NssOrderTool.ViewModels
     }
 
     [RelayCommand]
-    private async Task DeleteSession(ArenaSessionEntity session)
+    private async Task DeleteSession(ArenaSessionDisplayModel session)
     {
       if (session == null || IsBusy) return;
 
@@ -317,12 +310,17 @@ namespace NssOrderTool.ViewModels
     }
 
     [RelayCommand]
-    private void ShowSessionDetail(ArenaSessionEntity session)
+    private async Task ShowSessionDetail(ArenaSessionDisplayModel displayModel)
     {
-      if (session == null) return;
+      if (displayModel == null) return;
 
-      // View側で登録されたメソッドを呼び出して、ウィンドウを開く
-      ShowDetailDialogAction?.Invoke(session);
+      // IDを使って、RepositoryからParticipants等を含む完全なEntityを取得する
+      var fullEntity = await _arenaRepo.GetSessionDetailAsync(displayModel.Id);
+
+      if (fullEntity != null)
+      {
+        ShowDetailDialogAction?.Invoke(fullEntity);
+      }
     }
 
     public void Receive(TransferToArenaMessage message)
