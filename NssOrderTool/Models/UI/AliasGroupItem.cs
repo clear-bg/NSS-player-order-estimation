@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace NssOrderTool.Models
+namespace NssOrderTool.Models.UI
 {
   // リスト表示用のデータクラス
   public class AliasGroupItem

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
-using NssOrderTool.Models;
+using NssOrderTool.Models.Configuration;
+using NssOrderTool.Models.DTOs;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 

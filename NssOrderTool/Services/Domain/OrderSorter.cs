@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks; // 追加
 using Microsoft.Extensions.Logging;
-using NssOrderTool.Models;
+using NssOrderTool.Models.Domain;
 
 namespace NssOrderTool.Services.Domain
 {

@@ -2,9 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree; // TopLevel取得用
 using Microsoft.Extensions.DependencyInjection;
-using NssOrderTool.Models;
 using NssOrderTool.ViewModels;
 using NssOrderTool.Repositories;
+using NssOrderTool.Models.UI;
 
 namespace NssOrderTool.Views
 {

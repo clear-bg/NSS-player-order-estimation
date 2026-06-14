@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NssOrderTool.Models;
+using NssOrderTool.Models.Domain;
 
 namespace NssOrderTool.Services.Domain
 {

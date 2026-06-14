@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Avalonia.Media;
 using NssOrderTool.Messages;
-using NssOrderTool.Models;
+using NssOrderTool.Models.Configuration;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
 

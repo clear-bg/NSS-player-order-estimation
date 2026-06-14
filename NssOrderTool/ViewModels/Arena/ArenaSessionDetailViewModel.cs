@@ -3,13 +3,19 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Models.UI;
 
 namespace NssOrderTool.ViewModels
 {
   public partial class ArenaSessionDetailViewModel : ViewModelBase
   {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HistorySummaryText))]
     private ArenaSessionEntity _session;
+
+    public string HistorySummaryText => Session != null
+        ? new ArenaSessionDisplayModel(Session).HistorySummaryText
+        : "データなし";
 
     // プレイヤー1人につき1行のデータ
     public ObservableCollection<PlayerResultRow> PlayerRows { get; } = new();

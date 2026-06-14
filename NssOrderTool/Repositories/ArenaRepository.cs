@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
+using NssOrderTool.Models.DTOs;
 using NssOrderTool.Models.Entities;
-
+using NssOrderTool.Models.UI;
 namespace NssOrderTool.Repositories
 {
   public class ArenaRepository
@@ -185,7 +185,7 @@ namespace NssOrderTool.Repositories
                   Result = p.Rank == 1 ? "🏆 1st" : $"{p.Rank}th",
                   MyRank = p.Rank,
                   WinCount = p.WinCount,
-                  PartnerName = p.Session.HistorySummaryText
+                  PartnerName = new ArenaSessionDisplayModel(p.Session).HistorySummaryText
                 }).ToList();
 
       // 相性データ

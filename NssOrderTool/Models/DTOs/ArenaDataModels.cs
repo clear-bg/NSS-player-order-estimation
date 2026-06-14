@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NssOrderTool.Models
+namespace NssOrderTool.Models.DTOs
 {
   // B-1, B-2: 基本戦績データ
   public class PlayerStatsDto

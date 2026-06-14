@@ -1,6 +1,6 @@
 using System;
 
-namespace NssOrderTool.Models
+namespace NssOrderTool.Models.UI
 {
   public class HistoryItem
   {

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
-using NssOrderTool.Models.Entities; // Entityを使う
+using NssOrderTool.Models.Configuration;
+using NssOrderTool.Models.Domain;
+using NssOrderTool.Models.Entities;
 
 namespace NssOrderTool.Repositories
 {

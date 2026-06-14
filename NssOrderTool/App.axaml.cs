@@ -18,6 +18,7 @@ using NssOrderTool.ViewModels;
 using NssOrderTool.Views;
 using NssOrderTool.Models;
 using NssOrderTool.Services.Rating;
+using NssOrderTool.Models.Configuration;
 
 namespace NssOrderTool;
 
