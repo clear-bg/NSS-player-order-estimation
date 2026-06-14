@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NssOrderTool.Database;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Models.Domain;
 using NssOrderTool.Services.Rating;
 
 namespace NssOrderTool.Repositories
@@ -50,8 +51,11 @@ namespace NssOrderTool.Repositories
         {
           var newEntities = newNames.Select(name => new PlayerEntity
           {
-            // IdはGuid.NewGuid()で自動生成される
-            Name = name
+            Id = Guid.NewGuid().ToString(),
+            Name = name,
+
+            RateMean = RatingConstants.DefaultRateMean,
+            RateSigma = RatingConstants.DefaultRateSigma
           }).ToList();
 
           await _context.Players.AddRangeAsync(newEntities);
