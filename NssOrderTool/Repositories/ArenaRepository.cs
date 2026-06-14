@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NssOrderTool.Database;
-using NssOrderTool.Models;
+using NssOrderTool.Models.DTOs;
 using NssOrderTool.Models.Entities;
 
 namespace NssOrderTool.Repositories
