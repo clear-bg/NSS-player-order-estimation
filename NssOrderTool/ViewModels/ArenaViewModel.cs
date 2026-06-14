@@ -159,28 +159,11 @@ namespace NssOrderTool.ViewModels
           return; // 保存をストップ
         }
 
-        // ホスト名を取得
-        string hostName = playerNames.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Unknown";
-
-        // ランキング上位最大3名を取得
-        var topPlayers = PlayerRows
-            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
-            .OrderBy(p => p.Rank)
-            .Select(p => p.Name)
-            .Take(3)
-            .ToList();
-
-        // [ホスト名, 1位, 2位, 3位] のリストを作成してJSON化
-        var displayList = new List<string> { hostName };
-        displayList.AddRange(topPlayers);
-        string playersJson = JsonSerializer.Serialize(displayList);
-
         // 3. セッション作成 (DB保存用データ)
         var session = new ArenaSessionEntity
         {
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
-          PlayersJson = playersJson
         };
 
         // 参加者情報の作成

@@ -36,8 +36,6 @@ namespace NssOrderTool.Models.Entities
     // リレーション (1対多)
     public List<ArenaRoundEntity> Rounds { get; set; } = new();
 
-    public string PlayersJson { get; set; } = "[]";
-
     [NotMapped]
     public string WinningTeam
     {
@@ -62,21 +60,9 @@ namespace NssOrderTool.Models.Entities
     {
       get
       {
-        if (string.IsNullOrWhiteSpace(PlayersJson))
-          return "Unknown";
-
-        try
-        {
-          // JSON文字列 ["Aさん", "Bさん", ...] をリストに復元
-          var players = JsonSerializer.Deserialize<List<string>>(PlayersJson);
-
-          // 1人目を返す（いなければ Unknown）
-          return players?.FirstOrDefault() ?? "Unknown";
-        }
-        catch
-        {
-          return "Error";
-        }
+        // 参加者の中で一番スロットが若い（先頭に入力された）プレイヤーをホストとする
+        var host = Participants?.OrderBy(p => p.SlotIndex).FirstOrDefault();
+        return host?.Player?.Name ?? "Unknown";
       }
     }
 
@@ -85,37 +71,28 @@ namespace NssOrderTool.Models.Entities
     {
       get
       {
-        if (string.IsNullOrWhiteSpace(PlayersJson))
+        if (Participants == null || !Participants.Any())
           return "データなし";
 
-        try
+        string host = HostName;
+
+        var topPlayers = Participants
+            .Where(p => p.Rank > 0)
+            .OrderBy(p => p.Rank)
+            .Select(p => p.Player?.Name ?? "Unknown")
+            .Take(3)
+            .ToList();
+
+        var ranks = new List<string>();
+        for (int i = 0; i < topPlayers.Count; i++)
         {
-          // JSON文字列からリストを復元
-          var players = JsonSerializer.Deserialize<List<string>>(PlayersJson);
-
-          if (players == null || players.Count == 0)
-            return "データなし";
-
-          // 1人目は必ずホスト
-          string host = players[0];
-
-          // 2人目以降をランキングとして処理（最大3位まで）
-          var ranks = new List<string>();
-          for (int i = 1; i < players.Count && i <= 3; i++)
-          {
-            ranks.Add($"{i}位: {players[i]}");
-          }
-
-          // ランキングがない場合はホスト名のみ、ある場合は結合して返す
-          if (ranks.Count == 0)
-            return $"ホスト: {host}";
-
-          return $"ホスト: {host} | {string.Join(", ", ranks)}";
+          ranks.Add($"{i + 1}位: {topPlayers[i]}");
         }
-        catch
-        {
-          return "データ読み込みエラー";
-        }
+
+        if (ranks.Count == 0)
+          return $"ホスト: {host}";
+
+        return $"ホスト: {host} | {string.Join(", ", ranks)}";
       }
     }
   }
