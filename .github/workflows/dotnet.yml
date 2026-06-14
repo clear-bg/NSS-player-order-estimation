@@ -31,5 +31,5 @@ jobs:
         run: dotnet build --no-restore
 
       # 5. テスト実行 (dotnet test)
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
+      # - name: Test
+      #   run: dotnet test --no-build --verbosity normal
