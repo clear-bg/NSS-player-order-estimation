@@ -288,7 +288,9 @@ namespace NssOrderTool.Repositories
             {
               Id = newName,
               Name = newName,
-              FirstSeen = oldPlayer.FirstSeen
+              FirstSeen = oldPlayer.FirstSeen,
+              RateMean = oldPlayer.RateMean,
+              RateSigma = oldPlayer.RateSigma
             });
             _context.Players.Remove(oldPlayer);
           }
