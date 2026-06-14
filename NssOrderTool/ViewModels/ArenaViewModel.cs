@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
 using NssOrderTool.ViewModels.Arena;
@@ -30,7 +31,7 @@ namespace NssOrderTool.ViewModels
     // 子ViewModelのコレクション
     public ObservableCollection<ArenaRowViewModel> PlayerRows { get; } = new();
 
-    public ObservableCollection<ArenaSessionEntity> HistoryList { get; } = new();
+    public ObservableCollection<ArenaSessionDisplayModel> HistoryList { get; } = new();
 
     public Func<string, Task<bool>>? ShowConfirmDialogAction { get; set; }
 
@@ -262,7 +263,7 @@ namespace NssOrderTool.ViewModels
         HistoryList.Clear();
         foreach (var s in sessions)
         {
-          HistoryList.Add(s);
+          HistoryList.Add(new ArenaSessionDisplayModel(s));
         }
       }
       catch (Exception ex)
@@ -273,7 +274,7 @@ namespace NssOrderTool.ViewModels
     }
 
     [RelayCommand]
-    private async Task DeleteSession(ArenaSessionEntity session)
+    private async Task DeleteSession(ArenaSessionDisplayModel session)
     {
       if (session == null || IsBusy) return;
 
@@ -309,12 +310,17 @@ namespace NssOrderTool.ViewModels
     }
 
     [RelayCommand]
-    private void ShowSessionDetail(ArenaSessionEntity session)
+    private async Task ShowSessionDetail(ArenaSessionDisplayModel displayModel)
     {
-      if (session == null) return;
+      if (displayModel == null) return;
 
-      // View側で登録されたメソッドを呼び出して、ウィンドウを開く
-      ShowDetailDialogAction?.Invoke(session);
+      // IDを使って、RepositoryからParticipants等を含む完全なEntityを取得する
+      var fullEntity = await _arenaRepo.GetSessionDetailAsync(displayModel.Id);
+
+      if (fullEntity != null)
+      {
+        ShowDetailDialogAction?.Invoke(fullEntity);
+      }
     }
 
     public void Receive(TransferToArenaMessage message)
