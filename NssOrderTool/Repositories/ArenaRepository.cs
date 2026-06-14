@@ -93,7 +93,7 @@ namespace NssOrderTool.Repositories
               .ThenInclude(s => s.Rounds)
           .Include(p => p.Session!)
               .ThenInclude(s => s.Participants)
-                  .ThenInclude(ap => ap.Player)
+                  .ThenInclude(part => part.Player)
           .Where(p => p.PlayerId == playerId && !p.IsDeleted)
           .OrderByDescending(p => p.Session!.SessionDate)
           .ThenByDescending(p => p.Session!.CreatedAt)
