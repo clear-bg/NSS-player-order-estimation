@@ -11,14 +11,17 @@
   x:DataType="vm:PlayerHubViewModel"
   mc:Ignorable="d">
 
-  <Grid Margin="20" RowDefinitions="Auto, *">
+  <Grid
+    Margin="20"
+    Background="Transparent"
+    PointerPressed="OnBackgroundPointerPressed"
+    RowDefinitions="Auto, *">
     <StackPanel
       Grid.Row="0"
       Margin="0,0,0,30"
-      HorizontalAlignment="Center"
       Spacing="15">
+
       <TextBlock
-        HorizontalAlignment="Center"
         FontSize="18"
         FontWeight="Bold"
         Text="👤 プレイヤー＆エイリアス登録" />
@@ -28,7 +31,7 @@
           <TextBlock
             FontSize="12"
             FontWeight="Bold"
-            Text="正規名 (必須)" />
+            Text="プレイヤー名 (必須)" />
           <TextBox
             Width="200"
             Text="{Binding TargetInput}"
@@ -50,16 +53,14 @@
           Height="32"
           Padding="20,0"
           VerticalAlignment="Bottom"
+          VerticalContentAlignment="Center"
           Background="#007ACC"
           Command="{Binding RegisterPlayerCommand}"
           Content="登録 / 更新"
           Foreground="White" />
       </StackPanel>
 
-      <TextBlock
-        HorizontalAlignment="Center"
-        Foreground="Green"
-        Text="{Binding StatusText}" />
+      <TextBlock Foreground="Green" Text="{Binding StatusText}" />
     </StackPanel>
 
     <Grid Grid.Row="1" RowDefinitions="Auto, *">
@@ -89,22 +90,23 @@
       </Grid>
 
       <ListBox
+        x:Name="PlayerListBox"
         Grid.Row="1"
-        Padding="10"
+        Padding="5"
         Background="#1E1E1E"
         CornerRadius="5"
         ItemsSource="{Binding PlayerList}">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="models:PlayerHubItem">
 
-            <StackPanel Margin="5,10">
+            <StackPanel Margin="5,0">
               <TextBlock
                 FontSize="16"
                 FontWeight="Bold"
                 Foreground="White"
                 Text="{Binding Name}" />
 
-              <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding Aliases}">
+              <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
                 <ItemsControl.ItemsPanel>
                   <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" />
@@ -113,11 +115,12 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Border
-                      Margin="0,0,5,5"
-                      Padding="6,2"
-                      Background="#333333"
-                      CornerRadius="3">
+                      Margin="0,0,5,3"
+                      Padding="10,2"
+                      Background="#4A4A4A"
+                      CornerRadius="12">
                       <TextBlock
+                        VerticalAlignment="Center"
                         FontSize="12"
                         Foreground="#CCCCCC"
                         Text="{Binding}" />

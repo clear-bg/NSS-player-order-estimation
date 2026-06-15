@@ -90,10 +90,6 @@
           FontSize="20"
           FontWeight="Medium"
           Text="🏟️ アリーナ集計" />
-        <TextBlock
-          FontSize="13"
-          Foreground="#666666"
-          Text="下のボタンで各ラウンドの勝利チームを入力すると、スコアが自動計算されます。" />
       </StackPanel>
 
       <Border Grid.Row="1" Background="White">
