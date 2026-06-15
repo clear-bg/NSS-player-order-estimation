@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,6 +10,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
 using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
+using NssOrderTool.Views;
 
 namespace NssOrderTool.ViewModels
 {
@@ -170,8 +172,40 @@ namespace NssOrderTool.ViewModels
     [RelayCommand]
     private async Task ShowGraphAsync()
     {
-      // TODO: 順序グラフを別ウィンドウで表示する処理
-      await Task.CompletedTask;
+      try
+      {
+        // 1. 全順序ペアの取得
+        var pairs = await _orderRepo.GetAllPairsAsync();
+
+        if (pairs == null || !pairs.Any())
+        {
+          StatusText = "⚠️ グラフ化するデータがありません";
+          return;
+        }
+
+        // 2. Mermaid記法のテキストを組み立てる
+        var sb = new StringBuilder();
+        sb.AppendLine("graph TD;"); // TDは上から下へのフロー
+
+        foreach (var p in pairs)
+        {
+          // "勝者" --> "敗者" の形式で出力
+          sb.AppendLine($"    {p.Predecessor} --> {p.Successor};");
+        }
+
+        // 3. 別ウィンドウを立ち上げて表示する
+        var graphVm = new GraphWindowViewModel(sb.ToString());
+        var graphWindow = new GraphWindow
+        {
+          DataContext = graphVm
+        };
+
+        graphWindow.Show(); // ポップアップとして表示
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ グラフ生成エラー: {ex.Message}";
+      }
     }
 
     [RelayCommand]
