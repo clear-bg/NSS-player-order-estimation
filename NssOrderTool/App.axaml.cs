@@ -2,13 +2,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using NssOrderTool.Services.Domain;
@@ -16,7 +14,6 @@ using NssOrderTool.Database;
 using NssOrderTool.Repositories;
 using NssOrderTool.ViewModels;
 using NssOrderTool.Views;
-using NssOrderTool.Models;
 using NssOrderTool.Services.Rating;
 using NssOrderTool.Models.Configuration;
 
@@ -87,8 +84,7 @@ public partial class App : Application
 
     // ViewModels
     collection.AddTransient<MainWindowViewModel>();
-    collection.AddTransient<OrderEstimationViewModel>();
-    collection.AddTransient<AliasSettingsViewModel>();
+    collection.AddTransient<PlayerHubViewModel>();
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
     collection.AddTransient<ArenaDataViewModel>();

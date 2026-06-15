@@ -1,0 +1,54 @@
+<Window
+  x:Class="NssOrderTool.Views.GraphWindow"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  Title="順序グラフ出力 (Mermaid)"
+  Width="500"
+  Height="600"
+  x:DataType="vm:GraphWindowViewModel"
+  Background="#1E1E1E"
+  WindowStartupLocation="CenterOwner">
+
+  <Grid Margin="20" RowDefinitions="Auto, *, Auto">
+
+    <StackPanel
+      Grid.Row="0"
+      Margin="0,0,0,10"
+      Spacing="5">
+      <TextBlock
+        FontSize="18"
+        FontWeight="Bold"
+        Foreground="White"
+        Text="📈 Mermaid グラフコード" />
+      <TextBlock
+        FontSize="12"
+        Foreground="#CCCCCC"
+        Text="以下のコードをコピーして、Markdownエディタ等に貼り付けるとグラフが描画されます。"
+        TextWrapping="Wrap" />
+    </StackPanel>
+
+    <TextBox
+      x:Name="CodeTextBox"
+      Grid.Row="1"
+      AcceptsReturn="True"
+      Background="#2D2D30"
+      FontFamily="Consolas, Courier New, monospace"
+      Foreground="#D4D4D4"
+      IsReadOnly="True"
+      Text="{Binding GraphText}"
+      TextWrapping="Wrap" />
+
+    <Button
+      Grid.Row="2"
+      Margin="0,15,0,0"
+      Padding="10"
+      HorizontalAlignment="Stretch"
+      HorizontalContentAlignment="Center"
+      Background="#007ACC"
+      Click="OnCopyButtonClicked"
+      Content="📋 クリップボードにコピー"
+      FontWeight="Bold"
+      Foreground="White" />
+  </Grid>
+</Window>

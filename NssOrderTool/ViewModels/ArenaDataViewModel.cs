@@ -13,7 +13,7 @@ using NssOrderTool.Repositories;
 
 namespace NssOrderTool.ViewModels
 {
-  public partial class ArenaDataViewModel : ViewModelBase, IRecipient<DatabaseUpdatedMessage>
+  public partial class ArenaDataViewModel : ViewModelBase, IRecipient<DatabaseUpdatedMessage>, IRecipient<TransferToArenaDataMessage>
   {
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaRepository _arenaRepository;
@@ -175,6 +175,17 @@ namespace NssOrderTool.ViewModels
     {
       // UIスレッドをブロックしないように再読み込みを実行
       _ = ReloadAllAsync();
+    }
+
+    public void Receive(TransferToArenaDataMessage message)
+    {
+      var targetPlayerId = message.Value;
+      var target = Players.FirstOrDefault(p => p.Id == targetPlayerId);
+
+      if (target != null)
+      {
+        SelectedPlayer = target; // これにより自動的に詳細データのロード(LoadDetailsAsync)が走ります
+      }
     }
 
     // 全データを最新の状態にリフレッシュする
