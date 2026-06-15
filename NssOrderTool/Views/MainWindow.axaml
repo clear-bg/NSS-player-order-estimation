@@ -32,10 +32,6 @@
       <views:ArenaDataView />
     </TabItem>
 
-    <TabItem FontSize="16" Header="エイリアス">
-      <views:AliasSettingsView />
-    </TabItem>
-
     <TabItem FontSize="16" Header="設定">
       <views:SettingsView />
     </TabItem>
