@@ -168,5 +168,20 @@ namespace NssOrderTool.Repositories
         await _context.SaveChangesAsync();
       }
     }
+
+    /// <summary>
+    /// 指定された名前のプレイヤーが論理削除された状態かチェックする
+    /// </summary>
+    public virtual async Task<bool> IsPlayerDeletedAsync(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name)) return false;
+
+      // IgnoreQueryFilters() を使って、削除済みのプレイヤーの中から検索
+      var player = await _context.Players
+          .IgnoreQueryFilters()
+          .FirstOrDefaultAsync(p => p.Name == name);
+
+      return player != null && player.IsDeleted;
+    }
   }
 }

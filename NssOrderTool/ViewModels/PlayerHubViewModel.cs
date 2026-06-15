@@ -95,7 +95,7 @@ namespace NssOrderTool.ViewModels
     {
       if (string.IsNullOrWhiteSpace(TargetInput))
       {
-        StatusText = "⚠️ 正規名（プレイヤー名）を入力してください";
+        StatusText = "⚠️ プレイヤー名を入力してください";
         return;
       }
 
@@ -106,7 +106,10 @@ namespace NssOrderTool.ViewModels
       {
         var targetName = TargetInput.Trim();
 
-        // 1. ユーザーの新規登録（すでに存在する場合はそのまま既存のUUIDが返る）
+        // ★追加: 登録・復活処理を走らせる前に、現在論理削除されている状態かチェックしておく
+        bool willResurrect = await _playerRepo.IsPlayerDeletedAsync(targetName);
+
+        // 1. ユーザーの新規登録（または復活）
         await _playerRepo.GetOrCreatePlayersAsync(new[] { targetName }, allowCreate: true);
 
         // 2. エイリアスの処理（入力がある場合のみ）
@@ -131,7 +134,16 @@ namespace NssOrderTool.ViewModels
           }
         }
 
-        StatusText = $"✅ {targetName} の登録・更新が完了しました";
+        // ★修正: 事前チェックの結果を使って完了メッセージを分岐させる
+        if (willResurrect)
+        {
+          StatusText = $"✅ 過去の戦績データを引き継いで '{targetName}' が復帰しました！";
+        }
+        else
+        {
+          StatusText = $"✅ {targetName} の登録・更新が完了しました";
+        }
+
         TargetInput = "";
         AliasInput = "";
 
