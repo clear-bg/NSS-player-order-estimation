@@ -178,7 +178,8 @@ namespace NssOrderTool.ViewModels
     private async Task GoToArenaDataAsync(PlayerHubItem player)
     {
       if (player == null) return;
-      // TODO: アリーナデータの戦績画面へ遷移する処理
+
+      WeakReferenceMessenger.Default.Send(new TransferToArenaDataMessage(player.PlayerId));
       await Task.CompletedTask;
     }
 

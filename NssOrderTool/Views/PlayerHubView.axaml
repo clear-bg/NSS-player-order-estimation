@@ -106,60 +106,81 @@
           ItemsSource="{Binding PlayerList}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="models:PlayerHubItem">
-              <StackPanel Margin="5,4">
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                  <TextBlock
-                    VerticalAlignment="Center"
-                    FontSize="16"
-                    FontWeight="Bold"
-                    Foreground="White"
-                    Text="{Binding Name}" />
-                  <Button
-                    Padding="6,2"
-                    Background="#D32F2F"
-                    Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeletePlayerCommand}"
-                    CommandParameter="{Binding}"
-                    Content="✕"
-                    CornerRadius="10"
-                    FontSize="12"
-                    Foreground="White"
-                    IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+
+              <Grid Margin="5,4" ColumnDefinitions="*, Auto">
+
+                <StackPanel Grid.Column="0">
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock
+                      VerticalAlignment="Center"
+                      FontSize="16"
+                      FontWeight="Bold"
+                      Foreground="White"
+                      Text="{Binding Name}" />
+
+                    <Button
+                      Padding="6,2"
+                      Background="#D32F2F"
+                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeletePlayerCommand}"
+                      CommandParameter="{Binding}"
+                      Content="✕"
+                      CornerRadius="10"
+                      FontSize="12"
+                      Foreground="White"
+                      IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+                  </StackPanel>
+
+                  <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border
+                          Margin="0,0,5,3"
+                          Padding="10,2"
+                          Background="#555555"
+                          CornerRadius="12">
+                          <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock
+                              VerticalAlignment="Center"
+                              FontSize="12"
+                              Foreground="#CCCCCC"
+                              Text="{Binding}" />
+                            <Button
+                              Padding="4,0"
+                              Background="Transparent"
+                              Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeleteAliasCommand}"
+                              CommandParameter="{Binding}"
+                              Content="✕"
+                              FontSize="10"
+                              Foreground="#FF9999"
+                              IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
                 </StackPanel>
 
-                <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                      <Border
-                        Margin="0,0,5,3"
-                        Padding="10,2"
-                        Background="#555555"
-                        CornerRadius="12">
-                        <StackPanel Orientation="Horizontal" Spacing="5">
-                          <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="12"
-                            Foreground="#CCCCCC"
-                            Text="{Binding}" />
-                          <Button
-                            Padding="4,0"
-                            Background="Transparent"
-                            Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeleteAliasCommand}"
-                            CommandParameter="{Binding}"
-                            Content="✕"
-                            FontSize="10"
-                            Foreground="#FF9999"
-                            IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
-                        </StackPanel>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </StackPanel>
+                <Button
+                  Grid.Column="1"
+                  Margin="10,0,0,0"
+                  Padding="15,8"
+                  VerticalAlignment="Center"
+                  Background="#007ACC"
+                  Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).GoToArenaDataCommand}"
+                  CommandParameter="{Binding}"
+                  Content="📊 戦績"
+                  CornerRadius="5"
+                  FontSize="12"
+                  FontWeight="Bold"
+                  Foreground="White" />
+
+              </Grid>
+
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>

@@ -15,7 +15,7 @@
   WindowStartupLocation="CenterScreen"
   mc:Ignorable="d">
 
-  <TabControl Margin="5">
+  <TabControl Margin="5" SelectedIndex="{Binding SelectedTabIndex}">
     <TabItem FontSize="16" Header="メイン">
       <views:PlayerHubView DataContext="{Binding PlayerHubViewModel}" />
     </TabItem>
