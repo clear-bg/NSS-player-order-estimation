@@ -29,6 +29,10 @@ namespace NssOrderTool.ViewModels
 
     [ObservableProperty]
     private bool _isEditing;
+    [ObservableProperty]
+    private bool _isShowDeleteConfirm;
+    [ObservableProperty]
+    private PlayerHubItem? _playerToDelete;
 
     // ユーザー一覧データ
     public ObservableCollection<PlayerHubItem> PlayerList { get; } = new();
@@ -170,16 +174,64 @@ namespace NssOrderTool.ViewModels
     private async Task DeletePlayerAsync(PlayerHubItem player)
     {
       if (player == null) return;
-      // TODO: プレイヤーとそれに紐づく情報を削除する処理
+
+      // 削除対象をセットして、確認ダイアログを表示する
+      PlayerToDelete = player;
+      IsShowDeleteConfirm = true;
+
       await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private async Task ExecuteDeletePlayerAsync()
+    {
+      if (PlayerToDelete == null) return;
+
+      try
+      {
+        // TODO: リポジトリの仕様に合わせてメソッド名は後で確認します
+        // 今回はとりあえず表示上だけ削除する仮実装です
+        PlayerList.Remove(PlayerToDelete);
+        StatusText = $"🗑️ プレイヤー '{PlayerToDelete.Name}' を削除しました";
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ プレイヤー削除エラー: {ex.Message}";
+      }
+      finally
+      {
+        // 処理が終わったらダイアログを閉じる
+        IsShowDeleteConfirm = false;
+        PlayerToDelete = null;
+      }
+    }
+
+    [RelayCommand]
+    private void CancelDeletePlayer()
+    {
+      // キャンセル時はただダイアログを閉じるだけ
+      IsShowDeleteConfirm = false;
+      PlayerToDelete = null;
     }
 
     [RelayCommand]
     private async Task DeleteAliasAsync(string alias)
     {
       if (string.IsNullOrEmpty(alias)) return;
-      // TODO: 指定されたエイリアスのみを削除する処理
-      await Task.CompletedTask;
+
+      try
+      {
+        // エイリアスは「即消し」方針なので、ここでリポジトリを呼んで即削除します
+        await _aliasRepo.DeleteAliasAsync(alias);
+        StatusText = $"🗑️ エイリアス '{alias}' を削除しました";
+
+        // 削除後、リストを再読み込みして画面に反映
+        await LoadPlayersAsync();
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ エイリアス削除エラー: {ex.Message}";
+      }
     }
   }
 }
