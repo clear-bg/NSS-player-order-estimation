@@ -189,8 +189,10 @@ namespace NssOrderTool.ViewModels
 
       try
       {
-        // TODO: リポジトリの仕様に合わせてメソッド名は後で確認します
-        // 今回はとりあえず表示上だけ削除する仮実装です
+        // ★修正: リポジトリの論理削除メソッドを呼び出す
+        await _playerRepo.DeletePlayerAsync(PlayerToDelete.PlayerId);
+
+        // UI（リスト）からも消す
         PlayerList.Remove(PlayerToDelete);
         StatusText = $"🗑️ プレイヤー '{PlayerToDelete.Name}' を削除しました";
       }

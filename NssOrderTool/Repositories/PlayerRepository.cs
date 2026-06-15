@@ -20,12 +20,8 @@ namespace NssOrderTool.Repositories
     }
 
     /// <summary>
-    /// プレイヤー名を登録する（存在しない場合のみ新規作成）
-    /// テストでモック化可能にするため virtual を付与
-    /// </summary>
-    // 既存の RegisterPlayersAsync を以下のメソッドに置き換えてください
-    /// <summary>
-    /// 名前からUUIDを取得する。allowCreateがtrueなら未登録プレイヤーを新規作成する。
+    /// 名前からUUIDを取得する。allowCreateがtrueなら未登録プレイヤーを新規作成、
+    /// または論理削除されているプレイヤーを復活させる。
     /// </summary>
     public virtual async Task<Dictionary<string, string>> GetOrCreatePlayersAsync(IEnumerable<string> playerNames, bool allowCreate = false)
     {
@@ -36,12 +32,27 @@ namespace NssOrderTool.Repositories
 
       // 1. 「名前」でDBを検索
       var existingPlayers = await _context.Players
+          .IgnoreQueryFilters()
           .Where(p => uniqueNames.Contains(p.Name!))
           .ToListAsync();
 
-      var resultMap = existingPlayers.ToDictionary(p => p.Name!, p => p.Id, StringComparer.OrdinalIgnoreCase);
+      var resultMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+      bool isChanged = false;
 
-      // 2. 新規作成が許可されている場合 (順序推定ツール側など)
+      foreach (var p in existingPlayers)
+      {
+        resultMap[p.Name!] = p.Id;
+
+        // 削除済みのプレイヤーが再度入力され、かつ新規作成(allowCreate)が許可されている場合
+        if (p.IsDeleted && allowCreate)
+        {
+          p.IsDeleted = false;
+          p.UpdatedAt = DateTime.Now;
+          isChanged = true; // DBへの保存が必要な状態
+        }
+      }
+
+      // 2. 新規作成が許可されている場合 (完全に未登録のプレイヤーの作成)
       if (allowCreate)
       {
         var existingNames = existingPlayers.Select(p => p.Name!);
@@ -53,19 +64,24 @@ namespace NssOrderTool.Repositories
           {
             Id = Guid.NewGuid().ToString(),
             Name = name,
-
             RateMean = RatingConstants.DefaultRateMean,
             RateSigma = RatingConstants.DefaultRateSigma
           }).ToList();
 
           await _context.Players.AddRangeAsync(newEntities);
-          await _context.SaveChangesAsync();
+          isChanged = true; // DBへの保存が必要な状態
 
           foreach (var entity in newEntities)
           {
             resultMap[entity.Name!] = entity.Id; // 新しいUUIDを辞書に追加
           }
         }
+      }
+
+      // 復活、または新規作成があった場合のみDBを保存
+      if (isChanged)
+      {
+        await _context.SaveChangesAsync();
       }
 
       return resultMap;
@@ -135,6 +151,22 @@ namespace NssOrderTool.Repositories
       }
 
       await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// 指定したプレイヤーを論理削除する
+    /// </summary>
+    public virtual async Task DeletePlayerAsync(string id)
+    {
+      if (string.IsNullOrWhiteSpace(id)) return;
+
+      var player = await _context.Players.FindAsync(id);
+      if (player != null && !player.IsDeleted)
+      {
+        player.IsDeleted = true;
+        player.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+      }
     }
   }
 }
