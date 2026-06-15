@@ -11,15 +11,20 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private int _selectedTabIndex = 0;
 
-    // ... (コンストラクタ等)
+    public PlayerHubViewModel PlayerHubViewModel { get; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(PlayerHubViewModel playerHubViewModel)
     {
-      // ★追加: メッセージ受信登録
+      PlayerHubViewModel = playerHubViewModel;
+
       WeakReferenceMessenger.Default.Register(this);
     }
 
-    // ★追加: メッセージ受信時の処理
+    public MainWindowViewModel()
+    {
+      PlayerHubViewModel = null!;
+    }
+
     public void Receive(TransferToArenaMessage message)
     {
       // アリーナ集計タブ（インデックス1と仮定）へ切り替え

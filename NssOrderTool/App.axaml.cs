@@ -89,6 +89,7 @@ public partial class App : Application
     collection.AddTransient<MainWindowViewModel>();
     collection.AddTransient<OrderEstimationViewModel>();
     collection.AddTransient<AliasSettingsViewModel>();
+    collection.AddTransient<PlayerHubViewModel>();
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
     collection.AddTransient<ArenaDataViewModel>();

@@ -1,0 +1,137 @@
+<UserControl
+  x:Class="NssOrderTool.Views.PlayerHubView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:models="using:NssOrderTool.Models.UI"
+  xmlns:vm="using:NssOrderTool.ViewModels"
+  d:DesignHeight="600"
+  d:DesignWidth="800"
+  x:DataType="vm:PlayerHubViewModel"
+  mc:Ignorable="d">
+
+  <Grid Margin="20" RowDefinitions="Auto, *">
+    <StackPanel
+      Grid.Row="0"
+      Margin="0,0,0,30"
+      HorizontalAlignment="Center"
+      Spacing="15">
+      <TextBlock
+        HorizontalAlignment="Center"
+        FontSize="18"
+        FontWeight="Bold"
+        Text="👤 プレイヤー＆エイリアス登録" />
+
+      <StackPanel Orientation="Horizontal" Spacing="15">
+        <StackPanel Spacing="5">
+          <TextBlock
+            FontSize="12"
+            FontWeight="Bold"
+            Text="正規名 (必須)" />
+          <TextBox
+            Width="200"
+            Text="{Binding TargetInput}"
+            Watermark="例: Takahiro" />
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+          <TextBlock
+            FontSize="12"
+            FontWeight="Bold"
+            Text="エイリアス (カンマ区切り / 省略可)" />
+          <TextBox
+            Width="300"
+            Text="{Binding AliasInput}"
+            Watermark="例: Taka, たかひろ" />
+        </StackPanel>
+
+        <Button
+          Height="32"
+          Padding="20,0"
+          VerticalAlignment="Bottom"
+          Background="#007ACC"
+          Command="{Binding RegisterPlayerCommand}"
+          Content="登録 / 更新"
+          Foreground="White" />
+      </StackPanel>
+
+      <TextBlock
+        HorizontalAlignment="Center"
+        Foreground="Green"
+        Text="{Binding StatusText}" />
+    </StackPanel>
+
+    <Grid Grid.Row="1" RowDefinitions="Auto, *">
+
+      <Grid
+        Grid.Row="0"
+        Margin="0,0,0,10"
+        ColumnDefinitions="*, Auto">
+        <TextBlock
+          Grid.Column="0"
+          VerticalAlignment="Center"
+          FontSize="18"
+          FontWeight="Bold"
+          Text="📋 登録済みプレイヤー一覧" />
+        <StackPanel
+          Grid.Column="1"
+          Orientation="Horizontal"
+          Spacing="10">
+          <Button
+            Background="#555555"
+            Command="{Binding ToggleEditModeCommand}"
+            Content="編集"
+            Foreground="White" />
+          <Button Command="{Binding ShowGraphCommand}" Content="グラフ出力" />
+          <Button Command="{Binding LoadPlayersCommand}" Content="更新" />
+        </StackPanel>
+      </Grid>
+
+      <ListBox
+        Grid.Row="1"
+        Padding="10"
+        Background="#1E1E1E"
+        CornerRadius="5"
+        ItemsSource="{Binding PlayerList}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="models:PlayerHubItem">
+
+            <StackPanel Margin="5,10">
+              <TextBlock
+                FontSize="16"
+                FontWeight="Bold"
+                Foreground="White"
+                Text="{Binding Name}" />
+
+              <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding Aliases}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border
+                      Margin="0,0,5,5"
+                      Padding="6,2"
+                      Background="#333333"
+                      CornerRadius="3">
+                      <TextBlock
+                        FontSize="12"
+                        Foreground="#CCCCCC"
+                        Text="{Binding}" />
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+    </Grid>
+
+  </Grid>
+</UserControl>

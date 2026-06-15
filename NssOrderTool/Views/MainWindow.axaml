@@ -17,7 +17,7 @@
 
   <TabControl Margin="5">
     <TabItem FontSize="16" Header="メイン">
-      <views:OrderEstimationView />
+      <views:PlayerHubView DataContext="{Binding PlayerHubViewModel}" />
     </TabItem>
 
     <TabItem FontSize="16" Header="順序推定">
