@@ -92,8 +92,16 @@
               </Button.Styles>
             </Button>
 
-            <Button Command="{Binding ShowGraphCommand}" Content="グラフ出力" />
-            <Button Command="{Binding LoadPlayersCommand}" Content="更新" />
+            <Button
+              Background="#555555"
+              Command="{Binding ShowGraphCommand}"
+              Content="グラフ出力"
+              Foreground="White" />
+            <Button
+              Background="#555555"
+              Command="{Binding LoadPlayersCommand}"
+              Content="更新"
+              Foreground="White" />
           </StackPanel>
         </Grid>
 
