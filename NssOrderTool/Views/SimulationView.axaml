@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:ui="using:NssOrderTool.Models.UI"
   xmlns:vm="using:NssOrderTool.ViewModels"
   d:DesignHeight="500"
   d:DesignWidth="800"
@@ -26,7 +27,7 @@
 
         <ItemsControl ItemsSource="{Binding Inputs}">
           <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:SimulationInputItem">
+            <DataTemplate x:DataType="ui:SimulationInputItem">
               <Grid Margin="0,5" ColumnDefinitions="30, *">
                 <TextBlock
                   Grid.Column="0"
@@ -88,7 +89,7 @@
         <TextBlock
           FontSize="12"
           Foreground="Gray"
-          Text="内部レート順の予測（上から順に並びます）" />
+          Text="内部データに基づく配置順の予測" />
 
         <ListBox
           Height="400"
@@ -100,9 +101,9 @@
 
                 <TextBlock
                   Width="30"
-                  FontWeight="{Binding RankWeight}"
-                  Foreground="{Binding RankColor}"
-                  Text="{Binding RankText}"
+                  FontWeight="{Binding OrderWeight}"
+                  Foreground="{Binding OrderColor}"
+                  Text="{Binding OrderText}"
                   TextAlignment="Right" />
 
                 <TextBlock
