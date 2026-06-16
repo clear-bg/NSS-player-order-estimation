@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
+using NssOrderTool.Models.Domain;
 using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
 using NssOrderTool.Services.Domain;
@@ -23,6 +24,7 @@ namespace NssOrderTool.ViewModels
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaLogicService _arenaLogic;
+    private readonly OrderRepository _orderRepo;
 
     // --- Bindings ---
 
@@ -49,11 +51,13 @@ namespace NssOrderTool.ViewModels
     public ArenaViewModel(
       ArenaRepository arenaRepo,
       PlayerRepository playerRepo,
-      ArenaLogicService arenaLogic)
+      ArenaLogicService arenaLogic,
+      OrderRepository orderRepo)
     {
       _arenaRepo = arenaRepo;
       _playerRepo = playerRepo;
       _arenaLogic = arenaLogic;
+      _orderRepo = orderRepo;
 
       InitializeRounds();
       InitializeMatrix();
@@ -69,6 +73,7 @@ namespace NssOrderTool.ViewModels
       _arenaRepo = null!;
       _playerRepo = null!;
       _arenaLogic = null!;
+      _orderRepo = null!;
       InitializeRounds();
       InitializeMatrix();
     }
@@ -193,6 +198,29 @@ namespace NssOrderTool.ViewModels
 
         // DBにセッション保存
         await _arenaRepo.AddSessionAsync(session);
+
+        var orderedPlayerIds = PlayerRows
+            .Where(r => !string.IsNullOrWhiteSpace(r.Name) && nameToIdMap.ContainsKey(r.Name))
+            .OrderBy(r => r.Index)
+            .Select(r => nameToIdMap[r.Name])
+            .ToList();
+
+        if (orderedPlayerIds.Count >= 2)
+        {
+          // 1. Observation(履歴ログ)として配列をそのまま保存
+          await _orderRepo.AddObservationAsync(orderedPlayerIds);
+
+          // 2. ペア(Predecessor -> Successor)を生成（隣接ペアのみ抽出）
+          var pairsToUpdate = new List<OrderPair>();
+          for (int i = 0; i < orderedPlayerIds.Count - 1; i++)
+          {
+            // i番目のスロットの人は、すぐ下の(i+1)番目のスロットの人よりも優先度（ハッシュ等）が高い
+            pairsToUpdate.Add(new OrderPair(orderedPlayerIds[i], orderedPlayerIds[i + 1]));
+          }
+
+          // 3. ペアの集計(Frequency)を更新
+          await _orderRepo.UpdatePairsAsync(pairsToUpdate);
+        }
 
         // 4. 勝利数を集計してレート更新を実行
         StatusText = "レーティング更新中...";
