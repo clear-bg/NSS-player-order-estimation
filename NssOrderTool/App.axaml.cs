@@ -69,7 +69,6 @@ public partial class App : Application
     }, ServiceLifetime.Transient);
 
     // Domain Services
-    collection.AddTransient<RelationshipExtractor>();
     collection.AddTransient<OrderSorter>();
     collection.AddTransient<GraphVizService>();
     collection.AddTransient<ArenaLogicService>();
