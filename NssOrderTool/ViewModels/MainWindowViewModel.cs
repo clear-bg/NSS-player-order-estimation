@@ -28,7 +28,7 @@ namespace NssOrderTool.ViewModels
     public void Receive(TransferToArenaMessage message)
     {
       // 既存のアリーナ集計タブへの遷移（そのまま）
-      SelectedTabIndex = 1;
+      SelectedTabIndex = 2;
     }
 
     // ★追加: 今回作った新しいメッセージを受け取った時の処理
