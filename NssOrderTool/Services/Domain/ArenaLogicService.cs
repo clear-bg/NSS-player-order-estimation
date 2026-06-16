@@ -24,7 +24,7 @@ namespace NssOrderTool.Services.Domain
       _arenaRepository = arenaRepository;
     }
 
-    // ラウンドごとの「青チーム」に所属するランク順位（1始まりの提供データを0始まりのインデックスに変換して保持）
+    // ラウンドごとの「青チーム」に所属するスロット配置順（1始まりの提供データを0始まりのインデックスに変換して保持）
     // R1: 1, 2, 3, 4 -> {0, 1, 2, 3}
     private static readonly Dictionary<int, int[]> BlueTeamDefinitions = new()
     {
@@ -45,37 +45,37 @@ namespace NssOrderTool.Services.Domain
     };
 
     /// <summary>
-    /// 指定したラウンド・順位のプレイヤーが「青チーム」かどうかを判定する
+    /// 指定したラウンド・スロット位置のプレイヤーが「青チーム」かどうかを判定する
     /// </summary>
     /// <param name="roundNumber">ラウンド番号 (1-14)</param>
-    /// <param name="rankIndex">順位インデックス (0始まり: 0=1位, 7=8位)</param>
+    /// <param name="slotIndex">スロットのインデックス (0始まり: 0=1番目, 7=8番目)</param>
     /// <returns>true: Blue, false: Orange</returns>
-    public virtual bool IsBlueTeam(int roundNumber, int rankIndex)
+    public virtual bool IsBlueTeam(int roundNumber, int slotIndex)
     {
       if (!BlueTeamDefinitions.ContainsKey(roundNumber)) return false;
-      return BlueTeamDefinitions[roundNumber].Contains(rankIndex);
+      return BlueTeamDefinitions[roundNumber].Contains(slotIndex);
     }
 
     /// <summary>
-    /// 指定ラウンドにおける、指定ランクのプレイヤーのチームIDを返す
+    /// 指定ラウンドにおける、指定スロットのプレイヤーのチームIDを返す
     /// </summary>
     /// <returns>1: Blue, 2: Orange</returns>
-    public virtual int GetTeamId(int roundNumber, int rankIndex)
+    public virtual int GetTeamId(int roundNumber, int slotIndex)
     {
-      return IsBlueTeam(roundNumber, rankIndex) ? 1 : 2;
+      return IsBlueTeam(roundNumber, slotIndex) ? 1 : 2;
     }
 
     /// <summary>
-    /// そのラウンドで、指定ランクのプレイヤーが「勝利したか」を判定する
+    /// そのラウンドで、指定スロットのプレイヤーが「勝利したか」を判定する
     /// </summary>
     /// <param name="roundNumber">ラウンド番号</param>
-    /// <param name="rankIndex">順位インデックス</param>
+    /// <param name="slotIndex">スロットのインデックス</param>
     /// <param name="winningTeam">そのラウンドの勝利チーム (0:なし, 1:Blue, 2:Orange)</param>
     /// <returns>true: 勝利, false: 敗北または無効</returns>
-    public virtual bool IsWinner(int roundNumber, int rankIndex, int winningTeam)
+    public virtual bool IsWinner(int roundNumber, int slotIndex, int winningTeam)
     {
       if (winningTeam == 0) return false;
-      int myTeam = GetTeamId(roundNumber, rankIndex);
+      int myTeam = GetTeamId(roundNumber, slotIndex);
       return myTeam == winningTeam;
     }
 

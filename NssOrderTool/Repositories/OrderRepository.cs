@@ -209,7 +209,7 @@ namespace NssOrderTool.Repositories
       {
         // --- 1. SequencePairs (順序データ) の統合 ---
 
-        // A. oldName が Predecessor (勝ち側) の場合
+        // A. oldName が Predecessor (上位スロット側) の場合
         var predOldPairs = await _context.SequencePairs
             .Where(p => p.PredecessorId == oldName)
             .ToListAsync();
@@ -239,7 +239,7 @@ namespace NssOrderTool.Repositories
           }
         }
 
-        // B. oldName が Successor (負け側) の場合
+        // B. oldName が Successor (下位スロット側) の場合
         var succOldPairs = await _context.SequencePairs
             .Where(p => p.SuccessorId == oldName)
             .ToListAsync();

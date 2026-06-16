@@ -17,7 +17,6 @@ namespace NssOrderTool.ViewModels
     private readonly OrderRepository _orderRepo;
     private readonly AliasRepository _aliasRepo;
     private readonly OrderSorter _sorter;
-    private readonly RelationshipExtractor _extractor;
 
     // --- Bindings ---
 
@@ -36,13 +35,11 @@ namespace NssOrderTool.ViewModels
     public SimulationViewModel(
         OrderRepository orderRepo,
         AliasRepository aliasRepo,
-        OrderSorter sorter,
-        RelationshipExtractor extractor)
+        OrderSorter sorter)
     {
       _orderRepo = orderRepo;
       _aliasRepo = aliasRepo;
       _sorter = sorter;
-      _extractor = extractor;
 
       InitializeInputs();
 
@@ -61,7 +58,6 @@ namespace NssOrderTool.ViewModels
       _orderRepo = null!;
       _aliasRepo = null!;
       _sorter = null!;
-      _extractor = null!;
       InitializeInputs();
     }
 

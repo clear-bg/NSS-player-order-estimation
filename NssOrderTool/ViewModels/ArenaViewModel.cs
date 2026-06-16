@@ -210,11 +210,11 @@ namespace NssOrderTool.ViewModels
           // 1. Observation(履歴ログ)として配列をそのまま保存
           await _orderRepo.AddObservationAsync(orderedPlayerIds);
 
-          // 2. ペア(Predecessor -> Successor)を生成
+          // 2. ペア(Predecessor -> Successor)を生成（隣接ペアのみ抽出）
           var pairsToUpdate = new List<OrderPair>();
           for (int i = 0; i < orderedPlayerIds.Count - 1; i++)
           {
-            // i番目の人は、すぐ下の(i+1)番目の人よりも上位である
+            // i番目のスロットの人は、すぐ下の(i+1)番目のスロットの人よりも優先度（ハッシュ等）が高い
             pairsToUpdate.Add(new OrderPair(orderedPlayerIds[i], orderedPlayerIds[i + 1]));
           }
 
