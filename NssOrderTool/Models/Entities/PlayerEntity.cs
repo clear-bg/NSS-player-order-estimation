@@ -32,5 +32,21 @@ namespace NssOrderTool.Models.Entities
 
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; }
+
+    [Column("is_active")]
+    public bool IsActive { get; set; } = true;
+
+    [Column("last_played_at")]
+    public DateTime? LastPlayedAt { get; set; }
+
+    [Column("total_matches")]
+    public int TotalMatches { get; set; } = 0;
+
+    [Column("total_wins")]
+    public int TotalWins { get; set; } = 0;
+
+    [Column("memo")]
+    public string Memo { get; set; } = string.Empty;
+
   }
 }

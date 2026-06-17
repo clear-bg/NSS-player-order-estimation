@@ -24,6 +24,7 @@ namespace NssOrderTool.Database
     public DbSet<ArenaRoundEntity> ArenaRounds { get; set; }
     public DbSet<ArenaParticipantEntity> ArenaParticipants { get; set; }
     public DbSet<RateHistoryEntity> RateHistories { get; set; }
+    public DbSet<SeasonEntity> Seasons { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -28,6 +28,15 @@ namespace NssOrderTool.Models.Entities
     [Column("session_date")]
     public DateTime SessionDate { get; set; }
 
+    [Column("season_id")]
+    public int SeasonId { get; set; } = 0;
+
+    [Column("is_valid")]
+    public bool IsValid { get; set; } = true;
+
+    [Column("memo")]
+    public string Memo { get; set; } = string.Empty;
+
     // --- Navigation Properties ---
 
     // 参加者リスト
