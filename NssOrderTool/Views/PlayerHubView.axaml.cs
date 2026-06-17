@@ -10,13 +10,12 @@ namespace NssOrderTool.Views
       InitializeComponent();
     }
 
-    // ★追加: 画面の余白がクリックされたときに呼ばれる処理
     private void OnBackgroundPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-      if (PlayerListBox != null)
+      // DataGridの外側をクリックしたら選択を解除する
+      if (PlayerGrid != null)
       {
-        // リストの選択状態を解除（null）にする
-        PlayerListBox.SelectedItem = null;
+        PlayerGrid.SelectedItem = null;
       }
     }
   }
