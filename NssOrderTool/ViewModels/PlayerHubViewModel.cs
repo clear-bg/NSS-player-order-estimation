@@ -76,7 +76,10 @@ namespace NssOrderTool.ViewModels
           var item = new PlayerHubItem
           {
             PlayerId = p.Id,
-            Name = p.Name!
+            Name = p.Name!,
+            Rating = p.RateMean,
+            TotalMatches = p.TotalMatches,
+            WinRateString = p.TotalMatches == 0 ? "-" : $"{(double)p.TotalWins / p.TotalMatches:P1}"
           };
           foreach (var a in aliases)
           {
@@ -143,7 +146,7 @@ namespace NssOrderTool.ViewModels
         }
         else
         {
-          StatusText = $"✅ {targetName} の登録・更新が完了しました";
+          StatusText = $"✅ プレイヤー {targetName} の登録・更新が完了しました";
         }
 
         TargetInput = "";

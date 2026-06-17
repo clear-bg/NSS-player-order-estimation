@@ -12,5 +12,9 @@ namespace NssOrderTool.Models.UI
 
     // XAML側で個別のタグとして描画・動的削除できるように ObservableCollection に変更
     public ObservableCollection<string> Aliases { get; } = new();
+
+    public double Rating { get; set; }
+    public int TotalMatches { get; set; }
+    public string WinRateString { get; set; } = "-";
   }
 }
