@@ -347,6 +347,24 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+        <Button
+          Width="60"
+          Height="40"
+          Margin="10,0,0,0"
+          Padding="0"
+          Background="#D32F2F"
+          BorderThickness="0"
+          Command="{Binding ResetRoundsCommand}"
+          CornerRadius="4"
+          Foreground="White">
+          <TextBlock
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="12"
+            FontWeight="Bold"
+            Text="リセット" />
+        </Button>
       </StackPanel>
 
       <Border
