@@ -212,7 +212,7 @@ namespace NssOrderTool.ViewModels
 
           // 2. ペア(Predecessor -> Successor)を生成（隣接ペアのみ抽出）
           var pairsToUpdate = new List<OrderPair>();
-          for (int i = 0; i < orderedPlayerIds.Count - 1; i++)
+          for (int i = 1; i < orderedPlayerIds.Count - 1; i++)
           {
             // i番目のスロットの人は、すぐ下の(i+1)番目のスロットの人よりも優先度（ハッシュ等）が高い
             pairsToUpdate.Add(new OrderPair(orderedPlayerIds[i], orderedPlayerIds[i + 1]));
@@ -368,12 +368,24 @@ namespace NssOrderTool.ViewModels
           PlayerRows[i].Name = string.Empty; // 余った欄はクリア
         }
       }
+
+      ResetRounds();
     }
 
     public void Receive(DatabaseUpdatedMessage message)
     {
       // データ更新通知が来たら、履歴リストをリロードする
       _ = LoadHistoryAsync();
+    }
+
+    [RelayCommand]
+    private void ResetRounds()
+    {
+      foreach (var input in RoundInputs)
+      {
+        input.WinningTeam = 0; // 0 = 未選択
+      }
+      Recalculate(); // リセット後に計算を再実行して画面に反映
     }
   }
 }
