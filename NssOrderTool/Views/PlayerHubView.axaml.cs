@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using Avalonia.Input; // ★追加
+using Avalonia.Input;
 
 namespace NssOrderTool.Views
 {
@@ -16,6 +16,16 @@ namespace NssOrderTool.Views
       if (PlayerGrid != null)
       {
         PlayerGrid.SelectedItem = null;
+      }
+
+      TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+    }
+
+    private void OnInputKeyDown(object? sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Escape)
+      {
+        TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
       }
     }
   }

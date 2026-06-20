@@ -40,6 +40,7 @@
                 Text="プレイヤー名 (必須)" />
               <TextBox
                 Width="200"
+                KeyDown="OnInputKeyDown"
                 Text="{Binding TargetInput}"
                 Watermark="例: Takahiro" />
             </StackPanel>
@@ -50,6 +51,7 @@
                 Text="エイリアス (カンマ区切り / 省略可)" />
               <TextBox
                 Width="300"
+                KeyDown="OnInputKeyDown"
                 Text="{Binding AliasInput}"
                 Watermark="例: Taka, たかひろ" />
             </StackPanel>
@@ -139,6 +141,7 @@
               <TextBox
                 Width="200"
                 VerticalAlignment="Center"
+                KeyDown="OnInputKeyDown"
                 Text="{Binding SearchText}"
                 Watermark="名前・エイリアスで検索" />
             </StackPanel>
@@ -156,6 +159,7 @@
                 Width="120"
                 VerticalAlignment="Center"
                 FormatString="0"
+                KeyDown="OnInputKeyDown"
                 Maximum="3650"
                 Minimum="1"
                 Value="{Binding InactiveDaysThreshold}" />
