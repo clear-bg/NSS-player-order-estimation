@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -16,5 +17,6 @@ namespace NssOrderTool.Models.UI
     public double Rating { get; set; }
     public int TotalMatches { get; set; }
     public string WinRateString { get; set; } = "-";
+    public DateTime? LastPlayedAt { get; set; }
   }
 }
