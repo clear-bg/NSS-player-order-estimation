@@ -225,6 +225,40 @@
                         IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
                     </StackPanel>
 
+                    <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Border
+                            Margin="0,0,5,3"
+                            Padding="10,2"
+                            Background="#555555"
+                            CornerRadius="12">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                              <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Foreground="#CCCCCC"
+                                Text="{Binding}" />
+                              <Button
+                                Padding="4,0"
+                                Background="Transparent"
+                                Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeleteAliasCommand}"
+                                CommandParameter="{Binding}"
+                                Content="✕"
+                                FontSize="10"
+                                Foreground="#FF9999"
+                                IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+                            </StackPanel>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                   </StackPanel>
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
@@ -248,11 +282,6 @@
 
             <DataGridTextColumn
               Width="80"
-              Binding="{Binding Rating, StringFormat={}{0:F0}}"
-              Header="レート" />
-
-            <DataGridTextColumn
-              Width="80"
               Binding="{Binding TotalMatches}"
               Header="参加数" />
 
@@ -262,22 +291,34 @@
               Header="1位獲得率"
               SortMemberPath="WinRateString" />
 
-            <DataGridTemplateColumn Width="90" Header="操作">
+            <DataGridTemplateColumn Width="140" Header="操作">
               <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate x:DataType="models:PlayerHubItem">
-                  <Button
-                    Margin="5"
-                    Padding="10,5"
+                  <StackPanel
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Background="#007ACC"
-                    Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).GoToArenaDataCommand}"
-                    CommandParameter="{Binding}"
-                    Content="📊 戦績"
-                    CornerRadius="5"
-                    FontSize="12"
-                    FontWeight="Bold"
-                    Foreground="White" />
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                      Padding="8,5"
+                      Background="#555555"
+                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).OpenMemoCommand}"
+                      CommandParameter="{Binding}"
+                      Content="📝"
+                      CornerRadius="5"
+                      FontSize="14"
+                      Foreground="White"
+                      ToolTip.Tip="メモを編集" />
+                    <Button
+                      Padding="10,5"
+                      Background="#007ACC"
+                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).GoToArenaDataCommand}"
+                      CommandParameter="{Binding}"
+                      Content="📊 戦績"
+                      CornerRadius="5"
+                      FontSize="12"
+                      FontWeight="Bold"
+                      Foreground="White" />
+                  </StackPanel>
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
@@ -345,6 +386,50 @@
           </StackPanel>
         </StackPanel>
 
+      </Border>
+    </Grid>
+
+    <Grid Background="#AA000000" IsVisible="{Binding IsShowMemoModal}">
+      <Border
+        MinWidth="400"
+        MaxWidth="600"
+        Padding="25"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Background="#2D2D30"
+        BoxShadow="0 4 10 0 #55000000"
+        CornerRadius="8">
+        <StackPanel Spacing="15">
+          <TextBlock
+            FontSize="18"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="📝 メモの編集" />
+          <TextBox
+            Height="150"
+            AcceptsReturn="True"
+            Text="{Binding EditingMemoText}"
+            TextWrapping="Wrap"
+            Watermark="プレイスタイル、使用武器、得意マップなどのメモを入力..." />
+          <StackPanel
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="10">
+            <Button
+              Padding="15,6"
+              Background="#555555"
+              Command="{Binding CancelMemoCommand}"
+              Content="キャンセル"
+              Foreground="White" />
+            <Button
+              Padding="15,6"
+              Background="#007ACC"
+              Command="{Binding SaveMemoCommand}"
+              Content="保存"
+              FontWeight="Bold"
+              Foreground="White" />
+          </StackPanel>
+        </StackPanel>
       </Border>
     </Grid>
 

@@ -79,479 +79,563 @@
     </Style>
   </UserControl.Styles>
 
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
+  <Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-    <Grid Margin="5,15,15,15" RowDefinitions="Auto, *, Auto, Auto, Auto, 220">
-      <StackPanel
-        Grid.Row="0"
-        Margin="0,0,0,15"
-        Spacing="10">
-        <TextBlock
-          FontSize="20"
-          FontWeight="Medium"
-          Text="🏟️ アリーナ集計" />
-      </StackPanel>
+      <Grid Margin="5,15,15,15" RowDefinitions="Auto, *, Auto, Auto, Auto, 220">
+        <StackPanel
+          Grid.Row="0"
+          Margin="0,0,0,15"
+          Spacing="10">
+          <TextBlock
+            FontSize="20"
+            FontWeight="Medium"
+            Text="🏟️ アリーナ集計" />
+        </StackPanel>
 
-      <Border Grid.Row="1" Background="White">
+        <Border Grid.Row="1" Background="White">
 
-        <Border
-          Background="#f0f8ff"
-          BorderBrush="#808080"
-          BorderThickness="1">
           <Border
-            x:Name="CaptureTarget"
-            Padding="15"
-            Background="White">
-            <StackPanel Margin="15" HorizontalAlignment="Left">
+            Background="#f0f8ff"
+            BorderBrush="#808080"
+            BorderThickness="1">
+            <Border
+              x:Name="CaptureTarget"
+              Padding="15"
+              Background="White">
+              <StackPanel Margin="15" HorizontalAlignment="Left">
 
-              <Border
-                x:Name="ArenaTableBorder"
-                BorderBrush="#808080"
-                BorderThickness="3,3,2,2">
+                <Border
+                  x:Name="ArenaTableBorder"
+                  BorderBrush="#808080"
+                  BorderThickness="3,3,2,2">
 
-                <StackPanel>
-                  <StackPanel Orientation="Horizontal">
-                    <Border
-                      Width="100"
-                      Height="28"
-                      Background="#bbbbbb"
-                      BorderBrush="#555555"
-                      Classes="DoubleCorner">
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                      <Border
+                        Width="100"
+                        Height="28"
+                        Background="#bbbbbb"
+                        BorderBrush="#555555"
+                        Classes="DoubleCorner">
 
-                      <Border BorderBrush="#555555" BorderThickness="0,0,1,1">
-                        <TextBlock
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          FontSize="12"
-                          FontWeight="Medium"
-                          Foreground="#333333"
-                          Text="Player" />
+                        <Border BorderBrush="#555555" BorderThickness="0,0,1,1">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            FontWeight="Medium"
+                            Foreground="#333333"
+                            Text="Player" />
+                        </Border>
                       </Border>
-                    </Border>
 
-                    <ItemsControl ItemsSource="{Binding RoundInputs}">
-                      <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                          <StackPanel Orientation="Horizontal" Spacing="0" />
-                        </ItemsPanelTemplate>
-                      </ItemsControl.ItemsPanel>
+                      <ItemsControl ItemsSource="{Binding RoundInputs}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="0" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Border
+                              Width="40"
+                              Height="28"
+                              Background="#bbbbbb"
+                              BorderBrush="#555555"
+                              Classes="DoubleBottom">
+
+                              <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                                <TextBlock
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  FontSize="11"
+                                  FontWeight="Medium"
+                                  Foreground="#555555"
+                                  Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                              </Border>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                      <Border
+                        Width="40"
+                        Height="28"
+                        Padding="1,0,0,1"
+                        Background="#bbbbbb"
+                        BorderBrush="#555555"
+                        BorderThickness="0,0,1,1">
+                        <Border BorderBrush="#555555" BorderThickness="1,0,0,1">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            FontWeight="Medium"
+                            Foreground="#2E7D32"
+                            Text="Win" />
+                        </Border>
+                      </Border>
+                      <Border
+                        Width="40"
+                        Height="28"
+                        Background="#bbbbbb"
+                        BorderBrush="#555555"
+                        Classes="DoubleBottom">
+
+                        <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                          <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            FontWeight="Medium"
+                            Foreground="#2E7D32"
+                            Text="Rank" />
+                        </Border>
+                      </Border>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding PlayerRows}" KeyboardNavigation.TabNavigation="Continue">
                       <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                          <Border
-                            Width="40"
-                            Height="28"
-                            Background="#bbbbbb"
-                            BorderBrush="#555555"
-                            Classes="DoubleBottom">
+                        <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
+                          <StackPanel Orientation="Horizontal">
 
-                            <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
+                            <Border
+                              Width="100"
+                              Height="28"
+                              Background="#dbdbdb"
+                              BorderBrush="#555555"
+                              Classes="DoubleRight">
+
+                              <Border BorderBrush="#555555" BorderThickness="0,0,1,0">
+                                <TextBox
+                                  MinHeight="0"
+                                  Padding="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Classes="PlayerNameBox"
+                                  CornerRadius="0"
+                                  FontSize="14"
+                                  FontWeight="Medium"
+                                  Foreground="#333333"
+                                  GotFocus="OnNameInputGotFocus"
+                                  KeyDown="OnNameInputKeyDown"
+                                  Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
+                              </Border>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding Cells}">
+                              <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                  <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                              </ItemsControl.ItemsPanel>
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vmArena:ArenaCellViewModel">
+                                  <Border
+                                    Width="40"
+                                    Height="28"
+                                    Background="{Binding CellColor}"
+                                    BorderBrush="#555555"
+                                    Classes="Cell">
+                                    <TextBlock
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      FontSize="14"
+                                      FontWeight="Medium"
+                                      Foreground="{Binding ForeColor}"
+                                      Text="{Binding ResultMark}" />
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Border
+                              Width="40"
+                              Height="28"
+                              Padding="1,0,0,0"
+                              Background="#C6E0B4"
+                              BorderBrush="#555555"
+                              BorderThickness="0,0,1,1">
+                              <Border BorderBrush="#555555" BorderThickness="1,0,0,0">
+                                <TextBlock
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  FontSize="14"
+                                  FontWeight="Medium"
+                                  Foreground="#333333"
+                                  Text="{Binding WinCount}" />
+                              </Border>
+                            </Border>
+                            <Border
+                              Width="40"
+                              Height="28"
+                              Background="#C6E0B4"
+                              BorderBrush="#555555"
+                              Classes="Cell">
                               <TextBlock
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                FontSize="11"
+                                FontSize="14"
                                 FontWeight="Medium"
-                                Foreground="#555555"
-                                Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                                Foreground="#333333"
+                                Text="{Binding Rank}" />
                             </Border>
-                          </Border>
+
+                          </StackPanel>
                         </DataTemplate>
                       </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
-                    <Border
-                      Width="40"
-                      Height="28"
-                      Padding="1,0,0,1"
-                      Background="#bbbbbb"
-                      BorderBrush="#555555"
-                      BorderThickness="0,0,1,1">
-                      <Border BorderBrush="#555555" BorderThickness="1,0,0,1">
-                        <TextBlock
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          FontSize="12"
-                          FontWeight="Medium"
-                          Foreground="#2E7D32"
-                          Text="Win" />
-                      </Border>
-                    </Border>
-                    <Border
-                      Width="40"
-                      Height="28"
-                      Background="#bbbbbb"
-                      BorderBrush="#555555"
-                      Classes="DoubleBottom">
-
-                      <Border BorderBrush="#555555" BorderThickness="0,0,0,1">
-                        <TextBlock
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          FontSize="12"
-                          FontWeight="Medium"
-                          Foreground="#2E7D32"
-                          Text="Rank" />
-                      </Border>
-                    </Border>
                   </StackPanel>
-
-                  <ItemsControl ItemsSource="{Binding PlayerRows}" KeyboardNavigation.TabNavigation="Continue">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vmArena:ArenaRowViewModel">
-                        <StackPanel Orientation="Horizontal">
-
-                          <Border
-                            Width="100"
-                            Height="28"
-                            Background="#dbdbdb"
-                            BorderBrush="#555555"
-                            Classes="DoubleRight">
-
-                            <Border BorderBrush="#555555" BorderThickness="0,0,1,0">
-                              <TextBox
-                                MinHeight="0"
-                                Padding="0"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Classes="PlayerNameBox"
-                                CornerRadius="0"
-                                FontSize="14"
-                                FontWeight="Medium"
-                                Foreground="#333333"
-                                GotFocus="OnNameInputGotFocus"
-                                KeyDown="OnNameInputKeyDown"
-                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
-                            </Border>
-                          </Border>
-
-                          <ItemsControl ItemsSource="{Binding Cells}">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vmArena:ArenaCellViewModel">
-                                <Border
-                                  Width="40"
-                                  Height="28"
-                                  Background="{Binding CellColor}"
-                                  BorderBrush="#555555"
-                                  Classes="Cell">
-                                  <TextBlock
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontSize="14"
-                                    FontWeight="Medium"
-                                    Foreground="{Binding ForeColor}"
-                                    Text="{Binding ResultMark}" />
-                                </Border>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-
-                          <Border
-                            Width="40"
-                            Height="28"
-                            Padding="1,0,0,0"
-                            Background="#C6E0B4"
-                            BorderBrush="#555555"
-                            BorderThickness="0,0,1,1">
-                            <Border BorderBrush="#555555" BorderThickness="1,0,0,0">
-                              <TextBlock
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                FontWeight="Medium"
-                                Foreground="#333333"
-                                Text="{Binding WinCount}" />
-                            </Border>
-                          </Border>
-                          <Border
-                            Width="40"
-                            Height="28"
-                            Background="#C6E0B4"
-                            BorderBrush="#555555"
-                            Classes="Cell">
-                            <TextBlock
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"
-                              FontSize="14"
-                              FontWeight="Medium"
-                              Foreground="#333333"
-                              Text="{Binding Rank}" />
-                          </Border>
-
-                        </StackPanel>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </StackPanel>
-              </Border>
-            </StackPanel>
+                </Border>
+              </StackPanel>
+            </Border>
           </Border>
         </Border>
-      </Border>
 
-      <StackPanel
-        Grid.Row="2"
-        Margin="15,10,15,10"
-        Orientation="Horizontal">
-
-        <Border
-          Width="120"
-          Height="1"
-          Margin="0"
-          Background="Transparent" />
-
-        <ItemsControl ItemsSource="{Binding RoundInputs}">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <StackPanel Orientation="Horizontal" Spacing="0" />
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Button
-                Width="39"
-                Height="40"
-                Margin="0,0,1,0"
-                Padding="0"
-                Background="{Binding CellColor}"
-                BorderBrush="#606060"
-                BorderThickness="1"
-                Classes="RoundBtn"
-                Command="{Binding ToggleWinnerCommand}"
-                CornerRadius="4">
-                <Grid RowDefinitions="Auto, *">
-                  <TextBlock
-                    Margin="0,4,0,0"
-                    HorizontalAlignment="Center"
-                    FontSize="11"
-                    Foreground="#333333"
-                    Opacity="0.9"
-                    Text="{Binding RoundNumber, StringFormat='R{0}'}" />
-                  <TextBlock
-                    Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontSize="13"
-                    FontWeight="Black"
-                    Foreground="#333333"
-                    Text="{Binding DisplayText}" />
-                </Grid>
-              </Button>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
-        <Button
-          Width="60"
-          Height="40"
-          Margin="10,0,0,0"
-          Padding="0"
-          Background="#D32F2F"
-          BorderThickness="0"
-          Command="{Binding ResetRoundsCommand}"
-          CornerRadius="4"
-          Foreground="White">
-          <TextBlock
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            FontSize="12"
-            FontWeight="Bold"
-            Text="リセット" />
-        </Button>
-      </StackPanel>
-
-      <Border
-        Grid.Row="3"
-        Margin="15,5,15,10"
-        Padding="15,10"
-        HorizontalAlignment="Left"
-        Background="#252526"
-        BorderBrush="#333"
-        BorderThickness="1"
-        CornerRadius="5">
         <StackPanel
-          VerticalAlignment="Center"
+          Grid.Row="2"
+          Margin="15,10,15,10"
+          Orientation="Horizontal">
+
+          <Border
+            Width="120"
+            Height="1"
+            Margin="0"
+            Background="Transparent" />
+
+          <ItemsControl ItemsSource="{Binding RoundInputs}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="0" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button
+                  Width="39"
+                  Height="40"
+                  Margin="0,0,1,0"
+                  Padding="0"
+                  Background="{Binding CellColor}"
+                  BorderBrush="#606060"
+                  BorderThickness="1"
+                  Classes="RoundBtn"
+                  Command="{Binding ToggleWinnerCommand}"
+                  CornerRadius="4">
+                  <Grid RowDefinitions="Auto, *">
+                    <TextBlock
+                      Margin="0,4,0,0"
+                      HorizontalAlignment="Center"
+                      FontSize="11"
+                      Foreground="#333333"
+                      Opacity="0.9"
+                      Text="{Binding RoundNumber, StringFormat='R{0}'}" />
+                    <TextBlock
+                      Grid.Row="1"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      FontSize="13"
+                      FontWeight="Black"
+                      Foreground="#333333"
+                      Text="{Binding DisplayText}" />
+                  </Grid>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Button
+            Width="60"
+            Height="40"
+            Margin="10,0,0,0"
+            Padding="0"
+            Background="#D32F2F"
+            BorderThickness="0"
+            Command="{Binding ResetRoundsCommand}"
+            CornerRadius="4"
+            Foreground="White">
+            <TextBlock
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              FontSize="12"
+              FontWeight="Bold"
+              Text="リセット" />
+          </Button>
+        </StackPanel>
+
+        <StackPanel
+          Grid.Row="3"
+          Margin="15,5,15,10"
           Orientation="Horizontal"
           Spacing="15">
-          <TextBlock
-            VerticalAlignment="Center"
-            FontWeight="Bold"
-            Foreground="#DDDDDD"
-            Text="📅 開催日時:" />
-          <TextBox
-            Width="120"
-            MaxLength="8"
-            Text="{Binding InputDate}"
-            Watermark="YYYYMMDD" />
-          <TextBox
-            Width="80"
-            MaxLength="4"
-            Text="{Binding InputTime}"
-            Watermark="HHMM" />
-        </StackPanel>
-      </Border>
 
-      <StackPanel
-        Grid.Row="4"
-        Margin="0,15"
-        VerticalAlignment="Top"
-        Orientation="Horizontal"
-        Spacing="20">
-
-        <Button
-          Padding="30,12"
-          Background="#007ACC"
-          Command="{Binding SaveSessionCommand}"
-          CornerRadius="6">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="16"
-              Text="💾" />
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="14"
-              FontWeight="Medium"
-              Foreground="White"
-              Text="結果を保存する" />
-          </StackPanel>
-        </Button>
-
-        <Button
-          Padding="20,12"
-          Background="#606060"
-          Click="OnCopyToClipboardClick"
-          CornerRadius="6">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="16"
-              Text="📋" />
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="14"
-              FontWeight="Medium"
-              Foreground="White"
-              Text="クリップボードにコピー" />
-          </StackPanel>
-        </Button>
-
-        <Button
-          Padding="20,12"
-          Background="#606060"
-          Click="OnScreenshotClick"
-          CornerRadius="6">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="16"
-              Text="📷" />
-            <TextBlock
-              VerticalAlignment="Center"
-              FontSize="14"
-              FontWeight="Medium"
-              Foreground="White"
-              Text="画像として保存" />
-          </StackPanel>
-        </Button>
-
-        <TextBlock
-          VerticalAlignment="Center"
-          FontSize="14"
-          FontWeight="Medium"
-          Foreground="#2E7D32"
-          Text="{Binding StatusText}" />
-      </StackPanel>
-
-      <Border
-        Grid.Row="5"
-        Margin="0,10,0,0"
-        Background="White"
-        BorderBrush="#808080"
-        BorderThickness="1">
-        <Grid RowDefinitions="Auto, *">
           <Border
-            Padding="10,5"
-            Background="#f0f0f0"
-            BorderBrush="#808080"
-            BorderThickness="0,0,0,1">
-            <TextBlock
-              FontWeight="Bold"
-              Foreground="#555555"
-              Text="📜 直近の履歴 (削除のみ)" />
+            Padding="15,10"
+            Background="#252526"
+            BorderBrush="#333"
+            BorderThickness="1"
+            CornerRadius="5">
+            <StackPanel
+              VerticalAlignment="Center"
+              Orientation="Horizontal"
+              Spacing="15">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="Bold"
+                Foreground="#DDDDDD"
+                Text="📅 開催日時:" />
+              <TextBox
+                Width="120"
+                MaxLength="8"
+                Text="{Binding InputDate}"
+                Watermark="YYYYMMDD" />
+              <TextBox
+                Width="80"
+                MaxLength="4"
+                Text="{Binding InputTime}"
+                Watermark="HHMM" />
+            </StackPanel>
           </Border>
 
-          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding HistoryList}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border
-                    Padding="10,8"
-                    BorderBrush="#e0e0e0"
-                    BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="150, *, Auto">
+          <Button
+            Padding="20,10"
+            Background="#555555"
+            Command="{Binding OpenNewMemoCommand}"
+            CornerRadius="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="📝" />
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="White"
+                Text="メモを追加" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
 
-                      <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Foreground="#333333"
-                        Text="{Binding SessionDate, StringFormat='yyyy/MM/dd HH:mm'}" />
+        <StackPanel
+          Grid.Row="4"
+          Margin="0,15"
+          VerticalAlignment="Top"
+          Orientation="Horizontal"
+          Spacing="20">
 
-                      <TextBlock
-                        Grid.Column="1"
-                        Margin="10,0,10,0"
-                        VerticalAlignment="Center"
-                        FontSize="12"
-                        Foreground="#666666"
-                        Text="{Binding HistorySummaryText}"
-                        TextWrapping="Wrap" />
+          <Button
+            Padding="30,12"
+            Background="#007ACC"
+            Command="{Binding SaveSessionCommand}"
+            CornerRadius="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="💾" />
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="White"
+                Text="結果を保存する" />
+            </StackPanel>
+          </Button>
 
-                      <StackPanel
-                        Grid.Column="2"
-                        Orientation="Horizontal"
-                        Spacing="5">
-                        <Button
-                          Padding="5"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).ShowSessionDetailCommand}"
-                          CommandParameter="{Binding}">
-                          <TextBlock
-                            Cursor="Hand"
-                            Foreground="#4488FF"
-                            Text="📄 詳細" />
-                        </Button>
+          <Button
+            Padding="20,12"
+            Background="#606060"
+            Click="OnCopyToClipboardClick"
+            CornerRadius="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="📋" />
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="White"
+                Text="クリップボードにコピー" />
+            </StackPanel>
+          </Button>
 
-                        <Button
-                          Padding="5"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          Classes="Danger"
-                          Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
-                          CommandParameter="{Binding}">
-                          <TextBlock
-                            Cursor="Hand"
-                            Foreground="#D32F2F"
-                            Text="🗑️ 削除" />
-                        </Button>
+          <Button
+            Padding="20,12"
+            Background="#606060"
+            Click="OnScreenshotClick"
+            CornerRadius="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="📷" />
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="14"
+                FontWeight="Medium"
+                Foreground="White"
+                Text="画像として保存" />
+            </StackPanel>
+          </Button>
 
-                      </StackPanel>
+          <TextBlock
+            VerticalAlignment="Center"
+            FontSize="14"
+            FontWeight="Medium"
+            Foreground="#2E7D32"
+            Text="{Binding StatusText}" />
+        </StackPanel>
 
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
-        </Grid>
+        <Border
+          Grid.Row="5"
+          Margin="0,10,0,0"
+          Background="White"
+          BorderBrush="#808080"
+          BorderThickness="1">
+          <Grid RowDefinitions="Auto, *">
+            <Border
+              Padding="10,5"
+              Background="#f0f0f0"
+              BorderBrush="#808080"
+              BorderThickness="0,0,0,1">
+              <TextBlock
+                FontWeight="Bold"
+                Foreground="#555555"
+                Text="📜 直近の履歴 (削除のみ)" />
+            </Border>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+              <ItemsControl ItemsSource="{Binding HistoryList}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border
+                      Padding="10,8"
+                      BorderBrush="#e0e0e0"
+                      BorderThickness="0,0,0,1">
+                      <Grid ColumnDefinitions="150, *, Auto">
+
+                        <TextBlock
+                          Grid.Column="0"
+                          VerticalAlignment="Center"
+                          Foreground="#333333"
+                          Text="{Binding SessionDate, StringFormat='yyyy/MM/dd HH:mm'}" />
+
+                        <TextBlock
+                          Grid.Column="1"
+                          Margin="10,0,10,0"
+                          VerticalAlignment="Center"
+                          FontSize="12"
+                          Foreground="#666666"
+                          Text="{Binding HistorySummaryText}"
+                          TextWrapping="Wrap" />
+
+                        <StackPanel
+                          Grid.Column="2"
+                          Orientation="Horizontal"
+                          Spacing="5">
+                          <Button
+                            Padding="5"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).OpenEditMemoCommand}"
+                            CommandParameter="{Binding}">
+                            <TextBlock
+                              Cursor="Hand"
+                              Foreground="#FFCC00"
+                              Text="📝 メモ" />
+                          </Button>
+
+                          <Button
+                            Padding="5"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).ShowSessionDetailCommand}"
+                            CommandParameter="{Binding}">
+                            <TextBlock
+                              Cursor="Hand"
+                              Foreground="#4488FF"
+                              Text="📄 詳細" />
+                          </Button>
+
+                          <Button
+                            Padding="5"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Classes="Danger"
+                            Command="{Binding $parent[UserControl].((vm:ArenaViewModel)DataContext).DeleteSessionCommand}"
+                            CommandParameter="{Binding}">
+                            <TextBlock
+                              Cursor="Hand"
+                              Foreground="#D32F2F"
+                              Text="🗑️ 削除" />
+                          </Button>
+
+                        </StackPanel>
+
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+      </Grid>
+    </ScrollViewer>
+
+    <Grid Background="#AA000000" IsVisible="{Binding IsShowMemoModal}">
+      <Border
+        MinWidth="400"
+        MaxWidth="600"
+        Padding="25"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Background="#2D2D30"
+        BoxShadow="0 4 10 0 #55000000"
+        CornerRadius="8">
+        <StackPanel Spacing="15">
+          <TextBlock
+            FontSize="18"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="📝 セッションメモ" />
+
+          <TextBox
+            Height="150"
+            AcceptsReturn="True"
+            Text="{Binding EditingMemoText}"
+            TextWrapping="Wrap"
+            Watermark="このセッションに関する特筆事項や、チーム分けの意図などを入力..." />
+
+          <StackPanel
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="10">
+            <Button
+              Padding="15,6"
+              Background="#555555"
+              Command="{Binding CancelMemoCommand}"
+              Content="キャンセル"
+              Foreground="White" />
+            <Button
+              Padding="15,6"
+              Background="#007ACC"
+              Command="{Binding SaveMemoCommand}"
+              Content="保存"
+              FontWeight="Bold"
+              Foreground="White" />
+          </StackPanel>
+        </StackPanel>
       </Border>
     </Grid>
-  </ScrollViewer>
+
+  </Grid>
 </UserControl>

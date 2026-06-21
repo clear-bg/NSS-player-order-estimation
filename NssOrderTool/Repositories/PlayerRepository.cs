@@ -184,5 +184,18 @@ namespace NssOrderTool.Repositories
 
       return player != null && player.IsDeleted;
     }
+
+    public virtual async Task UpdatePlayerMemoAsync(string id, string memo)
+    {
+      if (string.IsNullOrWhiteSpace(id)) return;
+
+      var player = await _context.Players.FindAsync(id);
+      if (player != null)
+      {
+        player.Memo = memo ?? string.Empty;
+        player.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+      }
+    }
   }
 }
