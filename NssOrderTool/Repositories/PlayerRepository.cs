@@ -94,6 +94,7 @@ namespace NssOrderTool.Repositories
     public virtual async Task<List<PlayerEntity>> GetAllPlayersAsync()
     {
       return await _context.Players
+          .AsNoTracking()
           .OrderBy(p => p.Id)
           .ToListAsync();
     }
