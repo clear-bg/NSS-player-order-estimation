@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using Avalonia.Input; // ★追加
+using Avalonia.Input;
 
 namespace NssOrderTool.Views
 {
@@ -10,13 +10,22 @@ namespace NssOrderTool.Views
       InitializeComponent();
     }
 
-    // ★追加: 画面の余白がクリックされたときに呼ばれる処理
     private void OnBackgroundPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-      if (PlayerListBox != null)
+      // DataGridの外側をクリックしたら選択を解除する
+      if (PlayerGrid != null)
       {
-        // リストの選択状態を解除（null）にする
-        PlayerListBox.SelectedItem = null;
+        PlayerGrid.SelectedItem = null;
+      }
+
+      TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+    }
+
+    private void OnInputKeyDown(object? sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Escape)
+      {
+        TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
       }
     }
   }

@@ -229,5 +229,16 @@ namespace NssOrderTool.Repositories
           .OrderBy(h => h.RecordedAt)
           .ToListAsync();
     }
+
+    public virtual async Task UpdateSessionMemoAsync(int sessionId, string memo)
+    {
+      var session = await _context.ArenaSessions.FindAsync(sessionId);
+      if (session != null)
+      {
+        session.Memo = memo ?? string.Empty;
+        session.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+      }
+    }
   }
 }

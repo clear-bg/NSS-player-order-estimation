@@ -13,12 +13,14 @@ namespace NssOrderTool.Models.UI
     public string WinningTeam { get; }
     public string HostName { get; }
     public string HistorySummaryText { get; }
+    public string Memo { get; set; } = string.Empty;
 
     // コンストラクタ：Entityを受け取って、表示用の文字列をここで組み立てる
     public ArenaSessionDisplayModel(ArenaSessionEntity entity)
     {
       Id = entity.Id;
       SessionDate = entity.SessionDate;
+      Memo = entity.Memo ?? string.Empty;
 
       // 1. 勝敗ロジック
       int blueWins = entity.Rounds?.Count(r => r.WinningTeam == 1) ?? 0;

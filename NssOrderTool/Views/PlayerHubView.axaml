@@ -2,6 +2,7 @@
   x:Class="NssOrderTool.Views.PlayerHubView"
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:conv="using:NssOrderTool.Converters"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:models="using:NssOrderTool.Models.UI"
@@ -11,6 +12,10 @@
   d:DesignWidth="800"
   x:DataType="vm:PlayerHubViewModel"
   mc:Ignorable="d">
+
+  <UserControl.Resources>
+    <conv:RatingToColorConverter x:Key="RatingToColorConverter" />
+  </UserControl.Resources>
 
   <Grid>
 
@@ -40,6 +45,7 @@
                 Text="プレイヤー名 (必須)" />
               <TextBox
                 Width="200"
+                KeyDown="OnInputKeyDown"
                 Text="{Binding TargetInput}"
                 Watermark="例: Takahiro" />
             </StackPanel>
@@ -50,6 +56,7 @@
                 Text="エイリアス (カンマ区切り / 省略可)" />
               <TextBox
                 Width="300"
+                KeyDown="OnInputKeyDown"
                 Text="{Binding AliasInput}"
                 Watermark="例: Taka, たかひろ" />
             </StackPanel>
@@ -75,7 +82,7 @@
         Background="#555555"
         CornerRadius="2" />
 
-      <Grid Grid.Row="2" RowDefinitions="Auto, *">
+      <Grid Grid.Row="2" RowDefinitions="Auto, Auto, *">
         <Grid
           Grid.Row="0"
           Margin="0,0,0,10"
@@ -118,93 +125,205 @@
           </StackPanel>
         </Grid>
 
-        <ListBox
-          x:Name="PlayerListBox"
+        <Border
           Grid.Row="1"
-          Padding="5"
+          Margin="0,0,0,10"
+          Padding="15,10"
+          Background="#2D2D30"
+          BorderBrush="#555555"
+          BorderThickness="1"
+          CornerRadius="5">
+          <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
+
+            <StackPanel
+              Margin="0,0,25,0"
+              Orientation="Horizontal"
+              Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="🔍" />
+              <TextBox
+                Width="200"
+                VerticalAlignment="Center"
+                KeyDown="OnInputKeyDown"
+                Text="{Binding SearchText}"
+                Watermark="名前・エイリアスで検索" />
+            </StackPanel>
+
+            <StackPanel
+              Margin="0,0,25,0"
+              Orientation="Horizontal"
+              Spacing="8">
+              <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="Bold"
+                Foreground="#CCCCCC"
+                Text="💤 非アクティブ判定:" />
+              <NumericUpDown
+                Width="120"
+                VerticalAlignment="Center"
+                FormatString="0"
+                KeyDown="OnInputKeyDown"
+                Maximum="3650"
+                Minimum="1"
+                Value="{Binding InactiveDaysThreshold}" />
+              <TextBlock
+                VerticalAlignment="Center"
+                Foreground="#CCCCCC"
+                Text="日未参加" />
+            </StackPanel>
+
+            <CheckBox
+              VerticalAlignment="Center"
+              Content="非アクティブなプレイヤーも表示する"
+              Foreground="#DDDDDD"
+              IsChecked="{Binding ShowInactivePlayers}" />
+
+          </WrapPanel>
+        </Border>
+
+        <DataGrid
+          x:Name="PlayerGrid"
+          Grid.Row="2"
+          Margin="0,10,0,0"
+          AutoGenerateColumns="False"
           Background="#1E1E1E"
-          CornerRadius="5"
+          BorderBrush="#555555"
+          BorderThickness="1"
+          CanUserReorderColumns="True"
+          CanUserResizeColumns="True"
+          CanUserSortColumns="True"
+          GridLinesVisibility="Horizontal"
+          IsReadOnly="True"
           ItemsSource="{Binding PlayerList}">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="models:PlayerHubItem">
 
-              <Grid Margin="5,4" ColumnDefinitions="*, Auto">
+          <DataGrid.Columns>
+            <DataGridTemplateColumn
+              Width="*"
+              Header="プレイヤー名"
+              SortMemberPath="Name">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate x:DataType="models:PlayerHubItem">
+                  <StackPanel Margin="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                      <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Foreground="{Binding Rating, Converter={StaticResource RatingToColorConverter}}"
+                        Text="{Binding Name}" />
+                      <Button
+                        Padding="6,2"
+                        Background="#D32F2F"
+                        Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeletePlayerCommand}"
+                        CommandParameter="{Binding}"
+                        Content="✕"
+                        CornerRadius="10"
+                        FontSize="12"
+                        Foreground="White"
+                        IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+                    </StackPanel>
 
-                <StackPanel Grid.Column="0">
-                  <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock
-                      VerticalAlignment="Center"
-                      FontSize="16"
-                      FontWeight="Bold"
-                      Foreground="White"
-                      Text="{Binding Name}" />
+                    <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Border
+                            Margin="0,0,5,3"
+                            Padding="10,2"
+                            Background="#555555"
+                            CornerRadius="12">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                              <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Foreground="#CCCCCC"
+                                Text="{Binding}" />
+                              <Button
+                                Padding="4,0"
+                                Background="Transparent"
+                                Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeleteAliasCommand}"
+                                CommandParameter="{Binding}"
+                                Content="✕"
+                                FontSize="10"
+                                Foreground="#FF9999"
+                                IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
+                            </StackPanel>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                    <Button
-                      Padding="6,2"
-                      Background="#D32F2F"
-                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeletePlayerCommand}"
-                      CommandParameter="{Binding}"
-                      Content="✕"
-                      CornerRadius="10"
-                      FontSize="12"
-                      Foreground="White"
-                      IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
                   </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
 
-                  <ItemsControl Margin="0,3,0,0" ItemsSource="{Binding Aliases}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <Border
-                          Margin="0,0,5,3"
-                          Padding="10,2"
-                          Background="#555555"
-                          CornerRadius="12">
-                          <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock
-                              VerticalAlignment="Center"
-                              FontSize="12"
-                              Foreground="#CCCCCC"
-                              Text="{Binding}" />
-                            <Button
-                              Padding="4,0"
-                              Background="Transparent"
-                              Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).DeleteAliasCommand}"
-                              CommandParameter="{Binding}"
-                              Content="✕"
-                              FontSize="10"
-                              Foreground="#FF9999"
-                              IsVisible="{Binding #Root.((vm:PlayerHubViewModel)DataContext).IsEditing}" />
-                          </StackPanel>
-                        </Border>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </StackPanel>
+            <DataGridTemplateColumn
+              Width="80"
+              Header="レート"
+              SortMemberPath="Rating">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate x:DataType="models:PlayerHubItem">
+                  <TextBlock
+                    Margin="10,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Foreground="{Binding Rating, Converter={StaticResource RatingToColorConverter}}"
+                    Text="{Binding Rating, StringFormat={}{0:F0}}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
 
-                <Button
-                  Grid.Column="1"
-                  Margin="10,0,0,0"
-                  Padding="15,8"
-                  VerticalAlignment="Center"
-                  Background="#007ACC"
-                  Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).GoToArenaDataCommand}"
-                  CommandParameter="{Binding}"
-                  Content="📊 戦績"
-                  CornerRadius="5"
-                  FontSize="12"
-                  FontWeight="Bold"
-                  Foreground="White" />
+            <DataGridTextColumn
+              Width="80"
+              Binding="{Binding TotalMatches}"
+              Header="参加数" />
 
-              </Grid>
+            <DataGridTextColumn
+              Width="100"
+              Binding="{Binding WinRateString}"
+              Header="1位獲得率"
+              SortMemberPath="WinRateString" />
 
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+            <DataGridTemplateColumn Width="140" Header="操作">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate x:DataType="models:PlayerHubItem">
+                  <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                      Padding="8,5"
+                      Background="#555555"
+                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).OpenMemoCommand}"
+                      CommandParameter="{Binding}"
+                      Content="📝"
+                      CornerRadius="5"
+                      FontSize="14"
+                      Foreground="White"
+                      ToolTip.Tip="メモを編集" />
+                    <Button
+                      Padding="10,5"
+                      Background="#007ACC"
+                      Command="{Binding #Root.((vm:PlayerHubViewModel)DataContext).GoToArenaDataCommand}"
+                      CommandParameter="{Binding}"
+                      Content="📊 戦績"
+                      CornerRadius="5"
+                      FontSize="12"
+                      FontWeight="Bold"
+                      Foreground="White" />
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
       </Grid>
     </Grid>
 
@@ -267,6 +386,50 @@
           </StackPanel>
         </StackPanel>
 
+      </Border>
+    </Grid>
+
+    <Grid Background="#AA000000" IsVisible="{Binding IsShowMemoModal}">
+      <Border
+        MinWidth="400"
+        MaxWidth="600"
+        Padding="25"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Background="#2D2D30"
+        BoxShadow="0 4 10 0 #55000000"
+        CornerRadius="8">
+        <StackPanel Spacing="15">
+          <TextBlock
+            FontSize="18"
+            FontWeight="Bold"
+            Foreground="White"
+            Text="📝 メモの編集" />
+          <TextBox
+            Height="150"
+            AcceptsReturn="True"
+            Text="{Binding EditingMemoText}"
+            TextWrapping="Wrap"
+            Watermark="プレイスタイル、使用武器、得意マップなどのメモを入力..." />
+          <StackPanel
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="10">
+            <Button
+              Padding="15,6"
+              Background="#555555"
+              Command="{Binding CancelMemoCommand}"
+              Content="キャンセル"
+              Foreground="White" />
+            <Button
+              Padding="15,6"
+              Background="#007ACC"
+              Command="{Binding SaveMemoCommand}"
+              Content="保存"
+              FontWeight="Bold"
+              Foreground="White" />
+          </StackPanel>
+        </StackPanel>
       </Border>
     </Grid>
 

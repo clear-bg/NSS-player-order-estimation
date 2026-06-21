@@ -94,6 +94,7 @@ namespace NssOrderTool.Repositories
     public virtual async Task<List<PlayerEntity>> GetAllPlayersAsync()
     {
       return await _context.Players
+          .AsNoTracking()
           .OrderBy(p => p.Id)
           .ToListAsync();
     }
@@ -182,6 +183,19 @@ namespace NssOrderTool.Repositories
           .FirstOrDefaultAsync(p => p.Name == name);
 
       return player != null && player.IsDeleted;
+    }
+
+    public virtual async Task UpdatePlayerMemoAsync(string id, string memo)
+    {
+      if (string.IsNullOrWhiteSpace(id)) return;
+
+      var player = await _context.Players.FindAsync(id);
+      if (player != null)
+      {
+        player.Memo = memo ?? string.Empty;
+        player.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+      }
     }
   }
 }

@@ -31,10 +31,36 @@ namespace NssOrderTool.ViewModels
 
     [ObservableProperty]
     private bool _isEditing;
+
     [ObservableProperty]
     private bool _isShowDeleteConfirm;
+
     [ObservableProperty]
+
     private PlayerHubItem? _playerToDelete;
+
+    [ObservableProperty]
+    private string _searchText = "";
+
+    [ObservableProperty]
+    private int _inactiveDaysThreshold = 365;
+
+    [ObservableProperty]
+    private bool _showInactivePlayers = false;
+
+    [ObservableProperty]
+    private bool _isShowMemoModal;
+
+    [ObservableProperty]
+    private string _editingMemoText = "";
+
+    private PlayerHubItem? _playerToEditMemo;
+
+    private List<PlayerHubItem> _allPlayers = new();
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnInactiveDaysThresholdChanged(int value) => ApplyFilter();
+    partial void OnShowInactivePlayersChanged(bool value) => ApplyFilter();
 
     // ユーザー一覧データ
     public ObservableCollection<PlayerHubItem> PlayerList { get; } = new();
@@ -70,21 +96,28 @@ namespace NssOrderTool.ViewModels
             .ToDictionary(g => g.Key, g => g.Select(kv => kv.Key).ToList());
 
         PlayerList.Clear();
+        _allPlayers.Clear();
         foreach (var p in players.OrderBy(p => p.Name))
         {
           var aliases = targetToAliases.ContainsKey(p.Name!) ? targetToAliases[p.Name!] : new List<string>();
           var item = new PlayerHubItem
           {
             PlayerId = p.Id,
-            Name = p.Name!
+            Name = p.Name!,
+            Rating = p.RateMean,
+            TotalMatches = p.TotalMatches,
+            WinRateString = p.TotalMatches == 0 ? "-" : $"{(double)p.TotalWins / p.TotalMatches:P1}",
+            LastPlayedAt = p.LastPlayedAt,
+            Memo = p.Memo ?? ""
           };
           foreach (var a in aliases)
           {
             item.Aliases.Add(a);
           }
 
-          PlayerList.Add(item);
+          _allPlayers.Add(item);
         }
+        ApplyFilter();
       }
       catch (Exception ex)
       {
@@ -143,7 +176,7 @@ namespace NssOrderTool.ViewModels
         }
         else
         {
-          StatusText = $"✅ {targetName} の登録・更新が完了しました";
+          StatusText = $"✅ プレイヤー {targetName} の登録・更新が完了しました";
         }
 
         TargetInput = "";
@@ -280,6 +313,78 @@ namespace NssOrderTool.ViewModels
       catch (Exception ex)
       {
         StatusText = $"❌ エイリアス削除エラー: {ex.Message}";
+      }
+    }
+
+    [RelayCommand]
+    private void OpenMemo(PlayerHubItem player)
+    {
+      if (player == null) return;
+      _playerToEditMemo = player;
+      EditingMemoText = player.Memo;
+      IsShowMemoModal = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveMemoAsync()
+    {
+      if (_playerToEditMemo == null) return;
+
+      try
+      {
+        // データベースを更新
+        await _playerRepo.UpdatePlayerMemoAsync(_playerToEditMemo.PlayerId, EditingMemoText);
+
+        // UI用リストのデータも更新
+        _playerToEditMemo.Memo = EditingMemoText;
+        StatusText = $"📝 '{_playerToEditMemo.Name}' のメモを保存しました";
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ メモ保存エラー: {ex.Message}";
+      }
+      finally
+      {
+        // モーダルを閉じる
+        IsShowMemoModal = false;
+        _playerToEditMemo = null;
+      }
+    }
+
+    [RelayCommand]
+    private void CancelMemo()
+    {
+      IsShowMemoModal = false;
+      _playerToEditMemo = null;
+    }
+
+    // ★追加: 検索文字と休眠判定に従って PlayerList を更新するメソッド
+    private void ApplyFilter()
+    {
+      var thresholdDate = DateTime.Now.AddDays(-InactiveDaysThreshold);
+      var query = _allPlayers.AsEnumerable();
+
+      // 1. 非アクティブフィルター
+      if (!ShowInactivePlayers)
+      {
+        // アクティブな人（プレイ履歴があり、かつ閾値日数より最近プレイした人）だけを残す
+        query = query.Where(p => p.LastPlayedAt.HasValue && p.LastPlayedAt.Value >= thresholdDate);
+      }
+
+      // 2. 検索文字フィルター (インクリメンタルサーチ)
+      if (!string.IsNullOrWhiteSpace(SearchText))
+      {
+        var lowerSearch = SearchText.ToLower();
+        query = query.Where(p =>
+            p.Name.ToLower().Contains(lowerSearch) ||
+            p.Aliases.Any(a => a.ToLower().Contains(lowerSearch)));
+      }
+
+      // 3. UI用リストに反映
+      PlayerList.Clear();
+      foreach (var item in query)
+      {
+        PlayerList.Add(item);
       }
     }
   }
