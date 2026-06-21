@@ -18,5 +18,7 @@ namespace NssOrderTool.Models.UI
     public int TotalMatches { get; set; }
     public string WinRateString { get; set; } = "-";
     public DateTime? LastPlayedAt { get; set; }
+
+    public string Memo { get; set; } = string.Empty;
   }
 }

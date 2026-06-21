@@ -48,6 +48,14 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private bool _showInactivePlayers = false;
 
+    [ObservableProperty]
+    private bool _isShowMemoModal;
+
+    [ObservableProperty]
+    private string _editingMemoText = "";
+
+    private PlayerHubItem? _playerToEditMemo;
+
     private List<PlayerHubItem> _allPlayers = new();
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -99,7 +107,8 @@ namespace NssOrderTool.ViewModels
             Rating = p.RateMean,
             TotalMatches = p.TotalMatches,
             WinRateString = p.TotalMatches == 0 ? "-" : $"{(double)p.TotalWins / p.TotalMatches:P1}",
-            LastPlayedAt = p.LastPlayedAt
+            LastPlayedAt = p.LastPlayedAt,
+            Memo = p.Memo ?? ""
           };
           foreach (var a in aliases)
           {
@@ -305,6 +314,48 @@ namespace NssOrderTool.ViewModels
       {
         StatusText = $"❌ エイリアス削除エラー: {ex.Message}";
       }
+    }
+
+    [RelayCommand]
+    private void OpenMemo(PlayerHubItem player)
+    {
+      if (player == null) return;
+      _playerToEditMemo = player;
+      EditingMemoText = player.Memo;
+      IsShowMemoModal = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveMemoAsync()
+    {
+      if (_playerToEditMemo == null) return;
+
+      try
+      {
+        // データベースを更新
+        await _playerRepo.UpdatePlayerMemoAsync(_playerToEditMemo.PlayerId, EditingMemoText);
+
+        // UI用リストのデータも更新
+        _playerToEditMemo.Memo = EditingMemoText;
+        StatusText = $"📝 '{_playerToEditMemo.Name}' のメモを保存しました";
+      }
+      catch (Exception ex)
+      {
+        StatusText = $"❌ メモ保存エラー: {ex.Message}";
+      }
+      finally
+      {
+        // モーダルを閉じる
+        IsShowMemoModal = false;
+        _playerToEditMemo = null;
+      }
+    }
+
+    [RelayCommand]
+    private void CancelMemo()
+    {
+      IsShowMemoModal = false;
+      _playerToEditMemo = null;
     }
 
     // ★追加: 検索文字と休眠判定に従って PlayerList を更新するメソッド
