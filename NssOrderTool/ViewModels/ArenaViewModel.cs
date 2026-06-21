@@ -48,6 +48,17 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _inputTime = DateTime.Now.ToString("HHmm");
 
+    [ObservableProperty]
+    private string _newSessionMemo = string.Empty; // 新規保存用のメモ一時退避
+
+    [ObservableProperty]
+    private bool _isShowMemoModal;
+
+    [ObservableProperty]
+    private string _editingMemoText = string.Empty;
+
+    private ArenaSessionDisplayModel? _editingDisplayModel;
+
     public ArenaViewModel(
       ArenaRepository arenaRepo,
       PlayerRepository playerRepo,
@@ -170,6 +181,7 @@ namespace NssOrderTool.ViewModels
         {
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
+          Memo = NewSessionMemo,
         };
 
         // 参加者情報の作成
@@ -258,6 +270,8 @@ namespace NssOrderTool.ViewModels
         WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
 
         StatusText = "✅ 結果を保存し、レートを更新しました";
+
+        NewSessionMemo = string.Empty;
 
         await LoadHistoryAsync();
 
@@ -386,6 +400,58 @@ namespace NssOrderTool.ViewModels
         input.WinningTeam = 0; // 0 = 未選択
       }
       Recalculate(); // リセット後に計算を再実行して画面に反映
+    }
+
+    [RelayCommand]
+    private void OpenNewMemo()
+    {
+      _editingDisplayModel = null; // 新規セッションであることを明示
+      EditingMemoText = NewSessionMemo;
+      IsShowMemoModal = true;
+    }
+
+    [RelayCommand]
+    private void OpenEditMemo(ArenaSessionDisplayModel session)
+    {
+      if (session == null) return;
+      _editingDisplayModel = session; // どの履歴を編集しているか保持
+      EditingMemoText = session.Memo;
+      IsShowMemoModal = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveMemoAsync()
+    {
+      if (_editingDisplayModel == null)
+      {
+        // 新規セッション作成前のメモ一時保存
+        NewSessionMemo = EditingMemoText;
+        StatusText = "📝 新規セッション用のメモを一時保存しました (※まだ結果は保存されていません)";
+      }
+      else
+      {
+        // 既存の履歴のメモ更新
+        try
+        {
+          await _arenaRepo.UpdateSessionMemoAsync(_editingDisplayModel.Id, EditingMemoText);
+          _editingDisplayModel.Memo = EditingMemoText; // UI用モデルにも反映
+          StatusText = $"📝 履歴のメモを更新しました";
+        }
+        catch (Exception ex)
+        {
+          StatusText = $"❌ メモ保存エラー: {ex.Message}";
+        }
+      }
+
+      IsShowMemoModal = false;
+      _editingDisplayModel = null;
+    }
+
+    [RelayCommand]
+    private void CancelMemo()
+    {
+      IsShowMemoModal = false;
+      _editingDisplayModel = null;
     }
   }
 }
