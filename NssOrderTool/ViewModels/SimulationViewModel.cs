@@ -236,15 +236,11 @@ namespace NssOrderTool.ViewModels
       int groupIndex = 0;
       foreach (var group in tiedGroups)
       {
-        if (groupIndex < colors.Length)
+        foreach (var item in group)
         {
-          var color = colors[groupIndex];
-          foreach (var item in group)
-          {
-            item.OrderColor = color;
-          }
-          groupIndex++;
+          item.TiedGroupIndex = groupIndex;
         }
+        groupIndex++;
       }
     }
 
@@ -296,7 +292,7 @@ namespace NssOrderTool.ViewModels
     private bool _isTied;
 
     [ObservableProperty]
-    private IBrush _orderColor = Brushes.Black;
+    private int _tiedGroupIndex = -1; // 初期値の -1 は「同配置順（タイ）ではない」ことを表します
 
     public string OrderText => $"{OrderIndex}.";
 
