@@ -44,7 +44,7 @@ namespace NssOrderTool.ViewModels
     private List<RateHistoryEntity> _rateHistory = new();
 
     public ObservableCollection<PlayerEntity> Players { get; } = new();
-    public record RankingItem(int Rank, string Name, string Rating, string Id);
+    public record RankingItem(int Rank, string Name, string RatingText, double RatingValue, string Id);
     public ObservableCollection<RankingItem> TopRanking { get; } = new();
 
     // デザイン用
@@ -166,8 +166,7 @@ namespace NssOrderTool.ViewModels
       {
         string rateText = p.RateMean.ToString("F0");
 
-        // リストに追加
-        TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.Id));
+        TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.RateMean, p.Id));
       }
     }
 
