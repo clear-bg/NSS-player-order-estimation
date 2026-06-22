@@ -44,5 +44,8 @@ namespace NssOrderTool.Models.Entities
 
     // リレーション (1対多)
     public List<ArenaRoundEntity> Rounds { get; set; } = new();
+
+    [ForeignKey(nameof(SeasonId))]
+    public SeasonEntity? Season { get; set; }
   }
 }
