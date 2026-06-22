@@ -79,7 +79,7 @@ public partial class App : Application
     collection.AddTransient<PlayerRepository>();
     collection.AddTransient<AliasRepository>();
     collection.AddTransient<ArenaRepository>();
-    collection.AddTransient<ArenaViewModel>();
+    collection.AddTransient<SeasonRepository>();
 
     // ViewModels
     collection.AddTransient<MainWindowViewModel>();
@@ -87,6 +87,7 @@ public partial class App : Application
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
     collection.AddTransient<ArenaDataViewModel>();
+    collection.AddTransient<ArenaViewModel>();
 
     // 3. プロバイダのビルド
     Services = collection.BuildServiceProvider();
