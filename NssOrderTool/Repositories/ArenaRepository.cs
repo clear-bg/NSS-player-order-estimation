@@ -28,9 +28,10 @@ namespace NssOrderTool.Repositories
       await _context.SaveChangesAsync();
     }
 
-    public virtual async Task<List<ArenaSessionEntity>> GetAllSessionsAsync()
+    public virtual async Task<List<ArenaSessionEntity>> GetAllSessionsAsync(int seasonId)
     {
       return await _context.ArenaSessions
+          .Where(s => s.SeasonId == seasonId)
           .Include(s => s.Rounds)
           .Include(s => s.Participants)
             .ThenInclude(p => p.Player)

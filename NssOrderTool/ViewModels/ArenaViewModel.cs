@@ -25,6 +25,7 @@ namespace NssOrderTool.ViewModels
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaLogicService _arenaLogic;
     private readonly OrderRepository _orderRepo;
+    private readonly SeasonRepository _seasonRepo;
 
     // --- Bindings ---
 
@@ -57,25 +58,35 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _editingMemoText = string.Empty;
 
+    [ObservableProperty]
+    private SeasonEntity? _currentActiveSeason;
+
+    public ObservableCollection<SeasonUIItem> Seasons { get; } = new();
+
+    [ObservableProperty]
+    private SeasonUIItem? _selectedHistorySeason;
+
     private ArenaSessionDisplayModel? _editingDisplayModel;
 
     public ArenaViewModel(
       ArenaRepository arenaRepo,
       PlayerRepository playerRepo,
       ArenaLogicService arenaLogic,
-      OrderRepository orderRepo)
+      OrderRepository orderRepo,
+      SeasonRepository seasonRepo)
     {
       _arenaRepo = arenaRepo;
       _playerRepo = playerRepo;
       _arenaLogic = arenaLogic;
       _orderRepo = orderRepo;
+      _seasonRepo = seasonRepo;
 
       InitializeRounds();
       InitializeMatrix();
 
       WeakReferenceMessenger.Default.RegisterAll(this);
 
-      _ = LoadHistoryAsync();
+      _ = InitializeSeasonsAsync();
     }
 
     // デザイナー用
@@ -85,6 +96,7 @@ namespace NssOrderTool.ViewModels
       _playerRepo = null!;
       _arenaLogic = null!;
       _orderRepo = null!;
+      _seasonRepo = null!;
       InitializeRounds();
       InitializeMatrix();
     }
@@ -152,6 +164,10 @@ namespace NssOrderTool.ViewModels
       IsBusy = true;
       StatusText = "保存中...";
 
+      Console.WriteLine("=== [DEBUG] SaveSession スタート ===");
+      Console.WriteLine($"[DEBUG] CurrentActiveSeason は NULLですか？ : {CurrentActiveSeason == null}");
+      Console.WriteLine($"[DEBUG] 取得できている SeasonId : {CurrentActiveSeason?.Id ?? 0}");
+
       try
       {
         if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out var parsedSessionDate))
@@ -182,6 +198,7 @@ namespace NssOrderTool.ViewModels
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
           Memo = NewSessionMemo,
+          SeasonId = CurrentActiveSeason?.Id ?? 0
         };
 
         // 参加者情報の作成
@@ -300,7 +317,9 @@ namespace NssOrderTool.ViewModels
     {
       try
       {
-        var sessions = await _arenaRepo.GetAllSessionsAsync();
+        if (SelectedHistorySeason == null) return;
+
+        var sessions = await _arenaRepo.GetAllSessionsAsync(SelectedHistorySeason.Entity.Id);
 
         HistoryList.Clear();
         foreach (var s in sessions)
@@ -452,6 +471,33 @@ namespace NssOrderTool.ViewModels
     {
       IsShowMemoModal = false;
       _editingDisplayModel = null;
+    }
+
+    private async Task InitializeSeasonsAsync()
+    {
+      var seasons = await _seasonRepo.GetAllSeasonsAsync();
+      Seasons.Clear();
+      foreach (var s in seasons)
+      {
+        Seasons.Add(new SeasonUIItem(s));
+      }
+
+      // アクティブなシーズンをプロパティに保持
+      CurrentActiveSeason = await _seasonRepo.GetActiveSeasonAsync();
+
+      // ドロップダウンの初期選択をアクティブシーズンにする
+      if (CurrentActiveSeason != null)
+      {
+        SelectedHistorySeason = Seasons.FirstOrDefault(s => s.Entity.Id == CurrentActiveSeason.Id);
+      }
+    }
+
+    partial void OnSelectedHistorySeasonChanged(SeasonUIItem? value)
+    {
+      if (value != null)
+      {
+        _ = LoadHistoryAsync();
+      }
     }
   }
 }
