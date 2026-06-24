@@ -82,20 +82,19 @@ namespace NssOrderTool.Repositories
       return BlueTeamDefinitions[roundNumber].Contains(slotIndex);
     }
 
-    public virtual async Task<PlayerDetailsDto> GetPlayerDetailsAsync(string playerId)
+    public virtual async Task<PlayerDetailsDto> GetPlayerDetailsAsync(string playerId, int seasonId)
     {
       using var scope = _services.CreateScope();
       var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
       // 1. データ取得
-      // ★修正: Include(p => p.Session!) とすることで、後続のThenIncludeに「nullじゃないよ」と伝えます
       var myParticipations = await context.ArenaParticipants
           .Include(p => p.Session!)
               .ThenInclude(s => s.Rounds)
           .Include(p => p.Session!)
               .ThenInclude(s => s.Participants)
                   .ThenInclude(part => part.Player)
-          .Where(p => p.PlayerId == playerId && !p.IsDeleted)
+          .Where(p => p.PlayerId == playerId && !p.IsDeleted && p.Session != null && p.Session.SeasonId == seasonId)
           .OrderByDescending(p => p.Session!.SessionDate)
           .ThenByDescending(p => p.Session!.CreatedAt)
           .ToListAsync();

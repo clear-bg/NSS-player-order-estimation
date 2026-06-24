@@ -251,5 +251,24 @@ namespace NssOrderTool.Repositories
       }
       await _context.SaveChangesAsync();
     }
+
+    public virtual async Task<List<PlayerSeasonRatingEntity>> GetTopRatedPlayersBySeasonAsync(int count, int seasonId)
+    {
+      return await _context.PlayerSeasonRatings
+          .Include(r => r.Player) // 名前を取得するためにPlayerテーブルも結合
+          .AsNoTracking()
+          .Where(r => r.SeasonId == seasonId && r.TotalMatches > 0) // 試合をしたことがある人のみ
+          .OrderByDescending(r => r.RateMean)
+          .Take(count)
+          .ToListAsync();
+    }
+
+    // 特定シーズンの個人のレートを取得する
+    public virtual async Task<PlayerSeasonRatingEntity?> GetPlayerSeasonRatingAsync(string playerId, int seasonId)
+    {
+      return await _context.PlayerSeasonRatings
+          .AsNoTracking()
+          .FirstOrDefaultAsync(r => r.PlayerId == playerId && r.SeasonId == seasonId);
+    }
   }
 }

@@ -48,6 +48,25 @@
             VerticalAlignment="Center"
             Foreground="Gray"
             Text="{Binding SelectedPlayer.Name, StringFormat='選択中: {0}', TargetNullValue='(未選択)'}" />
+
+          <Border
+            Width="1"
+            Margin="15,0"
+            Background="#444444" />
+          <TextBlock
+            VerticalAlignment="Center"
+            FontWeight="Medium"
+            Text="🎯 シーズン:" />
+          <ComboBox
+            Width="150"
+            ItemsSource="{Binding Seasons}"
+            SelectedItem="{Binding SelectedSeason}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
         </StackPanel>
       </Border>
 
