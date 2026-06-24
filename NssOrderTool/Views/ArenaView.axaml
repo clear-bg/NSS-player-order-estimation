@@ -417,11 +417,16 @@
                 FontWeight="Bold"
                 Foreground="#DDDDDD"
                 Text="🎯 記録先:" />
-              <TextBlock
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Foreground="#4488FF"
-                Text="{Binding CurrentActiveSeason.Name, TargetNullValue='未設定'}" />
+              <ComboBox
+                Width="180"
+                ItemsSource="{Binding Seasons}"
+                SelectedItem="{Binding CurrentActiveSeason.Name, TargetNullValue='未設定'}}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
             </StackPanel>
           </Border>
 

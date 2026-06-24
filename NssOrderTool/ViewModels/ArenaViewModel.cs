@@ -19,7 +19,8 @@ namespace NssOrderTool.ViewModels
 {
   public partial class ArenaViewModel : ViewModelBase,
    IRecipient<TransferToArenaMessage>,
-   IRecipient<DatabaseUpdatedMessage>
+   IRecipient<DatabaseUpdatedMessage>,
+   IRecipient<ActiveSeasonChangedMessage>
   {
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
@@ -59,7 +60,7 @@ namespace NssOrderTool.ViewModels
     private string _editingMemoText = string.Empty;
 
     [ObservableProperty]
-    private SeasonEntity? _currentActiveSeason;
+    private SeasonUIItem? _currentActiveSeason;
 
     public ObservableCollection<SeasonUIItem> Seasons { get; } = new();
 
@@ -164,17 +165,27 @@ namespace NssOrderTool.ViewModels
       IsBusy = true;
       StatusText = "保存中...";
 
-      Console.WriteLine("=== [DEBUG] SaveSession スタート ===");
-      Console.WriteLine($"[DEBUG] CurrentActiveSeason は NULLですか？ : {CurrentActiveSeason == null}");
-      Console.WriteLine($"[DEBUG] 取得できている SeasonId : {CurrentActiveSeason?.Id ?? 0}");
-
       try
       {
-        if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out var parsedSessionDate))
+        DateTime parsedSessionDate;
+        if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out parsedSessionDate))
         {
-          StatusText = "❌ 保存失敗: 開催日時の形式が正しくありません (日付8桁、時刻4桁で入力してください)";
+          StatusText = "❌ 日時形式エラー: YYYYMMDD HHMM で入力してください";
           IsBusy = false;
           return;
+        }
+
+        if (CurrentActiveSeason != null && parsedSessionDate < CurrentActiveSeason.StartDate)
+        {
+          // await で結果を待機してから ?? false を適用する
+          var confirm = await (ShowConfirmDialogAction?.Invoke(
+              $"警告: 入力された日時はシーズン '{CurrentActiveSeason.Name}' の開始日より前です。\nこのまま保存しますか？") ?? Task.FromResult(false));
+
+          if (!confirm)
+          {
+            IsBusy = false;
+            return;
+          }
         }
 
         // 1. プレイヤーID(名前)のリストを抽出
@@ -198,7 +209,7 @@ namespace NssOrderTool.ViewModels
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
           Memo = NewSessionMemo,
-          SeasonId = CurrentActiveSeason?.Id ?? 0
+          SeasonId = CurrentActiveSeason?.Entity.Id ?? 0
         };
 
         // 参加者情報の作成
@@ -411,6 +422,16 @@ namespace NssOrderTool.ViewModels
       _ = LoadHistoryAsync();
     }
 
+    public void Receive(ActiveSeasonChangedMessage message)
+    {
+      // メッセージの内容に基づいて CurrentActiveSeason を更新
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+        {
+          await InitializeSeasonsAsync();
+          StatusText = "🎯 シーズン情報が更新されました";
+        });
+    }
+
     [RelayCommand]
     private void ResetRounds()
     {
@@ -483,12 +504,16 @@ namespace NssOrderTool.ViewModels
       }
 
       // アクティブなシーズンをプロパティに保持
-      CurrentActiveSeason = await _seasonRepo.GetActiveSeasonAsync();
+      var activeEntity = await _seasonRepo.GetActiveSeasonAsync();
 
       // ドロップダウンの初期選択をアクティブシーズンにする
-      if (CurrentActiveSeason != null)
+      if (activeEntity != null)
       {
-        SelectedHistorySeason = Seasons.FirstOrDefault(s => s.Entity.Id == CurrentActiveSeason.Id);
+        CurrentActiveSeason = Seasons.FirstOrDefault(s => s.Entity.Id == activeEntity.Id);
+      }
+      else
+      {
+        CurrentActiveSeason = Seasons.LastOrDefault(); // なければ最新をデフォルトに
       }
     }
 
