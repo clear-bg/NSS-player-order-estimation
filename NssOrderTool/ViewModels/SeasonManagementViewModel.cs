@@ -31,18 +31,6 @@ namespace NssOrderTool.ViewModels
     public async Task InitializeAsync()
     {
       await LoadSeasonsAsync();
-
-      if (!Seasons.Any())
-      {
-        var defaultSeason = new SeasonEntity
-        {
-          Name = "Season1",
-          StartDate = DateTime.Now,
-          IsActive = true
-        };
-        await _seasonRepo.AddSeasonAsync(defaultSeason);
-        await LoadSeasonsAsync();
-      }
     }
 
     [RelayCommand]
