@@ -310,6 +310,59 @@ namespace NssOrderTool.Migrations
                     b.ToTable("Players");
                 });
 
+            modelBuilder.Entity("NssOrderTool.Models.Entities.PlayerSeasonRatingEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("PlayerId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("player_id");
+
+                    b.Property<double>("RateMean")
+                        .HasColumnType("REAL")
+                        .HasColumnName("rate_mean");
+
+                    b.Property<double>("RateSigma")
+                        .HasColumnType("REAL")
+                        .HasColumnName("rate_sigma");
+
+                    b.Property<int>("SeasonId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("season_id");
+
+                    b.Property<int>("TotalMatches")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("total_matches");
+
+                    b.Property<int>("TotalWins")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("total_wins");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("SeasonId");
+
+                    b.ToTable("PlayerSeasonRatings");
+                });
+
             modelBuilder.Entity("NssOrderTool.Models.Entities.RateHistoryEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -449,6 +502,25 @@ namespace NssOrderTool.Migrations
                     b.Navigation("Observation");
 
                     b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("NssOrderTool.Models.Entities.PlayerSeasonRatingEntity", b =>
+                {
+                    b.HasOne("NssOrderTool.Models.Entities.PlayerEntity", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NssOrderTool.Models.Entities.SeasonEntity", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("NssOrderTool.Models.Entities.ArenaSessionEntity", b =>
