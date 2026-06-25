@@ -180,8 +180,22 @@ namespace NssOrderTool.ViewModels
 
     public void Receive(DatabaseUpdatedMessage message)
     {
-      // UIスレッドをブロックしないように再読み込みを実行
-      _ = ReloadAllAsync();
+      // UIスレッドで安全にシーズンリストごと再読み込みを実行する
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+      {
+        var currentSeasonId = SelectedSeason?.Entity.Id;
+
+        await InitializeSeasonsAsync();
+
+        // 以前選択していたシーズンが新しいリストにもあれば選択状態を復元
+        if (currentSeasonId != null)
+        {
+          var restored = Seasons.FirstOrDefault(s => s.Entity.Id == currentSeasonId);
+          if (restored != null) SelectedSeason = restored;
+        }
+
+        await ReloadAllAsync();
+      });
     }
 
     public void Receive(TransferToArenaDataMessage message)

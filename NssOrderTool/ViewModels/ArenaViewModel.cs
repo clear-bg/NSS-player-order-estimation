@@ -418,8 +418,28 @@ namespace NssOrderTool.ViewModels
 
     public void Receive(DatabaseUpdatedMessage message)
     {
-      // データ更新通知が来たら、履歴リストをリロードする
-      _ = LoadHistoryAsync();
+      // UIスレッドで安全にシーズンリストと履歴リストを再読み込みする
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+      {
+        var currentActiveId = CurrentActiveSeason?.Entity.Id;
+        var currentHistoryId = SelectedHistorySeason?.Entity.Id;
+
+        await InitializeSeasonsAsync();
+
+        // 選択状態の復元
+        if (currentActiveId != null)
+        {
+          var active = Seasons.FirstOrDefault(s => s.Entity.Id == currentActiveId);
+          if (active != null) CurrentActiveSeason = active;
+        }
+        if (currentHistoryId != null)
+        {
+          var history = Seasons.FirstOrDefault(s => s.Entity.Id == currentHistoryId);
+          if (history != null) SelectedHistorySeason = history;
+        }
+
+        await LoadHistoryAsync();
+      });
     }
 
     public void Receive(ActiveSeasonChangedMessage message)

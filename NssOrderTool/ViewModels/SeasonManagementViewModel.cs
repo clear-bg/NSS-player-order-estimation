@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using NssOrderTool.Messages;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Models.UI;
 using NssOrderTool.Repositories;
@@ -67,6 +69,9 @@ namespace NssOrderTool.ViewModels
       await _seasonRepo.AddSeasonAsync(newSeason);
       await LoadSeasonsAsync();
       StatusMessage = $"{newSeason.Name} を開始しました。";
+
+      WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+      WeakReferenceMessenger.Default.Send(new ActiveSeasonChangedMessage());
     }
 
     [RelayCommand]
@@ -87,6 +92,9 @@ namespace NssOrderTool.ViewModels
 
       await LoadSeasonsAsync();
       StatusMessage = $"{targetSeason.Name} をアクティブに変更しました。";
+
+      WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+      WeakReferenceMessenger.Default.Send(new ActiveSeasonChangedMessage());
     }
   }
 }
