@@ -10,6 +10,7 @@ using NssOrderTool.Models.Configuration;
 using NssOrderTool.Models.DTOs;
 using NssOrderTool.Models.Entities;
 using NssOrderTool.Repositories;
+using NssOrderTool.Models.UI;
 
 namespace NssOrderTool.ViewModels
 {
@@ -17,6 +18,7 @@ namespace NssOrderTool.ViewModels
   {
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaRepository _arenaRepository;
+    private readonly SeasonRepository _seasonRepo;
     private readonly AppConfig _appConfig;
 
     // 検索フォーム
@@ -42,29 +44,34 @@ namespace NssOrderTool.ViewModels
     // グラフ用プロパティ
     [ObservableProperty]
     private List<RateHistoryEntity> _rateHistory = new();
+    [ObservableProperty]
+    private SeasonUIItem? _selectedSeason;
 
     public ObservableCollection<PlayerEntity> Players { get; } = new();
     public record RankingItem(int Rank, string Name, string RatingText, double RatingValue, string Id);
     public ObservableCollection<RankingItem> TopRanking { get; } = new();
+    public ObservableCollection<SeasonUIItem> Seasons { get; } = new();
 
     // デザイン用
     public ArenaDataViewModel()
     {
       _playerRepo = null!;
       _arenaRepository = null!;
+      _seasonRepo = null!;
       _appConfig = null!;
     }
 
     // 本番用 (DI)
-    public ArenaDataViewModel(PlayerRepository playerRepo, ArenaRepository arenaRepository, AppConfig appConfig)
+    public ArenaDataViewModel(PlayerRepository playerRepo, ArenaRepository arenaRepository, SeasonRepository seasonRepo, AppConfig appConfig)
     {
       _playerRepo = playerRepo;
       _arenaRepository = arenaRepository;
+      _seasonRepo = seasonRepo;
       _appConfig = appConfig;
 
       WeakReferenceMessenger.Default.RegisterAll(this);
 
-      _ = LoadPlayersAsync();
+      _ = InitializeSeasonsAsync();
     }
 
     // プレイヤー選択時に呼ばれる
@@ -84,7 +91,7 @@ namespace NssOrderTool.ViewModels
 
     private async void LoadDetailsAsync(string playerId)
     {
-      if (_arenaRepository == null) return;
+      if (_arenaRepository == null || SelectedSeason == null) return;
 
       IsLoadingDetails = true;
       DisplayRating = "Loading...";
@@ -94,24 +101,25 @@ namespace NssOrderTool.ViewModels
       try
       {
         // 1. 詳細データ(スタッツ)の取得
-        var data = await Task.Run(() => _arenaRepository.GetPlayerDetailsAsync(playerId));
+        var data = await Task.Run(() => _arenaRepository.GetPlayerDetailsAsync(playerId, SelectedSeason.Entity.Id));
         Details = data;
 
         // 2. 最新レート情報の取得
         if (_playerRepo != null)
         {
-          var player = await _playerRepo.GetPlayerAsync(playerId);
-          if (player != null)
+          if (SelectedSeason.Entity.Id == 0)
           {
-            DisplayRating = player.RateMean.ToString("F0");
+            var player = await _playerRepo.GetPlayerAsync(playerId);
+            DisplayRating = player != null ? player.RateMean.ToString("F0") : "New";
           }
           else
           {
-            DisplayRating = "New";
+            var seasonRating = await _playerRepo.GetPlayerSeasonRatingAsync(playerId, SelectedSeason.Entity.Id);
+            DisplayRating = seasonRating != null ? seasonRating.RateMean.ToString("F0") : "New";
           }
         }
 
-        var history = await _arenaRepository.GetRateHistoryAsync(playerId);
+        var history = await _arenaRepository.GetRateHistoryAsync(playerId, SelectedSeason.Entity.Id);
         RateHistory = history.OrderBy(h => h.RecordedAt).ToList();
 
       }
@@ -158,7 +166,7 @@ namespace NssOrderTool.ViewModels
       if (_playerRepo == null) return;
 
       // Repository側で RateMean順 になっているので、そのまま表示するだけでOK
-      var topPlayers = await _playerRepo.GetTopRatedPlayersAsync(20);
+      var topPlayers = await _playerRepo.GetTopRatedPlayersBySeasonAsync(20, SelectedSeason!.Entity.Id);
       TopRanking.Clear();
 
       int rank = 1;
@@ -166,14 +174,28 @@ namespace NssOrderTool.ViewModels
       {
         string rateText = p.RateMean.ToString("F0");
 
-        TopRanking.Add(new RankingItem(rank++, p.Name ?? "Unknown", rateText, p.RateMean, p.Id));
+        TopRanking.Add(new RankingItem(rank++, p.Player?.Name ?? "Unknown", rateText, p.RateMean, p.PlayerId));
       }
     }
 
     public void Receive(DatabaseUpdatedMessage message)
     {
-      // UIスレッドをブロックしないように再読み込みを実行
-      _ = ReloadAllAsync();
+      // UIスレッドで安全にシーズンリストごと再読み込みを実行する
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+      {
+        var currentSeasonId = SelectedSeason?.Entity.Id;
+
+        await InitializeSeasonsAsync();
+
+        // 以前選択していたシーズンが新しいリストにもあれば選択状態を復元
+        if (currentSeasonId != null)
+        {
+          var restored = Seasons.FirstOrDefault(s => s.Entity.Id == currentSeasonId);
+          if (restored != null) SelectedSeason = restored;
+        }
+
+        await ReloadAllAsync();
+      });
     }
 
     public void Receive(TransferToArenaDataMessage message)
@@ -199,6 +221,43 @@ namespace NssOrderTool.ViewModels
         // LoadDetailsAsync は async void なので、メソッド内で直接呼び出し
         // (本来は Task を返す形にリファクタリング推奨ですが、現状はこれで動きます)
         LoadDetailsAsync(SelectedPlayer.Id);
+      }
+    }
+
+    private async Task InitializeSeasonsAsync()
+    {
+      var seasons = await _seasonRepo.GetAllSeasonsAsync();
+      Seasons.Clear();
+
+      var allTimeEntity = new SeasonEntity { Id = 0, Name = "🌟 全期間 (All Seasons)", IsActive = false };
+      Seasons.Add(new SeasonUIItem(allTimeEntity));
+
+      foreach (var s in seasons)
+      {
+        Seasons.Add(new SeasonUIItem(s));
+      }
+
+      var active = await _seasonRepo.GetActiveSeasonAsync();
+
+      if (Seasons.Any())
+      {
+        SelectedSeason = active != null
+            ? Seasons.FirstOrDefault(s => s.Entity.Id == active.Id)
+            : Seasons.LastOrDefault();
+      }
+
+      await LoadPlayersAsync();
+    }
+
+    partial void OnSelectedSeasonChanged(SeasonUIItem? value)
+    {
+      if (value != null)
+      {
+        _ = LoadRankingAsync(); // ランキングを再読み込み
+        if (SelectedPlayer != null)
+        {
+          LoadDetailsAsync(SelectedPlayer.Id); // 選択中プレイヤーがいれば詳細も再計算
+        }
       }
     }
   }

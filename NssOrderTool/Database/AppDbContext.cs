@@ -25,6 +25,7 @@ namespace NssOrderTool.Database
     public DbSet<ArenaParticipantEntity> ArenaParticipants { get; set; }
     public DbSet<RateHistoryEntity> RateHistories { get; set; }
     public DbSet<SeasonEntity> Seasons { get; set; }
+    public DbSet<PlayerSeasonRatingEntity> PlayerSeasonRatings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,6 +40,7 @@ namespace NssOrderTool.Database
       modelBuilder.Entity<ArenaSessionEntity>().HasQueryFilter(e => !e.IsDeleted);
       modelBuilder.Entity<ArenaRoundEntity>().HasQueryFilter(e => !e.IsDeleted);
       modelBuilder.Entity<ArenaParticipantEntity>().HasQueryFilter(e => !e.IsDeleted);
+      modelBuilder.Entity<PlayerSeasonRatingEntity>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     // 非同期保存時のフック

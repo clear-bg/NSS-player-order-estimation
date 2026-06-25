@@ -197,5 +197,78 @@ namespace NssOrderTool.Repositories
         await _context.SaveChangesAsync();
       }
     }
+
+    public virtual async Task<Dictionary<string, RatingData>> GetPlayerSeasonRatingsAsync(List<string> playerIds, int seasonId)
+    {
+      var ratings = await _context.PlayerSeasonRatings
+          .AsNoTracking()
+          .Where(r => playerIds.Contains(r.PlayerId) && r.SeasonId == seasonId)
+          .ToListAsync();
+
+      return ratings.ToDictionary(
+          r => r.PlayerId,
+          r => new RatingData(r.RateMean, r.RateSigma)
+      );
+    }
+
+    public virtual async Task UpdatePlayerSeasonRatingsAsync(Dictionary<string, RatingData> newRatings, Dictionary<string, int> winCounts, int seasonId)
+    {
+      var playerIds = newRatings.Keys.ToList();
+      var existingRecords = await _context.PlayerSeasonRatings
+          .Where(r => playerIds.Contains(r.PlayerId) && r.SeasonId == seasonId)
+          .ToListAsync();
+
+      foreach (var playerId in playerIds)
+      {
+        var rating = newRatings[playerId];
+        int sessionWins = winCounts.ContainsKey(playerId) ? winCounts[playerId] : 0;
+
+        var record = existingRecords.FirstOrDefault(r => r.PlayerId == playerId);
+        if (record != null)
+        {
+          // 既存レコードの更新
+          record.RateMean = rating.Mean;
+          record.RateSigma = rating.Sigma;
+          record.TotalMatches += 1;
+          record.TotalWins += sessionWins;
+          record.UpdatedAt = DateTime.Now;
+        }
+        else
+        {
+          // 新規作成（このシーズンで初めて試合をした場合）
+          _context.PlayerSeasonRatings.Add(new PlayerSeasonRatingEntity
+          {
+            PlayerId = playerId,
+            SeasonId = seasonId,
+            RateMean = rating.Mean,
+            RateSigma = rating.Sigma,
+            TotalMatches = 1,
+            TotalWins = sessionWins,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+          });
+        }
+      }
+      await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task<List<PlayerSeasonRatingEntity>> GetTopRatedPlayersBySeasonAsync(int count, int seasonId)
+    {
+      return await _context.PlayerSeasonRatings
+          .Include(r => r.Player) // 名前を取得するためにPlayerテーブルも結合
+          .AsNoTracking()
+          .Where(r => r.SeasonId == seasonId && r.TotalMatches > 0) // 試合をしたことがある人のみ
+          .OrderByDescending(r => r.RateMean)
+          .Take(count)
+          .ToListAsync();
+    }
+
+    // 特定シーズンの個人のレートを取得する
+    public virtual async Task<PlayerSeasonRatingEntity?> GetPlayerSeasonRatingAsync(string playerId, int seasonId)
+    {
+      return await _context.PlayerSeasonRatings
+          .AsNoTracking()
+          .FirstOrDefaultAsync(r => r.PlayerId == playerId && r.SeasonId == seasonId);
+    }
   }
 }

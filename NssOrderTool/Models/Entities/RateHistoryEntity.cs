@@ -18,5 +18,8 @@ namespace NssOrderTool.Models.Entities
 
     [Required]
     public DateTime RecordedAt { get; set; }
+
+    [Column("season_id")]
+    public int SeasonId { get; set; }
   }
 }
