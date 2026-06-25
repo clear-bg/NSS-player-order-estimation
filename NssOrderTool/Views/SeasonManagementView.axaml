@@ -90,6 +90,15 @@
                     Command="{Binding $parent[UserControl].((vm:SeasonManagementViewModel)DataContext).OpenEditDialogCommand}"
                     CommandParameter="{Binding}"
                     Content="編集" />
+
+                  <Button
+                    Padding="10,5"
+                    Background="#AA0000"
+                    Command="{Binding $parent[UserControl].((vm:SeasonManagementViewModel)DataContext).ConfirmDeleteCommand}"
+                    CommandParameter="{Binding}"
+                    Content="削除"
+                    Foreground="White"
+                    IsEnabled="{Binding CanDelete}" />
                 </StackPanel>
               </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
@@ -165,6 +174,56 @@
               Foreground="White" />
           </StackPanel>
 
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Grid
+      Background="#80000000"
+      IsVisible="{Binding IsDeleteDialogOpen}"
+      ZIndex="101">
+
+      <Border
+        Width="350"
+        Padding="25"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Background="#252526"
+        BorderBrush="#3E3E42"
+        BorderThickness="1"
+        CornerRadius="8">
+
+        <StackPanel Spacing="15">
+          <TextBlock
+            HorizontalAlignment="Center"
+            FontWeight="Bold"
+            Foreground="#FFA500"
+            Text="⚠️ 削除の確認" />
+
+          <TextBlock
+            Text="{Binding DeleteConfirmMessage}"
+            TextAlignment="Center"
+            TextWrapping="Wrap" />
+
+          <StackPanel
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal"
+            Spacing="20">
+            <Button
+              Width="80"
+              HorizontalContentAlignment="Center"
+              Command="{Binding CancelDeleteCommand}"
+              Content="キャンセル" />
+            <Button
+              Width="80"
+              HorizontalContentAlignment="Center"
+              Background="#D32F2F"
+              Command="{Binding ExecuteDeleteCommand}"
+              Content="削除する"
+              FontWeight="Bold"
+              Foreground="White" />
+          </StackPanel>
         </StackPanel>
       </Border>
     </Grid>

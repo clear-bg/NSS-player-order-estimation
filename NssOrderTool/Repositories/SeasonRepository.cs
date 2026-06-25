@@ -21,7 +21,7 @@ namespace NssOrderTool.Repositories
     public async Task<List<SeasonEntity>> GetAllSeasonsAsync()
     {
       return await _context.Seasons
-          .OrderByDescending(s => s.StartDate)
+          .OrderByDescending(s => s.Id)
           .ToListAsync();
     }
 

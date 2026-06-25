@@ -23,5 +23,7 @@ namespace NssOrderTool.Models.UI
 
     // ★ 表示用ロジック 2: アクティブ状態に応じたアイコンを返す
     public string ActiveStatusIcon => Entity.IsActive ? "🟢" : "🟠";
+
+    public bool CanDelete { get; set; }
   }
 }

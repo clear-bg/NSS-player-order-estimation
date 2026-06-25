@@ -36,7 +36,14 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private DateTime? _editEndDate;
 
+    [ObservableProperty]
+    private bool _isDeleteDialogOpen;
+
+    [ObservableProperty]
+    private string _deleteConfirmMessage = "";
+
     private SeasonEntity? _editingSeasonEntity;
+    private SeasonEntity? _deletingSeasonEntity;
 
     public SeasonManagementViewModel(SeasonRepository seasonRepo)
     {
@@ -52,11 +59,20 @@ namespace NssOrderTool.ViewModels
     [RelayCommand]
     private async Task LoadSeasonsAsync()
     {
+      // Repository は開始日の降順（一番新しいものが最初）で返してくる
       var seasons = await _seasonRepo.GetAllSeasonsAsync();
       Seasons.Clear();
+
+      // リストの先頭が「一番新しいシーズン」
+      var latestSeason = seasons.FirstOrDefault();
+
       foreach (var s in seasons)
       {
-        Seasons.Add(new SeasonUIItem(s));
+        var item = new SeasonUIItem(s);
+
+        item.CanDelete = (s == latestSeason && !s.IsActive);
+
+        Seasons.Add(item);
       }
       ActiveSeason = Seasons.FirstOrDefault(s => s.IsActive);
     }
@@ -68,16 +84,29 @@ namespace NssOrderTool.ViewModels
       var newSeason = new SeasonEntity
       {
         Name = $"Season{nextNumber}",
-        StartDate = _seasonRepo.NormalizeStartDate(DateTime.Now),
         IsActive = true
       };
 
-      // ActiveSeason.Entity に対して更新を行う
       if (ActiveSeason != null)
       {
         ActiveSeason.Entity.IsActive = false;
-        ActiveSeason.Entity.EndDate = _seasonRepo.NormalizeEndDate(DateTime.Now);
+
+        // ★ 修正: 旧シーズンの開始日と「昨日」を比較し、矛盾しない方（遅い方）を基準日とする
+        var baseDate = ActiveSeason.Entity.StartDate.Date >= DateTime.Now.Date
+                       ? ActiveSeason.Entity.StartDate.Date
+                       : DateTime.Now.Date.AddDays(-1);
+
+        // 旧シーズンの終了日をセット
+        ActiveSeason.Entity.EndDate = _seasonRepo.NormalizeEndDate(baseDate);
         await _seasonRepo.UpdateSeasonAsync(ActiveSeason.Entity);
+
+        // 新シーズンの開始日は、絶対に「旧シーズンの終了日の翌日」にする
+        newSeason.StartDate = _seasonRepo.NormalizeStartDate(baseDate.AddDays(1));
+      }
+      else
+      {
+        // 最初のSeason1作成時は「今日」から開始
+        newSeason.StartDate = _seasonRepo.NormalizeStartDate(DateTime.Now);
       }
 
       await _seasonRepo.AddSeasonAsync(newSeason);
@@ -173,6 +202,45 @@ namespace NssOrderTool.ViewModels
 
       StatusMessage = $"{_editingSeasonEntity.Name} の期間を更新しました。";
       CloseEditDialog(); // 最後にダイアログを閉じる
+    }
+
+    // 1. 削除ボタンを押した時に呼ばれる（確認ダイアログを開く）
+    [RelayCommand]
+    private void ConfirmDelete(SeasonUIItem target)
+    {
+      _deletingSeasonEntity = target.Entity;
+      DeleteConfirmMessage = $"本当に '{target.Name}' を削除しますか？\nこの操作は取り消せません。";
+      IsDeleteDialogOpen = true;
+    }
+
+    // 2. キャンセルボタンを押した時に呼ばれる
+    [RelayCommand]
+    private void CancelDelete()
+    {
+      IsDeleteDialogOpen = false;
+      _deletingSeasonEntity = null;
+    }
+
+    // 3. 削除実行ボタンを押した時に呼ばれる
+    [RelayCommand]
+    private async Task ExecuteDeleteAsync()
+    {
+      if (_deletingSeasonEntity == null) return;
+
+      string deletedName = _deletingSeasonEntity.Name;
+
+      // DBから削除
+      await _seasonRepo.DeleteSeasonAsync(_deletingSeasonEntity);
+
+      // UIの更新と通知
+      await LoadSeasonsAsync();
+      WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
+
+      StatusMessage = $"{deletedName} を削除しました。";
+
+      // ダイアログを閉じる
+      IsDeleteDialogOpen = false;
+      _deletingSeasonEntity = null;
     }
   }
 }
