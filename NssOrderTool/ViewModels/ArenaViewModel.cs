@@ -19,12 +19,14 @@ namespace NssOrderTool.ViewModels
 {
   public partial class ArenaViewModel : ViewModelBase,
    IRecipient<TransferToArenaMessage>,
-   IRecipient<DatabaseUpdatedMessage>
+   IRecipient<DatabaseUpdatedMessage>,
+   IRecipient<ActiveSeasonChangedMessage>
   {
     private readonly ArenaRepository _arenaRepo;
     private readonly PlayerRepository _playerRepo;
     private readonly ArenaLogicService _arenaLogic;
     private readonly OrderRepository _orderRepo;
+    private readonly SeasonRepository _seasonRepo;
 
     // --- Bindings ---
 
@@ -57,25 +59,35 @@ namespace NssOrderTool.ViewModels
     [ObservableProperty]
     private string _editingMemoText = string.Empty;
 
+    [ObservableProperty]
+    private SeasonUIItem? _currentActiveSeason;
+
+    public ObservableCollection<SeasonUIItem> Seasons { get; } = new();
+
+    [ObservableProperty]
+    private SeasonUIItem? _selectedHistorySeason;
+
     private ArenaSessionDisplayModel? _editingDisplayModel;
 
     public ArenaViewModel(
       ArenaRepository arenaRepo,
       PlayerRepository playerRepo,
       ArenaLogicService arenaLogic,
-      OrderRepository orderRepo)
+      OrderRepository orderRepo,
+      SeasonRepository seasonRepo)
     {
       _arenaRepo = arenaRepo;
       _playerRepo = playerRepo;
       _arenaLogic = arenaLogic;
       _orderRepo = orderRepo;
+      _seasonRepo = seasonRepo;
 
       InitializeRounds();
       InitializeMatrix();
 
       WeakReferenceMessenger.Default.RegisterAll(this);
 
-      _ = LoadHistoryAsync();
+      _ = InitializeSeasonsAsync();
     }
 
     // デザイナー用
@@ -85,6 +97,7 @@ namespace NssOrderTool.ViewModels
       _playerRepo = null!;
       _arenaLogic = null!;
       _orderRepo = null!;
+      _seasonRepo = null!;
       InitializeRounds();
       InitializeMatrix();
     }
@@ -154,11 +167,25 @@ namespace NssOrderTool.ViewModels
 
       try
       {
-        if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out var parsedSessionDate))
+        DateTime parsedSessionDate;
+        if (!DateTime.TryParseExact($"{InputDate}{InputTime}", "yyyyMMddHHmm", null, System.Globalization.DateTimeStyles.None, out parsedSessionDate))
         {
-          StatusText = "❌ 保存失敗: 開催日時の形式が正しくありません (日付8桁、時刻4桁で入力してください)";
+          StatusText = "❌ 日時形式エラー: YYYYMMDD HHMM で入力してください";
           IsBusy = false;
           return;
+        }
+
+        if (CurrentActiveSeason != null && parsedSessionDate < CurrentActiveSeason.StartDate)
+        {
+          // await で結果を待機してから ?? false を適用する
+          var confirm = await (ShowConfirmDialogAction?.Invoke(
+              $"警告: 入力された日時はシーズン '{CurrentActiveSeason.Name}' の開始日より前です。\nこのまま保存しますか？") ?? Task.FromResult(false));
+
+          if (!confirm)
+          {
+            IsBusy = false;
+            return;
+          }
         }
 
         // 1. プレイヤーID(名前)のリストを抽出
@@ -182,6 +209,7 @@ namespace NssOrderTool.ViewModels
           CreatedAt = DateTime.Now,
           SessionDate = parsedSessionDate,
           Memo = NewSessionMemo,
+          SeasonId = CurrentActiveSeason?.Entity.Id ?? 0
         };
 
         // 参加者情報の作成
@@ -266,7 +294,7 @@ namespace NssOrderTool.ViewModels
         }
 
         // まとめて計算・更新を実行 (LogicServiceへ)
-        await _arenaLogic.UpdateRatingsAsync(winCounts);
+        await _arenaLogic.UpdateRatingsAsync(winCounts, session.SeasonId);
         WeakReferenceMessenger.Default.Send(new DatabaseUpdatedMessage());
 
         StatusText = "✅ 結果を保存し、レートを更新しました";
@@ -300,7 +328,9 @@ namespace NssOrderTool.ViewModels
     {
       try
       {
-        var sessions = await _arenaRepo.GetAllSessionsAsync();
+        if (SelectedHistorySeason == null) return;
+
+        var sessions = await _arenaRepo.GetAllSessionsAsync(SelectedHistorySeason.Entity.Id);
 
         HistoryList.Clear();
         foreach (var s in sessions)
@@ -388,8 +418,38 @@ namespace NssOrderTool.ViewModels
 
     public void Receive(DatabaseUpdatedMessage message)
     {
-      // データ更新通知が来たら、履歴リストをリロードする
-      _ = LoadHistoryAsync();
+      // UIスレッドで安全にシーズンリストと履歴リストを再読み込みする
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+      {
+        var currentActiveId = CurrentActiveSeason?.Entity.Id;
+        var currentHistoryId = SelectedHistorySeason?.Entity.Id;
+
+        await InitializeSeasonsAsync();
+
+        // 選択状態の復元
+        if (currentActiveId != null)
+        {
+          var active = Seasons.FirstOrDefault(s => s.Entity.Id == currentActiveId);
+          if (active != null) CurrentActiveSeason = active;
+        }
+        if (currentHistoryId != null)
+        {
+          var history = Seasons.FirstOrDefault(s => s.Entity.Id == currentHistoryId);
+          if (history != null) SelectedHistorySeason = history;
+        }
+
+        await LoadHistoryAsync();
+      });
+    }
+
+    public void Receive(ActiveSeasonChangedMessage message)
+    {
+      // メッセージの内容に基づいて CurrentActiveSeason を更新
+      Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+        {
+          await InitializeSeasonsAsync();
+          StatusText = "🎯 シーズン情報が更新されました";
+        });
     }
 
     [RelayCommand]
@@ -452,6 +512,37 @@ namespace NssOrderTool.ViewModels
     {
       IsShowMemoModal = false;
       _editingDisplayModel = null;
+    }
+
+    private async Task InitializeSeasonsAsync()
+    {
+      var seasons = await _seasonRepo.GetAllSeasonsAsync();
+      Seasons.Clear();
+      foreach (var s in seasons)
+      {
+        Seasons.Add(new SeasonUIItem(s));
+      }
+
+      // アクティブなシーズンをプロパティに保持
+      var activeEntity = await _seasonRepo.GetActiveSeasonAsync();
+
+      // ドロップダウンの初期選択をアクティブシーズンにする
+      if (activeEntity != null)
+      {
+        CurrentActiveSeason = Seasons.FirstOrDefault(s => s.Entity.Id == activeEntity.Id);
+      }
+      else
+      {
+        CurrentActiveSeason = Seasons.LastOrDefault(); // なければ最新をデフォルトに
+      }
+    }
+
+    partial void OnSelectedHistorySeasonChanged(SeasonUIItem? value)
+    {
+      if (value != null)
+      {
+        _ = LoadHistoryAsync();
+      }
     }
   }
 }

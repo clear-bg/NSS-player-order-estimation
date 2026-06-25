@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NssOrderTool.Database;
 
@@ -10,9 +11,11 @@ using NssOrderTool.Database;
 namespace NssOrderTool.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622073423_AddSeasonRelation")]
+    partial class AddSeasonRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -310,59 +313,6 @@ namespace NssOrderTool.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("NssOrderTool.Models.Entities.PlayerSeasonRatingEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("PlayerId")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("player_id");
-
-                    b.Property<double>("RateMean")
-                        .HasColumnType("REAL")
-                        .HasColumnName("rate_mean");
-
-                    b.Property<double>("RateSigma")
-                        .HasColumnType("REAL")
-                        .HasColumnName("rate_sigma");
-
-                    b.Property<int>("SeasonId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("season_id");
-
-                    b.Property<int>("TotalMatches")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("total_matches");
-
-                    b.Property<int>("TotalWins")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("total_wins");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlayerId");
-
-                    b.HasIndex("SeasonId");
-
-                    b.ToTable("PlayerSeasonRatings");
-                });
-
             modelBuilder.Entity("NssOrderTool.Models.Entities.RateHistoryEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -378,10 +328,6 @@ namespace NssOrderTool.Migrations
 
                     b.Property<DateTime>("RecordedAt")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("SeasonId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("season_id");
 
                     b.HasKey("Id");
 
@@ -506,25 +452,6 @@ namespace NssOrderTool.Migrations
                     b.Navigation("Observation");
 
                     b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("NssOrderTool.Models.Entities.PlayerSeasonRatingEntity", b =>
-                {
-                    b.HasOne("NssOrderTool.Models.Entities.PlayerEntity", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NssOrderTool.Models.Entities.SeasonEntity", "Season")
-                        .WithMany()
-                        .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Player");
-
-                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("NssOrderTool.Models.Entities.ArenaSessionEntity", b =>

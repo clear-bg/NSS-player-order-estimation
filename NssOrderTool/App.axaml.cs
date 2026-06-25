@@ -79,7 +79,7 @@ public partial class App : Application
     collection.AddTransient<PlayerRepository>();
     collection.AddTransient<AliasRepository>();
     collection.AddTransient<ArenaRepository>();
-    collection.AddTransient<ArenaViewModel>();
+    collection.AddTransient<SeasonRepository>();
 
     // ViewModels
     collection.AddTransient<MainWindowViewModel>();
@@ -87,6 +87,8 @@ public partial class App : Application
     collection.AddTransient<SettingsViewModel>();
     collection.AddTransient<SimulationViewModel>();
     collection.AddTransient<ArenaDataViewModel>();
+    collection.AddTransient<ArenaViewModel>();
+    collection.AddTransient<SeasonManagementViewModel>();
 
     // 3. プロバイダのビルド
     Services = collection.BuildServiceProvider();
@@ -108,7 +110,6 @@ public partial class App : Application
       }
 
       // --- 以下は通常の起動処理 (合言葉がない場合) ---
-      desktop.MainWindow = new MainWindow();
 
       try
       {
@@ -124,6 +125,21 @@ public partial class App : Application
           if (canConnect)
           {
             Log.Information("✅ DB接続成功！(起動時チェック - EF Core)");
+
+            var seasonRepo = scope.ServiceProvider.GetRequiredService<SeasonRepository>();
+            var seasons = Task.Run(() => seasonRepo.GetAllSeasonsAsync()).GetAwaiter().GetResult();
+
+            if (!seasons.Any())
+            {
+              var defaultSeason = new NssOrderTool.Models.Entities.SeasonEntity
+              {
+                Name = "Season1",
+                StartDate = DateTime.Now,
+                IsActive = true
+              };
+              Task.Run(() => seasonRepo.AddSeasonAsync(defaultSeason)).GetAwaiter().GetResult();
+              Log.Information("✅ 初期シーズン (Season1) を自動作成しました。");
+            }
           }
           else
           {
@@ -135,6 +151,8 @@ public partial class App : Application
       {
         Log.Fatal(ex, "❌ DB接続チェック中に例外が発生しました。");
       }
+
+      desktop.MainWindow = new MainWindow();
     }
 
     base.OnFrameworkInitializationCompleted();

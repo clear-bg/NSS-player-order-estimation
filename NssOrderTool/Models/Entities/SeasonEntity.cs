@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,5 +22,8 @@ namespace NssOrderTool.Models.Entities
 
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
+
+    // --- Navigation Properties ---
+    public List<ArenaSessionEntity> ArenaSessions { get; set; } = new();
   }
 }

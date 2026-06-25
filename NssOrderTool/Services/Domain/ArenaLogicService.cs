@@ -79,49 +79,55 @@ namespace NssOrderTool.Services.Domain
       return myTeam == winningTeam;
     }
 
-    // セッション結果(各プレイヤーの勝利数)に基づいて、レート計算とDB更新を行う
-    public virtual async Task UpdateRatingsAsync(Dictionary<string, int> playerWinCounts)
+    // セッション結果(各プレイヤーの勝利数)に基づいて、全期間とシーズン別のレート計算とDB更新を行う
+    public virtual async Task UpdateRatingsAsync(Dictionary<string, int> playerWinCounts, int seasonId) // ★ 引数に seasonId を追加
     {
       if (playerWinCounts == null || playerWinCounts.Count == 0) return;
 
-      // 1. 全員の現在のレート情報をDBから取得
-      // 計算には (RatingData, 勝利数) のペアが必要
-      var participantsData = new Dictionary<string, (RatingData, int)>();
+      var playerIds = playerWinCounts.Keys.ToList();
+
+      // ==========================================
+      // 1. 全期間（All-time）のレート計算と更新
+      // ==========================================
+      var allTimeData = new Dictionary<string, (RatingData, int)>();
+      foreach (var kvp in playerWinCounts)
+      {
+        var player = await _playerRepository.GetPlayerAsync(kvp.Key);
+        var currentRate = (player != null) ? new RatingData(player.RateMean, player.RateSigma) : RatingData.Default;
+        allTimeData[kvp.Key] = (currentRate, kvp.Value);
+      }
+
+      var newAllTimeRatings = _ratingCalculator.CalculateSession(allTimeData);
+      await _playerRepository.UpdatePlayerRatingsAsync(newAllTimeRatings);
+
+
+      // ==========================================
+      // 2. シーズン（Season）のレート計算と更新
+      // ==========================================
+      // シーズン用の現在のレートをDBから取得
+      var seasonRatings = await _playerRepository.GetPlayerSeasonRatingsAsync(playerIds, seasonId);
+      var seasonData = new Dictionary<string, (RatingData, int)>();
 
       foreach (var kvp in playerWinCounts)
       {
-        string playerId = kvp.Key;
-        int wins = kvp.Value;
-
-        var player = await _playerRepository.GetPlayerAsync(playerId);
-
-        // プレイヤー情報があればそのレート、なければデフォルト値(1500)
-        var currentRate = (player != null)
-            ? new RatingData(player.RateMean, player.RateSigma)
-            : RatingData.Default;
-
-        participantsData[playerId] = (currentRate, wins);
+        // そのシーズンで初めて試合をする人は、デフォルトレート（1500）からスタート
+        var currentSeasonRate = seasonRatings.ContainsKey(kvp.Key) ? seasonRatings[kvp.Key] : RatingData.Default;
+        seasonData[kvp.Key] = (currentSeasonRate, kvp.Value);
       }
 
-      // 2. 計算機を呼び出して新しいレートを算出 (マリオカート方式)
-      var newRatings = _ratingCalculator.CalculateSession(participantsData);
+      var newSeasonRatings = _ratingCalculator.CalculateSession(seasonData);
+      // シーズン成績テーブルに保存（試合数や勝数も一緒に渡す）
+      await _playerRepository.UpdatePlayerSeasonRatingsAsync(newSeasonRatings, playerWinCounts, seasonId);
 
-      // 3. 結果をDBに保存
-      await _playerRepository.UpdatePlayerRatingsAsync(newRatings);
-
-      foreach (var kvp in newRatings)
+      foreach (var kvp in newSeasonRatings)
       {
-        string playerId = kvp.Key;
-        RatingData data = kvp.Value;
-
         var history = new RateHistoryEntity
         {
-          PlayerId = playerId,
-          Rate = data.Mean,         // 新しいレート
-          RecordedAt = DateTime.Now // 現在時刻
+          PlayerId = kvp.Key,
+          Rate = kvp.Value.Mean,
+          RecordedAt = DateTime.Now,
+          SeasonId = seasonId // マイグレーションで追加したカラム
         };
-
-        // Repositoryに追加したメソッドを呼ぶ
         await _arenaRepository.AddRateHistoryAsync(history);
       }
     }
