@@ -118,6 +118,18 @@ namespace NssOrderTool.Services.Domain
       var newSeasonRatings = _ratingCalculator.CalculateSession(seasonData);
       // シーズン成績テーブルに保存（試合数や勝数も一緒に渡す）
       await _playerRepository.UpdatePlayerSeasonRatingsAsync(newSeasonRatings, playerWinCounts, seasonId);
+
+      foreach (var kvp in newSeasonRatings)
+      {
+        var history = new RateHistoryEntity
+        {
+          PlayerId = kvp.Key,
+          Rate = kvp.Value.Mean,
+          RecordedAt = DateTime.Now,
+          SeasonId = seasonId // マイグレーションで追加したカラム
+        };
+        await _arenaRepository.AddRateHistoryAsync(history);
+      }
     }
   }
 }

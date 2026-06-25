@@ -107,18 +107,19 @@ namespace NssOrderTool.ViewModels
         // 2. 最新レート情報の取得
         if (_playerRepo != null)
         {
-          var seasonRating = await _playerRepo.GetPlayerSeasonRatingAsync(playerId, SelectedSeason.Entity.Id);
-          if (seasonRating != null)
+          if (SelectedSeason.Entity.Id == 0)
           {
-            DisplayRating = seasonRating.RateMean.ToString("F0");
+            var player = await _playerRepo.GetPlayerAsync(playerId);
+            DisplayRating = player != null ? player.RateMean.ToString("F0") : "New";
           }
           else
           {
-            DisplayRating = "New";
+            var seasonRating = await _playerRepo.GetPlayerSeasonRatingAsync(playerId, SelectedSeason.Entity.Id);
+            DisplayRating = seasonRating != null ? seasonRating.RateMean.ToString("F0") : "New";
           }
         }
 
-        var history = await _arenaRepository.GetRateHistoryAsync(playerId);
+        var history = await _arenaRepository.GetRateHistoryAsync(playerId, SelectedSeason.Entity.Id);
         RateHistory = history.OrderBy(h => h.RecordedAt).ToList();
 
       }
@@ -212,8 +213,11 @@ namespace NssOrderTool.ViewModels
     private async Task InitializeSeasonsAsync()
     {
       var seasons = await _seasonRepo.GetAllSeasonsAsync();
-
       Seasons.Clear();
+
+      var allTimeEntity = new SeasonEntity { Id = 0, Name = "🌟 全期間 (All Seasons)", IsActive = false };
+      Seasons.Add(new SeasonUIItem(allTimeEntity));
+
       foreach (var s in seasons)
       {
         Seasons.Add(new SeasonUIItem(s));

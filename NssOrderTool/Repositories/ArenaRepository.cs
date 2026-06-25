@@ -87,14 +87,21 @@ namespace NssOrderTool.Repositories
       using var scope = _services.CreateScope();
       var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-      // 1. データ取得
-      var myParticipations = await context.ArenaParticipants
+      // 1. データ取得 (ベースとなるクエリ)
+      var query = context.ArenaParticipants
           .Include(p => p.Session!)
               .ThenInclude(s => s.Rounds)
           .Include(p => p.Session!)
               .ThenInclude(s => s.Participants)
                   .ThenInclude(part => part.Player)
-          .Where(p => p.PlayerId == playerId && !p.IsDeleted && p.Session != null && p.Session.SeasonId == seasonId)
+          .Where(p => p.PlayerId == playerId && !p.IsDeleted && p.Session != null);
+
+      if (seasonId > 0)
+      {
+        query = query.Where(p => p.Session!.SeasonId == seasonId);
+      }
+
+      var myParticipations = await query
           .OrderByDescending(p => p.Session!.SessionDate)
           .ThenByDescending(p => p.Session!.CreatedAt)
           .ToListAsync();
@@ -222,10 +229,16 @@ namespace NssOrderTool.Repositories
       await _context.SaveChangesAsync();
     }
 
-    public virtual async Task<List<RateHistoryEntity>> GetRateHistoryAsync(string playerId)
+    public virtual async Task<List<RateHistoryEntity>> GetRateHistoryAsync(string playerId, int seasonId)
     {
-      return await _context.RateHistories
-          .Where(h => h.PlayerId == playerId)
+      var query = _context.RateHistories.Where(h => h.PlayerId == playerId);
+
+      if (seasonId > 0)
+      {
+        query = query.Where(h => h.SeasonId == seasonId);
+      }
+
+      return await query
           .OrderBy(h => h.RecordedAt)
           .ToListAsync();
     }
