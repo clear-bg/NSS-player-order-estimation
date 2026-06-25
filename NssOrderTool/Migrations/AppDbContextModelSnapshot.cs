@@ -379,6 +379,10 @@ namespace NssOrderTool.Migrations
                     b.Property<DateTime>("RecordedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("SeasonId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("season_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("RateHistories");
