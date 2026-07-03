@@ -1,0 +1,43 @@
+@startuml
+!include ../helper.puml
+
+package " プレイヤー・レート管理情報 " {
+    !include ../src/tables/Players.puml
+    !include ../src/tables/Aliases.puml
+    !include ../src/tables/Seasons.puml
+    !include ../src/tables/PlayerSeasonRatings.puml
+    !include ../src/tables/RateHistories.puml
+}
+
+package " アリーナ対戦情報 " {
+    !include ../src/tables/ArenaSessions.puml
+    !include ../src/tables/ArenaRounds.puml
+    !include ../src/tables/ArenaParticipants.puml
+}
+
+package " 観測データ情報 " {
+    !include ../src/tables/Observations.puml
+    !include ../src/tables/ObservationDetails.puml
+    !include ../src/tables/SequencePairs.puml
+}
+
+' プレイヤーからのリレーション
+Players ||--o{ Aliases
+Players ||--o{ PlayerSeasonRatings
+Players ||--o{ RateHistories
+Players ||--o{ ArenaParticipants
+Players ||--o{ ObservationDetails
+
+' シーズンからのリレーション
+Seasons ||--o{ PlayerSeasonRatings
+Seasons ||--o{ RateHistories
+Seasons ||--o{ ArenaSessions
+
+' アリーナのリレーション
+ArenaSessions ||--o{ ArenaRounds
+ArenaSessions ||--o{ ArenaParticipants
+
+' 観測データのリレーション
+Observations ||--o{ ObservationDetails
+
+@enduml

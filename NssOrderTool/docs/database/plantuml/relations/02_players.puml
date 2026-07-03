@@ -1,0 +1,21 @@
+@startuml
+!include ../helper.puml
+
+package " プレイヤー・レート管理情報 " {
+    !include ../src/tables/Players.puml
+    !include ../src/tables/Aliases.puml
+    !include ../src/tables/Seasons.puml
+    !include ../src/tables/PlayerSeasonRatings.puml
+    !include ../src/tables/RateHistories.puml
+}
+
+' プレイヤーからのリレーション
+Players ||-d-o{ Aliases
+Players ||-d-o{ PlayerSeasonRatings
+Players ||-d-o{ RateHistories
+
+' シーズンからのリレーション
+Seasons ||-d-o{ PlayerSeasonRatings
+Seasons ||-d-o{ RateHistories
+
+@enduml
