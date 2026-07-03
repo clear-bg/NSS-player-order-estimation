@@ -1,0 +1,19 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(Players, 正規のプレイヤー基本情報および通算成績・最新レートを管理するテーブル) {
+    pk(player_id, TEXT, 'プレイヤーの一意な識別子（UUID文字列）')
+    col(created_at, TEXT, 'レコード作成日時')
+    col(first_seen, TEXT, 'システム内でプレイヤーが初めて観測された日時')
+    col(is_active, INTEGER, 'プレイヤーが現在アクティブかどうかのフラグ')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    col(last_played_at, TEXT, '最後に試合を行った日時')
+    col(memo, TEXT, 'プレイヤーに関する自由記述のメモ')
+    col(name, TEXT, 'プレイヤーの正式な表示名')
+    col(rate_mean, REAL, 'プレイヤーの現在の内部レート予測平均値（μ）')
+    col(rate_sigma, REAL, 'プレイヤーの現在のレート不確実性（σ）')
+    col(total_matches, INTEGER, '通算試合数')
+    col(total_wins, INTEGER, '通算勝利数')
+    col(updated_at, TEXT, 'レコード最終更新日時')
+}
+@enduml

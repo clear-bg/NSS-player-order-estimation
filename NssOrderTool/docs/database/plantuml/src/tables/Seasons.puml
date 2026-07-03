@@ -1,0 +1,11 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(Seasons, レート計算や集計の期間区切りとなる「シーズン」の情報を管理するテーブル) {
+    pk(id, INTEGER, 'シーズンのサロゲートキー（自動インクリメントID）')
+    col(end_date, TEXT, 'シーズンの終了日時（現在進行中のシーズンの場合は null）')
+    col(is_active, INTEGER, '現在アクティブに進行しているシーズンかどうかのフラグ')
+    col(name, TEXT, 'シーズンの表示名（例: 'Season 1'、'2026 Spring' など）')
+    col(start_date, TEXT, 'シーズンの開始日時')
+}
+@enduml

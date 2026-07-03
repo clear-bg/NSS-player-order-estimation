@@ -1,0 +1,14 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaSessions, アリーナ（対戦環境）の1セッション（試合単位）を管理するテーブル) {
+    pk(session_id, INTEGER, 'セッションのサロゲートキー（自動インクリメントID）')
+    col(created_at, TEXT, 'レコード作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    col(is_valid, INTEGER, 'セッションの対戦結果が有効かどうかのフラグ（無効試合の除外用）')
+    col(memo, TEXT, 'セッションに関する自由記述のメモ')
+    fk(season_id, INTEGER, 'このセッションが属するシーズンのID（Seasonsテーブルの外部キー）')
+    col(session_date, TEXT, 'セッションが実際に実施・観測された日時')
+    col(updated_at, TEXT, 'レコード最終更新日時')
+}
+@enduml

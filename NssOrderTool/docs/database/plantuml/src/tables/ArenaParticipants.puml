@@ -1,0 +1,15 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaParticipants, アリーナセッションに参加する各プレイヤーの情報と最終結果（座席、勝利数、順位など）を管理するテーブル) {
+    pk(participant_id, INTEGER, '参加情報のサロゲートキー（自動インクリメントID）')
+    col(created_at, TEXT, 'レコード作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    fk(player_id, TEXT, '参加したプレイヤーのID（Playersテーブルの外部キー）')
+    col(rank, INTEGER, 'このセッションでの最終順位')
+    fk(session_id, INTEGER, '紐づくアリーナセッションのID（ArenaSessionsテーブルの外部キー）')
+    col(slot_index, INTEGER, 'セッション内での座席番号・配置インデックス（通常 0〜7）')
+    col(updated_at, TEXT, 'レコード最終更新日時')
+    col(win_count, INTEGER, 'このセッションで獲得した最終的な勝利数')
+}
+@enduml

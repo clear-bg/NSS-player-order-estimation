@@ -1,0 +1,11 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(Observations, プレイヤーの出現順序などの観測データ（親レコード）を管理するテーブル) {
+    pk(observation_id, INTEGER, '観測データのサロゲートキー（自動インクリメントID）')
+    col(created_at, TEXT, 'レコード作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    col(observation_time, TEXT, '観測が実行・記録された日時')
+    col(updated_at, TEXT, 'レコード最終更新日時')
+}
+@enduml

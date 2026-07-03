@@ -1,0 +1,11 @@
+﻿@startuml
+!include ../../helper.puml
+
+entity table_desc(RateHistories, プレイヤーのレート変動履歴を時系列で記録するテーブル) {
+    pk(Id, INTEGER, 'レート履歴のサロゲートキー（自動インクリメントID）')
+    col(PlayerId, TEXT, '対象プレイヤーのID（Playersテーブルの外部キー）')
+    col(Rate, REAL, '記録時点での計算済みレート値')
+    col(RecordedAt, TEXT, 'レートが変動・記録された日時')
+    col(season_id, INTEGER, 'この履歴が属するシーズンのID（Seasonsテーブルの外部キー）')
+}
+@enduml

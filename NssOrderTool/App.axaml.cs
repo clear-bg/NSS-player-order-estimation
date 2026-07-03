@@ -109,6 +109,37 @@ public partial class App : Application
         return;
       }
 
+      // --- ER図生成モード ---
+      if (args.Contains("generate-er"))
+      {
+        Console.WriteLine("\n=== ER図 (PlantUML) 生成モード ===");
+        try
+        {
+          using (var scope = Services.CreateScope())
+          {
+            // まず最新のDB状態にするためマイグレーションを実行
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+
+            // DbSchemaServiceを呼び出してファイル出力
+            var dbSchemaService = scope.ServiceProvider.GetRequiredService<DbSchemaService>();
+
+            // プロジェクトルート(NssOrderTool)から見た相対パスを指定
+            string outputDir = "docs/database/plantuml/src/tables";
+            Task.Run(() => dbSchemaService.GeneratePlantUmlFilesAsync(outputDir)).GetAwaiter().GetResult();
+
+            Console.WriteLine($"✅ ER図の .puml ファイルを {outputDir} に出力しました。");
+          }
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"❌ ER図の生成中にエラーが発生しました。\nエラー詳細: {ex.Message}");
+        }
+
+        desktop.Shutdown();
+        return;
+      }
+
       // --- 以下は通常の起動処理 (合言葉がない場合) ---
 
       try
