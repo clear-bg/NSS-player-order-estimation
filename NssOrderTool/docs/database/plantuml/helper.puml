@@ -1,0 +1,101 @@
+PlantUML/src/helper.puml
+
+@startuml
+'!include light_theme.puml
+!include dark_theme.puml
+/'
+  関数
+'/
+!unquoted function fmt_table($table) !return '   <b><color:' + $TABLE_NAME + '>' + $table + '</b>   '
+!unquoted function fmt_desc($desc) !return '\n   <size:16><color:' + $TABLE_DESC + '>' + $desc + '</size>   '
+!unquoted function fmt_key($key) !return ' <i><color:' + $KEY + '>' + $key + '</i>'
+!unquoted function fmt_key_column($column) !return '<color:' + $KEY_COL + '>' + $column + '  </color>'
+!unquoted function fmt_column($column) !return '<color:' + $COL + '>' + $column + '  </color>'
+!unquoted function fmt_type($type) !return '<i><color:' + $TYPE + '>' + $type + '</i>'
+!unquoted function fmt_comment($comment) !return '<color:' + $COMMENT + '>' + $comment + '  </color>'
+!unquoted function fmt_options($polymorphic, $cn, $optional, $inverse)
+  !$str = ''
+  !if $polymorphic != ''
+    !$str = $str + ' ' + $polymorphic
+  !endif
+  !if $optional != ''
+    !$str = $str + ' ' + $optional
+  !endif
+  !if $cn != ''
+    !$str = $str + ' Alias=' + $cn
+  !endif
+  !if $inverse != ''
+    !$str = $str + ' Inv=' + $inverse
+  !endif
+  !return '<i><color:' + $OPTION + '>' + $str + '</i>'
+!endfunction
+!unquoted procedure table_desc($table, $desc = '')
+  !if $desc == ''
+    "fmt_table($table)" as $table
+  !else
+    "fmt_table($table)fmt_desc($desc)" as $table
+  !endif
+!endprocedure
+!unquoted function pk($column, $type)
+  !return '+' + fmt_key_column($column) + fmt_type($type)
+!endfunction
+!unquoted function fk($column, $polymorphic, $cn, $optional, $inverse, $type)
+  !return '#' + fmt_key_column($column) + fmt_type($type) + fmt_options($polymorphic, $cn, $optional, $inverse)
+!endfunction
+!unquoted function col($column, $type, $comment = '')
+  !if $comment == ''
+    !return fmt_column($column) + fmt_type($type)
+  !else
+    !return fmt_column($column) + fmt_comment($comment) + fmt_type($type)
+  !endif
+!endfunction
+@enduml@startuml
+'!include light_theme.puml
+!include dark_theme.puml
+/'
+  関数
+'/
+!unquoted function fmt_table($table) !return '   <b><color:' + $TABLE_NAME + '>' + $table + '</b>   '
+!unquoted function fmt_desc($desc) !return '\n   <size:16><color:' + $TABLE_DESC + '>' + $desc + '</size>   '
+!unquoted function fmt_key($key) !return ' <i><color:' + $KEY + '>' + $key + '</i>'
+!unquoted function fmt_key_column($column) !return '<color:' + $KEY_COL + '>' + $column + '  </color>'
+!unquoted function fmt_column($column) !return '<color:' + $COL + '>' + $column + '  </color>'
+!unquoted function fmt_type($type) !return '<i><color:' + $TYPE + '>' + $type + '</i>'
+!unquoted function fmt_comment($comment) !return '<color:' + $COMMENT + '>' + $comment + '  </color>'
+!unquoted function fmt_options($polymorphic, $cn, $optional, $inverse)
+  !$str = ''
+  !if $polymorphic != ''
+    !$str = $str + ' ' + $polymorphic
+  !endif
+  !if $optional != ''
+    !$str = $str + ' ' + $optional
+  !endif
+  !if $cn != ''
+    !$str = $str + ' Alias=' + $cn
+  !endif
+  !if $inverse != ''
+    !$str = $str + ' Inv=' + $inverse
+  !endif
+  !return '<i><color:' + $OPTION + '>' + $str + '</i>'
+!endfunction
+!unquoted procedure table_desc($table, $desc = '')
+  !if $desc == ''
+    "fmt_table($table)" as $table
+  !else
+    "fmt_table($table)fmt_desc($desc)" as $table
+  !endif
+!endprocedure
+!unquoted function pk($column, $type)
+  !return '+' + fmt_key_column($column) + fmt_type($type)
+!endfunction
+!unquoted function fk($column, $polymorphic, $cn, $optional, $inverse, $type)
+  !return '#' + fmt_key_column($column) + fmt_type($type) + fmt_options($polymorphic, $cn, $optional, $inverse)
+!endfunction
+!unquoted function col($column, $type, $comment = '')
+  !if $comment == ''
+    !return fmt_column($column) + fmt_type($type)
+  !else
+    !return fmt_column($column) + fmt_comment($comment) + fmt_type($type)
+  !endif
+!endfunction
+@enduml
