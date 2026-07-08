@@ -8,31 +8,31 @@ using NssOrderTool.Models.Interfaces;
 namespace NssOrderTool.Models.Entities
 {
   [Table("Observations")]
-  [Comment("プレイヤーの出現順序などの観測データ（親レコード）を管理するテーブル")]
+  [Comment("プレイヤー出現順序の観測データを管理するテーブル")]
   public class ObservationEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("observation_id")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Comment("観測データのサロゲートキー（自動インクリメントID）")]
+    [Comment("自動採番ID")]
     public int Id { get; set; }
 
     [Column("observation_time")]
-    [Comment("観測が実行・記録された日時")]
+    [Comment("観測日時")]
     public DateTime ObservationTime { get; set; } = DateTime.Now;
 
     public List<ObservationDetailEntity> Details { get; set; } = new();
 
     [Column("is_deleted")]
-    [Comment("論理削除フラグ（trueで削除済み）")]
+    [Comment("論理削除フラグ")]
     public bool IsDeleted { get; set; } = false;
 
     [Column("created_at")]
-    [Comment("レコード作成日時")]
+    [Comment("作成日時")]
     public DateTime CreatedAt { get; set; }
 
     [Column("updated_at")]
-    [Comment("レコード最終更新日時")]
+    [Comment("更新日時")]
     public DateTime UpdatedAt { get; set; }
   }
 }

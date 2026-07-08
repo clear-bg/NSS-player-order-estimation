@@ -6,27 +6,27 @@ using Microsoft.EntityFrameworkCore;
 namespace NssOrderTool.Models.Entities
 {
   [Table("RateHistories")]
-  [Comment("プレイヤーのレート変動履歴を時系列で記録するテーブル")]
+  [Comment("プレイヤーのレート変動履歴テーブル")]
   public class RateHistoryEntity
   {
     [Key]
-    [Comment("レート履歴のサロゲートキー（自動インクリメントID）")]
+    [Comment("自動採番ID")]
     public int Id { get; set; }
 
     [Required]
-    [Comment("対象プレイヤーのID（Playersテーブルの外部キー）")]
+    [Comment("対象プレイヤーID")]
     public string PlayerId { get; set; } = "";
 
     [Required]
-    [Comment("記録時点での計算済みレート値")]
+    [Comment("記録時点のレート値")]
     public double Rate { get; set; }
 
     [Required]
-    [Comment("レートが変動・記録された日時")]
+    [Comment("記録日時")]
     public DateTime RecordedAt { get; set; }
 
     [Column("season_id")]
-    [Comment("この履歴が属するシーズンのID（Seasonsテーブルの外部キー）")]
+    [Comment("所属シーズンID")]
     public int SeasonId { get; set; }
   }
 }

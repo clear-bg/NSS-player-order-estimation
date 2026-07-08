@@ -1,12 +1,12 @@
 @startuml
 !include ../../helper.puml
 
-entity table_desc(Aliases, プレイヤーの別名（エイリアス）を管理するテーブル) {
+entity table_desc(Aliases, プレイヤー別名を管理するテーブル) {
     pk(id, INTEGER)
-    col(alias_name, TEXT, '観測時に入力されたプレイヤーの別名')
-    col(created_at, TEXT, 'レコード作成日時')
-    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
-    col(target_player_id, TEXT, '紐付け先となる正規のプレイヤーID（Playersテーブルの外部キー）')
-    col(updated_at, TEXT, 'レコード最終更新日時')
+    col(alias_name, TEXT, '観測時に入力された別名')
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(target_player_id, TEXT, '紐付け先プレイヤーID')
+    col(updated_at, TEXT, '更新日時')
 }
 @enduml

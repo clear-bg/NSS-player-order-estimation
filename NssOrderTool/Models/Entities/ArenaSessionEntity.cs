@@ -10,41 +10,41 @@ using NssOrderTool.Models.Interfaces;
 namespace NssOrderTool.Models.Entities
 {
   [Table("ArenaSessions")]
-  [Comment("アリーナ（対戦環境）の1セッション（試合単位）を管理するテーブル")]
+  [Comment("アリーナ対戦セッションを管理するテーブル")]
   public class ArenaSessionEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("session_id")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Comment("セッションのサロゲートキー（自動インクリメントID）")]
+    [Comment("自動採番ID")]
     public int Id { get; set; }
 
     [Column("is_deleted")]
-    [Comment("論理削除フラグ（trueで削除済み）")]
+    [Comment("論理削除フラグ")]
     public bool IsDeleted { get; set; } = false;
 
     [Column("created_at")]
-    [Comment("レコード作成日時")]
+    [Comment("作成日時")]
     public DateTime CreatedAt { get; set; }
 
     [Column("updated_at")]
-    [Comment("レコード最終更新日時")]
+    [Comment("更新日時")]
     public DateTime UpdatedAt { get; set; }
 
     [Column("session_date")]
-    [Comment("セッションが実際に実施・観測された日時")]
+    [Comment("実施日時")]
     public DateTime SessionDate { get; set; }
 
     [Column("season_id")]
-    [Comment("このセッションが属するシーズンのID（Seasonsテーブルの外部キー）")]
+    [Comment("所属シーズンID")]
     public int SeasonId { get; set; } = 0;
 
     [Column("is_valid")]
-    [Comment("セッションの対戦結果が有効かどうかのフラグ（無効試合の除外用）")]
+    [Comment("結果有効フラグ")]
     public bool IsValid { get; set; } = true;
 
     [Column("memo")]
-    [Comment("セッションに関する自由記述のメモ")]
+    [Comment("自由記述メモ")]
     public string Memo { get; set; } = string.Empty;
 
     // --- Navigation Properties ---

@@ -1,16 +1,16 @@
 @startuml
 !include ../../helper.puml
 
-entity table_desc(PlayerSeasonRatings, プレイヤーのシーズンごとのレート情報および成績（スナップショット）を管理するテーブル) {
+entity table_desc(PlayerSeasonRatings, シーズン別レート・成績のスナップショットを管理するテーブル) {
     pk(id, INTEGER)
     fk(player_id, '', '', '', '', TEXT)
     fk(season_id, '', '', '', '', INTEGER)
-    col(created_at, TEXT, 'レコード作成日時')
-    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
-    col(rate_mean, REAL, 'このシーズンにおけるレート予測平均値（μ）')
-    col(rate_sigma, REAL, 'このシーズンにおけるレート不確実性（σ）')
-    col(total_matches, INTEGER, 'このシーズンでの累計試合数')
-    col(total_wins, INTEGER, 'このシーズンでの累計勝利数')
-    col(updated_at, TEXT, 'レコード最終更新日時')
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(rate_mean, REAL, 'シーズン内レート平均値（μ）')
+    col(rate_sigma, REAL, 'シーズン内レート不確実性（σ）')
+    col(total_matches, INTEGER, 'シーズン内試合数')
+    col(total_wins, INTEGER, 'シーズン内勝利数')
+    col(updated_at, TEXT, '更新日時')
 }
 @enduml

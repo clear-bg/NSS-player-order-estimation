@@ -1,12 +1,12 @@
 @startuml
 !include ../../helper.puml
 
-entity table_desc(SequencePairs, プレイヤーの出現順序ペア（前後関係）の出現頻度統計) {
+entity table_desc(SequencePairs, 出現順序ペアの頻度統計テーブル) {
     pk(predecessor_id, TEXT)
     pk(successor_id, TEXT)
-    col(created_at, TEXT, 'レコード作成日時')
-    col(frequency, INTEGER, 'この順序ペアが観測された累計頻度（回数）')
-    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
-    col(updated_at, TEXT, 'レコード最終更新日時')
+    col(created_at, TEXT, '作成日時')
+    col(frequency, INTEGER, '累計出現頻度')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(updated_at, TEXT, '更新日時')
 }
 @enduml

@@ -7,25 +7,25 @@ using NssOrderTool.Models.Interfaces;
 namespace NssOrderTool.Models.Entities
 {
   [Table("ObservationDetails")]
-  [Comment("1回の観測データに含まれる個々のプレイヤーとその順序（子レコード）を管理するテーブル")]
+  [Comment("観測データの明細（プレイヤー順序）を管理するテーブル")]
   public class ObservationDetailEntity : ISoftDelete, ITimestamp
   {
     [Key]
     [Column("detail_id")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Comment("観測詳細データのサロゲートキー（自動インクリメントID）")]
+    [Comment("自動採番ID")]
     public int Id { get; set; }
 
     [Column("observation_id")]
-    [Comment("紐づく親観測データのID（Observationsテーブルの外部キー）")]
+    [Comment("親観測データID")]
     public int ObservationId { get; set; }
 
     [Column("player_id")]
-    [Comment("観測されたプレイヤーのID（Playersテーブルの外部キー）")]
+    [Comment("観測プレイヤーID")]
     public string PlayerId { get; set; } = "";
 
     [Column("order_index")]
-    [Comment("観測されたプレイヤーの順番・配置インデックス（0, 1, 2...）")]
+    [Comment("出現順序（0,1,2...）")]
     public int OrderIndex { get; set; }
 
     // --- Navigation Properties ---
@@ -36,15 +36,15 @@ namespace NssOrderTool.Models.Entities
     public PlayerEntity? Player { get; set; }
 
     [Column("is_deleted")]
-    [Comment("論理削除フラグ（trueで削除済み）")]
+    [Comment("論理削除フラグ")]
     public bool IsDeleted { get; set; } = false;
 
     [Column("created_at")]
-    [Comment("レコード作成日時")]
+    [Comment("作成日時")]
     public DateTime CreatedAt { get; set; }
 
     [Column("updated_at")]
-    [Comment("レコード最終更新日時")]
+    [Comment("更新日時")]
     public DateTime UpdatedAt { get; set; }
   }
 }
