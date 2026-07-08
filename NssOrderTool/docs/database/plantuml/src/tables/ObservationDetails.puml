@@ -3,11 +3,11 @@
 
 entity table_desc(ObservationDetails, 1回の観測データに含まれる個々のプレイヤーとその順序（子レコード）を管理するテーブル) {
     pk(detail_id, INTEGER)
+    fk(observation_id, '', '', '', '', INTEGER)
+    fk(player_id, '', '', '', '', TEXT)
     col(created_at, TEXT, 'レコード作成日時')
     col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
-    fk(observation_id, '', '', '', '', INTEGER)
     col(order_index, INTEGER, '観測されたプレイヤーの順番・配置インデックス（0, 1, 2...）')
-    fk(player_id, '', '', '', '', TEXT)
     col(updated_at, TEXT, 'レコード最終更新日時')
 }
 @enduml

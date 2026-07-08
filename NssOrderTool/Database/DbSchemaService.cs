@@ -46,7 +46,11 @@ namespace NssOrderTool.Database
         sb.AppendLine();
         sb.AppendLine($"entity table_desc({tableName}, {tableComment}) {{");
 
-        foreach (var property in entityType.GetProperties())
+        var orderedProperties = entityType.GetProperties()
+          .OrderBy(p => p.IsPrimaryKey() ? 0 : p.IsForeignKey() ? 1 : 2)
+          .ThenBy(p => p.GetColumnName(), StringComparer.Ordinal);
+
+        foreach (var property in orderedProperties)
         {
           var columnName = property.GetColumnName();
           var columnType = property.GetColumnType() ?? property.ClrType.Name.ToLower();
