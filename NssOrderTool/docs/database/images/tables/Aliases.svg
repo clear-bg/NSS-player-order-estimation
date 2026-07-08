@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="211px" preserveAspectRatio="none" style="width:515px;height:211px;background:#222222;" version="1.1" viewBox="0 0 515 211" width="515px" zoomAndPan="magnify"><defs/><g><!--MD5=[17ca56e58b04b57cf1e3e5946f83040c]
+class Aliases--><rect codeLine="33" fill="#1D1D1D" height="197.2" id="Aliases" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="501.6" x="7" y="7"/><rect fill="#345998" height="66.6" rx="7.5" ry="7.5" style="stroke:#345998;stroke-width:2.5;" width="501.6" x="7" y="7"/><rect fill="#345998" height="7.5" style="stroke:#345998;stroke-width:2.5;" width="501.6" x="7" y="66.1"/><rect codeLine="33" fill="none" height="197.2" id="Aliases" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="501.6" x="7" y="7"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="224.3" y="32.3811"/><text fill="#EEEEEE" font-family="Meiryo" font-size="18" font-weight="bold" lengthAdjust="spacing" textLength="67" x="224.3" y="32.3811">Aliases</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="309.3" y="32.3811"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="65.8" y="59.3811"/><text fill="#EEEEEE" font-family="Meiryo" font-size="16" lengthAdjust="spacing" textLength="384" x="65.8" y="60.2609">プレイヤーの別名（エイリアス）を管理するテーブル</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="467.8" y="59.3811"/><line style="stroke:#6489C6;stroke-width:2.5;" x1="8" x2="507.6" y1="73.6" y2="73.6"/><ellipse cx="18" cy="84.6" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="10" x="32.3" y="90.5606">id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="50.3" y="90.5606">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="60" x="32.3" y="109.6606">alias_name</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="187" x="100.3" y="109.6606">観測時に入力されたプレイヤーの別名</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="295.3" y="109.6606">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="57" x="32.3" y="128.7606">created_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="88" x="97.3" y="128.7606">レコード作成日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="193.3" y="128.7606">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="32.3" y="147.8606">is_deleted</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="176" x="94.3" y="147.8606">論理削除フラグ（trueで削除済み）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="278.3" y="147.8606">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="89" x="32.3" y="166.9606">target_player_id</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="336" x="129.3" y="166.9606">紐付け先となる正規のプレイヤーID（Playersテーブルの外部キー）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="473.3" y="166.9606">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="61" x="32.3" y="186.0606">updated_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="110" x="101.3" y="186.0606">レコード最終更新日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="219.3" y="186.0606">TEXT</text><line style="stroke:#6489C6;stroke-width:2.5;" x1="8" x2="507.6" y1="196.2" y2="196.2"/><!--MD5=[93a807210309d4c4828a53d01328d86f]
+@startuml
+!include ../../helper.puml
+
+entity table_desc(Aliases, プレイヤーの別名（エイリアス）を管理するテーブル) {
+    pk(id, INTEGER)
+    col(alias_name, TEXT, '観測時に入力されたプレイヤーの別名')
+    col(created_at, TEXT, 'レコード作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    col(target_player_id, TEXT, '紐付け先となる正規のプレイヤーID（Playersテーブルの外部キー）')
+    col(updated_at, TEXT, 'レコード最終更新日時')
+}
+@enduml
+
+@startuml
+hide circle 
+skinparam shadowing false
+skinparam RoundCorner 15
+skinparam padding 1.3
+skinparam DefaultFontName Meiryo
+skinparam BackgroundColor #222222
+skinparam PackageBackgroundColor #1F1F1F
+skinparam PackageBorderColor #5EBED0
+skinparam PackageBorderThickness 2.5
+skinparam PackageFontColor #5EBED0
+skinparam PackageFontSize 20
+skinparam ClassHeaderBackgroundColor #345998
+skinparam ClassFontSize 18
+skinparam ClassBackgroundColor #1D1D1D
+skinparam ClassBorderColor #6489C6
+skinparam ClassBorderThickness 2.5
+skinparam ObjectBackgroundColor #1D1D1D
+skinparam ObjectBorderColor #846DC3
+skinparam ObjectBorderThickness 2.5
+skinparam ObjectStereotypeFontColor #846DC3
+skinparam ObjectFontColor #846DC3
+skinparam ObjectAttributeFontColor #846DC3
+skinparam ArrowColor #5A97FF
+skinparam ArrowThickness 2.5
+skinparam CircledCharacterFontColor #GhostWhite
+skinparam CircledCharacterRadius 15
+skinparam CircledCharacterFontSize 20
+
+
+
+
+
+
+entity     "   <b><color:#EEEEEE>Aliases</b>   \n   <size:16><color:#EEEEEE>プレイヤーの別名（エイリアス）を管理するテーブル</size>   " as Aliases {
+    +<color:#C88049>id  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>alias_name  </color><color:#D4B31D>観測時に入力されたプレイヤーの別名  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>created_at  </color><color:#D4B31D>レコード作成日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>is_deleted  </color><color:#D4B31D>論理削除フラグ（trueで削除済み）  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>target_player_id  </color><color:#D4B31D>紐付け先となる正規のプレイヤーID（Playersテーブルの外部キー）  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>updated_at  </color><color:#D4B31D>レコード最終更新日時  </color><i><color:#709AE0>TEXT</i>
+}
+@enduml
+
+PlantUML version 1.2021.16(Thu Dec 09 02:25:22 JST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: MS932
+Language: ja
+Country: JP
+--></g></svg>

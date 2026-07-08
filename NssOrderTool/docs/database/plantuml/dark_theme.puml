@@ -1,8 +1,5 @@
-PlantUML/src/dark_theme.puml
-
-startuml
 /'
-  カラー
+  カラー
 '/
 !$TABLE_NAME = '#EEEEEE'
 !$TABLE_DESC = '#EEEEEE'
@@ -13,14 +10,14 @@ startuml
 !$COMMENT = '#D4B31D'
 !$OPTION = '#A077E5'
 /'
-  スキンパラメータ
+  スキンパラメータ
 '/
 hide circle /' エンティティのシンボルマークを非表示にする '/
 'skinparam linetype ortho /' リレーション線を直線にする '/
 skinparam shadowing false
 skinparam RoundCorner 15
 skinparam padding 1.3
-skinparam DefaultFontName Arial
+skinparam DefaultFontName Meiryo
 skinparam BackgroundColor #222222
 'Package
 'skinparam packageStyle Frame /' パッケージのスタイル '/
@@ -49,4 +46,3 @@ skinparam ArrowThickness 2.5
 skinparam CircledCharacterFontColor #GhostWhite
 skinparam CircledCharacterRadius 15
 skinparam CircledCharacterFontSize 20
-@enduml

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="230px" preserveAspectRatio="none" style="width:634px;height:230px;background:#222222;" version="1.1" viewBox="0 0 634 230" width="634px" zoomAndPan="magnify"><defs/><g><!--MD5=[e2edfd4a4e23fd2a485ecdd11a1e5d15]
+class ArenaRounds--><rect codeLine="33" fill="#1D1D1D" height="216.3" id="ArenaRounds" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="620.6" x="7" y="7"/><rect fill="#345998" height="66.6" rx="7.5" ry="7.5" style="stroke:#345998;stroke-width:2.5;" width="620.6" x="7" y="7"/><rect fill="#345998" height="7.5" style="stroke:#345998;stroke-width:2.5;" width="620.6" x="7" y="66.1"/><rect codeLine="33" fill="none" height="216.3" id="ArenaRounds" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="620.6" x="7" y="7"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="254.3" y="32.3811"/><text fill="#EEEEEE" font-family="Meiryo" font-size="18" font-weight="bold" lengthAdjust="spacing" textLength="126" x="254.3" y="32.3811">ArenaRounds</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="398.3" y="32.3811"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="29.3" y="59.3811"/><text fill="#EEEEEE" font-family="Meiryo" font-size="16" lengthAdjust="spacing" textLength="576" x="29.3" y="60.2609">アリーナセッション内の各ラウンド（局所的な対戦）の結果を管理するテーブル</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="623.3" y="59.3811"/><line style="stroke:#6489C6;stroke-width:2.5;" x1="8" x2="626.6" y1="73.6" y2="73.6"/><ellipse cx="18" cy="84.6" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="50" x="32.3" y="90.5606">round_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="90.3" y="90.5606">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="57" x="32.3" y="109.6606">created_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="88" x="97.3" y="109.6606">レコード作成日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="193.3" y="109.6606">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="32.3" y="128.7606">is_deleted</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="176" x="94.3" y="128.7606">論理削除フラグ（trueで削除済み）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="278.3" y="128.7606">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="83" x="32.3" y="147.8606">round_number</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="264" x="123.3" y="147.8606">セッション内でのラウンド進行番号（通常 1 〜 14）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="395.3" y="147.8606">INTEGER</text><polygon fill="none" points="18,156,22,160,18,164,14,160" style="stroke:#B38D22;stroke-width:1.0;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="55" x="32.3" y="166.9606">session_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="95.3" y="166.9606">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="61" x="32.3" y="186.0606">updated_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="110" x="101.3" y="186.0606">レコード最終更新日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="219.3" y="186.0606">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="77" x="32.3" y="205.1606">winning_team</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="395" x="117.3" y="205.1606">ラウンドの勝利チーム（0: 引き分け/無効, 1: Blueチーム, 2: Orangeチーム）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="520.3" y="205.1606">INTEGER</text><line style="stroke:#6489C6;stroke-width:2.5;" x1="8" x2="626.6" y1="215.3" y2="215.3"/><!--MD5=[e4736df0cd792f5b4fd64a3f90771123]
+@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaRounds, アリーナセッション内の各ラウンド（局所的な対戦）の結果を管理するテーブル) {
+    pk(round_id, INTEGER)
+    col(created_at, TEXT, 'レコード作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
+    col(round_number, INTEGER, 'セッション内でのラウンド進行番号（通常 1 〜 14）')
+    fk(session_id, '', '', '', '', INTEGER)
+    col(updated_at, TEXT, 'レコード最終更新日時')
+    col(winning_team, INTEGER, 'ラウンドの勝利チーム（0: 引き分け/無効, 1: Blueチーム, 2: Orangeチーム）')
+}
+@enduml
+
+@startuml
+hide circle 
+skinparam shadowing false
+skinparam RoundCorner 15
+skinparam padding 1.3
+skinparam DefaultFontName Meiryo
+skinparam BackgroundColor #222222
+skinparam PackageBackgroundColor #1F1F1F
+skinparam PackageBorderColor #5EBED0
+skinparam PackageBorderThickness 2.5
+skinparam PackageFontColor #5EBED0
+skinparam PackageFontSize 20
+skinparam ClassHeaderBackgroundColor #345998
+skinparam ClassFontSize 18
+skinparam ClassBackgroundColor #1D1D1D
+skinparam ClassBorderColor #6489C6
+skinparam ClassBorderThickness 2.5
+skinparam ObjectBackgroundColor #1D1D1D
+skinparam ObjectBorderColor #846DC3
+skinparam ObjectBorderThickness 2.5
+skinparam ObjectStereotypeFontColor #846DC3
+skinparam ObjectFontColor #846DC3
+skinparam ObjectAttributeFontColor #846DC3
+skinparam ArrowColor #5A97FF
+skinparam ArrowThickness 2.5
+skinparam CircledCharacterFontColor #GhostWhite
+skinparam CircledCharacterRadius 15
+skinparam CircledCharacterFontSize 20
+
+
+
+
+
+
+entity     "   <b><color:#EEEEEE>ArenaRounds</b>   \n   <size:16><color:#EEEEEE>アリーナセッション内の各ラウンド（局所的な対戦）の結果を管理するテーブル</size>   " as ArenaRounds {
+    +<color:#C88049>round_id  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>created_at  </color><color:#D4B31D>レコード作成日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>is_deleted  </color><color:#D4B31D>論理削除フラグ（trueで削除済み）  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>round_number  </color><color:#D4B31D>セッション内でのラウンド進行番号（通常 1 〜 14）  </color><i><color:#709AE0>INTEGER</i>
+    #<color:#C88049>session_id  </color><i><color:#709AE0>INTEGER</i><i><color:#A077E5></i>
+    <color:#84B9EE>updated_at  </color><color:#D4B31D>レコード最終更新日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>winning_team  </color><color:#D4B31D>ラウンドの勝利チーム（0: 引き分け/無効, 1: Blueチーム, 2: Orangeチーム）  </color><i><color:#709AE0>INTEGER</i>
+}
+@enduml
+
+PlantUML version 1.2021.16(Thu Dec 09 02:25:22 JST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: MS932
+Language: ja
+Country: JP
+--></g></svg>

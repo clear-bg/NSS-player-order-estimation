@@ -1,9 +1,9 @@
-﻿@startuml
+@startuml
 !include ../../helper.puml
 
 entity table_desc(SequencePairs, プレイヤーの出現順序ペア（前後関係）の出現頻度統計) {
-    pk(predecessor_id, TEXT, '前方に位置するプレイヤーのID')
-    pk(successor_id, TEXT, '後方に位置するプレイヤーのID')
+    pk(predecessor_id, TEXT)
+    pk(successor_id, TEXT)
     col(created_at, TEXT, 'レコード作成日時')
     col(frequency, INTEGER, 'この順序ペアが観測された累計頻度（回数）')
     col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')

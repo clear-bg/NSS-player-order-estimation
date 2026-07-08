@@ -1,12 +1,12 @@
-﻿@startuml
+@startuml
 !include ../../helper.puml
 
 entity table_desc(ArenaRounds, アリーナセッション内の各ラウンド（局所的な対戦）の結果を管理するテーブル) {
-    pk(round_id, INTEGER, 'ラウンドのサロゲートキー（自動インクリメントID）')
+    pk(round_id, INTEGER)
     col(created_at, TEXT, 'レコード作成日時')
     col(is_deleted, INTEGER, '論理削除フラグ（trueで削除済み）')
     col(round_number, INTEGER, 'セッション内でのラウンド進行番号（通常 1 〜 14）')
-    fk(session_id, INTEGER, '紐づくアリーナセッションのID（ArenaSessionsテーブルの外部キー）')
+    fk(session_id, '', '', '', '', INTEGER)
     col(updated_at, TEXT, 'レコード最終更新日時')
     col(winning_team, INTEGER, 'ラウンドの勝利チーム（0: 引き分け/無効, 1: Blueチーム, 2: Orangeチーム）')
 }

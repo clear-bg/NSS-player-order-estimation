@@ -1,8 +1,8 @@
-﻿@startuml
+@startuml
 !include ../../helper.puml
 
 entity table_desc(Players, 正規のプレイヤー基本情報および通算成績・最新レートを管理するテーブル) {
-    pk(player_id, TEXT, 'プレイヤーの一意な識別子（UUID文字列）')
+    pk(player_id, TEXT)
     col(created_at, TEXT, 'レコード作成日時')
     col(first_seen, TEXT, 'システム内でプレイヤーが初めて観測された日時')
     col(is_active, INTEGER, 'プレイヤーが現在アクティブかどうかのフラグ')
