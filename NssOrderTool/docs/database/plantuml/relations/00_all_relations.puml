@@ -1,8 +1,11 @@
 @startuml
 !include ../helper.puml
 
+' Playersは全ドメインから参照される中心的なテーブルのため、
+' どのパッケージにも属させず単独で配置する
+!include ../src/tables/Players.puml
+
 package " プレイヤー・レート管理情報 " {
-    !include ../src/tables/Players.puml
     !include ../src/tables/Aliases.puml
     !include ../src/tables/Seasons.puml
     !include ../src/tables/PlayerSeasonRatings.puml
@@ -21,12 +24,12 @@ package " 観測データ情報 " {
     !include ../src/tables/SequencePairs.puml
 }
 
-' プレイヤーからのリレーション
-Players ||--o{ Aliases
-Players ||--o{ PlayerSeasonRatings
-Players ||--o{ RateHistories
-Players ||--o{ ArenaParticipants
-Players ||--o{ ObservationDetails
+' プレイヤーからのリレーション（矢印を短く保つため方向をヒント指定）
+Players ||-l-o{ Aliases
+Players ||-l-o{ PlayerSeasonRatings
+Players ||-l-o{ RateHistories
+Players ||-d-o{ ArenaParticipants
+Players ||-r-o{ ObservationDetails
 
 ' シーズンからのリレーション
 Seasons ||--o{ PlayerSeasonRatings
