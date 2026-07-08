@@ -1,0 +1,48 @@
+/'
+  カラー
+'/
+!$TABLE_NAME = '#EEEEEE'
+!$TABLE_DESC = '#EEEEEE'
+!$KEY = '#976CCB'
+!$KEY_COL = '#C88049'
+!$COL = '#84B9EE'
+!$TYPE = '#709AE0'
+!$COMMENT = '#D4B31D'
+!$OPTION = '#A077E5'
+/'
+  スキンパラメータ
+'/
+hide circle /' エンティティのシンボルマークを非表示にする '/
+'skinparam linetype ortho /' リレーション線を直線にする '/
+skinparam shadowing false
+skinparam RoundCorner 15
+skinparam padding 1.3
+skinparam DefaultFontName Meiryo
+skinparam BackgroundColor #222222
+'Package
+'skinparam packageStyle Frame /' パッケージのスタイル '/
+skinparam PackageBackgroundColor #1F1F1F
+skinparam PackageBorderColor #5EBED0
+skinparam PackageBorderThickness 2.5
+skinparam PackageFontColor #5EBED0
+skinparam PackageFontSize 20
+'Class
+skinparam ClassHeaderBackgroundColor #345998
+skinparam ClassFontSize 18
+skinparam ClassBackgroundColor #1D1D1D
+skinparam ClassBorderColor #6489C6
+skinparam ClassBorderThickness 2.5
+'Object
+skinparam ObjectBackgroundColor #1D1D1D
+skinparam ObjectBorderColor #846DC3
+skinparam ObjectBorderThickness 2.5
+skinparam ObjectStereotypeFontColor #846DC3
+skinparam ObjectFontColor #846DC3
+skinparam ObjectAttributeFontColor #846DC3
+'Arrow
+skinparam ArrowColor #5A97FF
+skinparam ArrowThickness 2.5
+'Entity symbol
+skinparam CircledCharacterFontColor #GhostWhite
+skinparam CircledCharacterRadius 15
+skinparam CircledCharacterFontSize 20

@@ -1,0 +1,11 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(Seasons, レート集計期間（シーズン）を管理するテーブル) {
+    pk(id, INTEGER)
+    col(end_date, TEXT, '終了日時（進行中はnull）')
+    col(is_active, INTEGER, '進行中フラグ')
+    col(name, TEXT, 'シーズン表示名')
+    col(start_date, TEXT, '開始日時')
+}
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(SequencePairs, 出現順序ペアの頻度統計テーブル) {
+    pk(predecessor_id, TEXT)
+    pk(successor_id, TEXT)
+    col(created_at, TEXT, '作成日時')
+    col(frequency, INTEGER, '累計出現頻度')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(updated_at, TEXT, '更新日時')
+}
+@enduml

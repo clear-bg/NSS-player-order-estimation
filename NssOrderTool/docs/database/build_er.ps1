@@ -1,34 +1,30 @@
-# スクリプト自身のディレクトリ（docs/database）を基準にする
-$scriptDir = $PSScriptRoot
-$outputDir = Join-Path $scriptDir "dist"
-$outputFile = Join-Path $outputDir "schema.mmd"
+# エラー発生時に処理を停止する
+$ErrorActionPreference = "Stop"
 
-# distフォルダが存在しない場合は自動作成する
-if (-Not (Test-Path $outputDir)) {
-  New-Item -ItemType Directory -Path $outputDir | Out-Null
+# 現在のスクリプトの場所をカレントディレクトリとする
+$scriptDir = Split-Path $MyInvocation.MyCommand.Path
+Set-Location $scriptDir
+
+$plantUmlJar = "plantuml-1.2021.16.jar"
+
+# jarファイルが存在するかチェック
+if (-Not (Test-Path $plantUmlJar)) {
+  Write-Error "$plantUmlJar が見つかりません。同じディレクトリに配置してください。"
+  exit 1
 }
 
-# 先頭の宣言を書き込む
-"erDiagram" | Out-File $outputFile -Encoding utf8
+Write-Host "=== ER図 (PlantUML) 画像生成を開始します ==="
 
-# Tablesの結合
-"`n    %% --- Tables ---" | Out-File $outputFile -Append -Encoding utf8
-$tablesPath = Join-Path $scriptDir "tables\*.mmd"
-if (Test-Path $tablesPath) {
-  Get-ChildItem -Path $tablesPath | ForEach-Object {
-    Get-Content $_.FullName | Out-File $outputFile -Append -Encoding utf8
-    "`n" | Out-File $outputFile -Append -Encoding utf8
-  }
-}
+# 1. 各テーブルの単体図を生成
+Write-Host "テーブル定義の画像を生成中..."
+# java -jar plantuml.jar -svg [入力ディレクトリ] -o [出力先ディレクトリ（入力元からの相対パス）]
+# ※PlantUMLの -o オプションは、対象ファイルがあるディレクトリからの相対パスになるため、../../../images/tables のように指定します
+# ※-charset を指定しないと、.pumlファイル(UTF-8)をJVMのデフォルトチャーセット(日本語環境ではShift_JIS系)で
+#   読み込んでしまい、画像内の日本語が文字化けするため明示的にUTF-8を指定する
+java -jar $plantUmlJar -charset UTF-8 -svg "plantuml/src/tables" -o "../../../images/tables"
 
-# Relationsの結合
-"`n    %% --- Relationships ---" | Out-File $outputFile -Append -Encoding utf8
-$relationsPath = Join-Path $scriptDir "relations\*.mmd"
-if (Test-Path $relationsPath) {
-  Get-ChildItem -Path $relationsPath | ForEach-Object {
-    Get-Content $_.FullName | Out-File $outputFile -Append -Encoding utf8
-    "`n" | Out-File $outputFile -Append -Encoding utf8
-  }
-}
+# 2. ドメイン別・全体のリレーション図を生成
+Write-Host "リレーション図の画像を生成中..."
+java -jar $plantUmlJar -charset UTF-8 -svg "plantuml/relations" -o "../../images/relations"
 
-Write-Host "✅ 生成成功: $outputFile"
+Write-Host "✅ すべての画像生成が完了しました。 'images' フォルダを確認してください。"

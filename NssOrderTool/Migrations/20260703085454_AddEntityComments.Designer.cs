@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NssOrderTool.Database;
 
@@ -10,9 +11,11 @@ using NssOrderTool.Database;
 namespace NssOrderTool.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260703085454_AddEntityComments")]
+    partial class AddEntityComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -23,40 +26,40 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("id")
-                        .HasComment("自動採番ID");
+                        .HasComment("サロゲートキー（自動インクリメントID）");
 
                     b.Property<string>("AliasName")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("alias_name")
-                        .HasComment("観測時に入力された別名");
+                        .HasComment("観測時に入力されたプレイヤーの別名");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<string>("TargetPlayerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("target_player_id")
-                        .HasComment("紐付け先プレイヤーID");
+                        .HasComment("紐付け先となる正規のプレイヤーID（Playersテーブルの外部キー）");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
                     b.ToTable("Aliases", t =>
                         {
-                            t.HasComment("プレイヤー別名を管理するテーブル");
+                            t.HasComment("プレイヤーの別名（エイリアス）を管理するテーブル");
                         });
                 });
 
@@ -66,48 +69,48 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("participant_id")
-                        .HasComment("自動採番ID");
+                        .HasComment("参加情報のサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("player_id")
-                        .HasComment("参加プレイヤーID");
+                        .HasComment("参加したプレイヤーのID（Playersテーブルの外部キー）");
 
                     b.Property<int>("Rank")
                         .HasColumnType("INTEGER")
                         .HasColumnName("rank")
-                        .HasComment("最終順位");
+                        .HasComment("このセッションでの最終順位");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("session_id")
-                        .HasComment("アリーナセッションID");
+                        .HasComment("紐づくアリーナセッションのID（ArenaSessionsテーブルの外部キー）");
 
                     b.Property<int>("SlotIndex")
                         .HasColumnType("INTEGER")
                         .HasColumnName("slot_index")
-                        .HasComment("座席番号（0〜7）");
+                        .HasComment("セッション内での座席番号・配置インデックス（通常 0〜7）");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.Property<int>("WinCount")
                         .HasColumnType("INTEGER")
                         .HasColumnName("win_count")
-                        .HasComment("獲得勝利数");
+                        .HasComment("このセッションで獲得した最終的な勝利数");
 
                     b.HasKey("Id");
 
@@ -117,7 +120,7 @@ namespace NssOrderTool.Migrations
 
                     b.ToTable("ArenaParticipants", t =>
                         {
-                            t.HasComment("アリーナ参加者の結果を管理するテーブル");
+                            t.HasComment("アリーナセッションに参加する各プレイヤーの情報と最終結果（座席、勝利数、順位など）を管理するテーブル");
                         });
                 });
 
@@ -127,37 +130,37 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("round_id")
-                        .HasComment("自動採番ID");
+                        .HasComment("ラウンドのサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<int>("RoundNumber")
                         .HasColumnType("INTEGER")
                         .HasColumnName("round_number")
-                        .HasComment("ラウンド番号（1〜14）");
+                        .HasComment("セッション内でのラウンド進行番号（通常 1 〜 14）");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("session_id")
-                        .HasComment("アリーナセッションID");
+                        .HasComment("紐づくアリーナセッションのID（ArenaSessionsテーブルの外部キー）");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.Property<int>("WinningTeam")
                         .HasColumnType("INTEGER")
                         .HasColumnName("winning_team")
-                        .HasComment("勝利チーム（0:無効 1:Blue 2:Orange）");
+                        .HasComment("ラウンドの勝利チーム（0: 引き分け/無効, 1: Blueチーム, 2: Orangeチーム）");
 
                     b.HasKey("Id");
 
@@ -165,7 +168,7 @@ namespace NssOrderTool.Migrations
 
                     b.ToTable("ArenaRounds", t =>
                         {
-                            t.HasComment("アリーナラウンドの結果を管理するテーブル");
+                            t.HasComment("アリーナセッション内の各ラウンド（局所的な対戦）の結果を管理するテーブル");
                         });
                 });
 
@@ -175,43 +178,43 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("session_id")
-                        .HasComment("自動採番ID");
+                        .HasComment("セッションのサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<bool>("IsValid")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_valid")
-                        .HasComment("結果有効フラグ");
+                        .HasComment("セッションの対戦結果が有効かどうかのフラグ（無効試合の除外用）");
 
                     b.Property<string>("Memo")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("memo")
-                        .HasComment("自由記述メモ");
+                        .HasComment("セッションに関する自由記述のメモ");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("season_id")
-                        .HasComment("所属シーズンID");
+                        .HasComment("このセッションが属するシーズンのID（Seasonsテーブルの外部キー）");
 
                     b.Property<DateTime>("SessionDate")
                         .HasColumnType("TEXT")
                         .HasColumnName("session_date")
-                        .HasComment("実施日時");
+                        .HasComment("セッションが実際に実施・観測された日時");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
@@ -219,7 +222,7 @@ namespace NssOrderTool.Migrations
 
                     b.ToTable("ArenaSessions", t =>
                         {
-                            t.HasComment("アリーナ対戦セッションを管理するテーブル");
+                            t.HasComment("アリーナ（対戦環境）の1セッション（試合単位）を管理するテーブル");
                         });
                 });
 
@@ -229,38 +232,38 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("detail_id")
-                        .HasComment("自動採番ID");
+                        .HasComment("観測詳細データのサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<int>("ObservationId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("observation_id")
-                        .HasComment("親観測データID");
+                        .HasComment("紐づく親観測データのID（Observationsテーブルの外部キー）");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("INTEGER")
                         .HasColumnName("order_index")
-                        .HasComment("出現順序（0,1,2...）");
+                        .HasComment("観測されたプレイヤーの順番・配置インデックス（0, 1, 2...）");
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("player_id")
-                        .HasComment("観測プレイヤーID");
+                        .HasComment("観測されたプレイヤーのID（Playersテーブルの外部キー）");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
@@ -270,7 +273,7 @@ namespace NssOrderTool.Migrations
 
                     b.ToTable("ObservationDetails", t =>
                         {
-                            t.HasComment("観測データの明細（プレイヤー順序）を管理するテーブル");
+                            t.HasComment("1回の観測データに含まれる個々のプレイヤーとその順序（子レコード）を管理するテーブル");
                         });
                 });
 
@@ -280,33 +283,33 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("observation_id")
-                        .HasComment("自動採番ID");
+                        .HasComment("観測データのサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<DateTime>("ObservationTime")
                         .HasColumnType("TEXT")
                         .HasColumnName("observation_time")
-                        .HasComment("観測日時");
+                        .HasComment("観測が実行・記録された日時");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
                     b.ToTable("Observations", t =>
                         {
-                            t.HasComment("プレイヤー出現順序の観測データを管理するテーブル");
+                            t.HasComment("プレイヤーの出現順序などの観測データ（親レコード）を管理するテーブル");
                         });
                 });
 
@@ -315,53 +318,53 @@ namespace NssOrderTool.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT")
                         .HasColumnName("player_id")
-                        .HasComment("プレイヤーID（UUID）");
+                        .HasComment("プレイヤーの一意な識別子（UUID文字列）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<DateTime>("FirstSeen")
                         .HasColumnType("TEXT")
                         .HasColumnName("first_seen")
-                        .HasComment("初回観測日時");
+                        .HasComment("システム内でプレイヤーが初めて観測された日時");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_active")
-                        .HasComment("アクティブフラグ");
+                        .HasComment("プレイヤーが現在アクティブかどうかのフラグ");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<DateTime?>("LastPlayedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("last_played_at")
-                        .HasComment("最終対戦日時");
+                        .HasComment("最後に試合を行った日時");
 
                     b.Property<string>("Memo")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("memo")
-                        .HasComment("自由記述メモ");
+                        .HasComment("プレイヤーに関する自由記述のメモ");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
                         .HasColumnName("name")
-                        .HasComment("表示名");
+                        .HasComment("プレイヤーの正式な表示名");
 
                     b.Property<double>("RateMean")
                         .HasColumnType("REAL")
                         .HasColumnName("rate_mean")
-                        .HasComment("現在のレート平均値（μ）");
+                        .HasComment("プレイヤーの現在の内部レート予測平均値（μ）");
 
                     b.Property<double>("RateSigma")
                         .HasColumnType("REAL")
                         .HasColumnName("rate_sigma")
-                        .HasComment("現在のレート不確実性（σ）");
+                        .HasComment("プレイヤーの現在のレート不確実性（σ）");
 
                     b.Property<int>("TotalMatches")
                         .HasColumnType("INTEGER")
@@ -376,13 +379,13 @@ namespace NssOrderTool.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
                     b.ToTable("Players", t =>
                         {
-                            t.HasComment("プレイヤーの基本情報と成績を管理するテーブル");
+                            t.HasComment("正規のプレイヤー基本情報および通算成績・最新レートを管理するテーブル");
                         });
                 });
 
@@ -392,53 +395,53 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("id")
-                        .HasComment("自動採番ID");
+                        .HasComment("シーズン別レート情報のサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("player_id")
-                        .HasComment("対象プレイヤーID");
+                        .HasComment("対象プレイヤーのID（Playersテーブルの外部キー）");
 
                     b.Property<double>("RateMean")
                         .HasColumnType("REAL")
                         .HasColumnName("rate_mean")
-                        .HasComment("シーズン内レート平均値（μ）");
+                        .HasComment("このシーズンにおけるレート予測平均値（μ）");
 
                     b.Property<double>("RateSigma")
                         .HasColumnType("REAL")
                         .HasColumnName("rate_sigma")
-                        .HasComment("シーズン内レート不確実性（σ）");
+                        .HasComment("このシーズンにおけるレート不確実性（σ）");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("season_id")
-                        .HasComment("対象シーズンID");
+                        .HasComment("対象シーズンのID（Seasonsテーブルの外部キー）");
 
                     b.Property<int>("TotalMatches")
                         .HasColumnType("INTEGER")
                         .HasColumnName("total_matches")
-                        .HasComment("シーズン内試合数");
+                        .HasComment("このシーズンでの累計試合数");
 
                     b.Property<int>("TotalWins")
                         .HasColumnType("INTEGER")
                         .HasColumnName("total_wins")
-                        .HasComment("シーズン内勝利数");
+                        .HasComment("このシーズンでの累計勝利数");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("Id");
 
@@ -448,7 +451,7 @@ namespace NssOrderTool.Migrations
 
                     b.ToTable("PlayerSeasonRatings", t =>
                         {
-                            t.HasComment("シーズン別レート・成績のスナップショットを管理するテーブル");
+                            t.HasComment("プレイヤーのシーズンごとのレート情報および成績（スナップショット）を管理するテーブル");
                         });
                 });
 
@@ -457,31 +460,31 @@ namespace NssOrderTool.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
-                        .HasComment("自動採番ID");
+                        .HasComment("レート履歴のサロゲートキー（自動インクリメントID）");
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasComment("対象プレイヤーID");
+                        .HasComment("対象プレイヤーのID（Playersテーブルの外部キー）");
 
                     b.Property<double>("Rate")
                         .HasColumnType("REAL")
-                        .HasComment("記録時点のレート値");
+                        .HasComment("記録時点での計算済みレート値");
 
                     b.Property<DateTime>("RecordedAt")
                         .HasColumnType("TEXT")
-                        .HasComment("記録日時");
+                        .HasComment("レートが変動・記録された日時");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("season_id")
-                        .HasComment("所属シーズンID");
+                        .HasComment("この履歴が属するシーズンのID（Seasonsテーブルの外部キー）");
 
                     b.HasKey("Id");
 
                     b.ToTable("RateHistories", t =>
                         {
-                            t.HasComment("プレイヤーのレート変動履歴テーブル");
+                            t.HasComment("プレイヤーのレート変動履歴を時系列で記録するテーブル");
                         });
                 });
 
@@ -491,34 +494,34 @@ namespace NssOrderTool.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasColumnName("id")
-                        .HasComment("自動採番ID");
+                        .HasComment("シーズンのサロゲートキー（自動インクリメントID）");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("TEXT")
                         .HasColumnName("end_date")
-                        .HasComment("終了日時（進行中はnull）");
+                        .HasComment("シーズンの終了日時（現在進行中のシーズンの場合は null）");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_active")
-                        .HasComment("進行中フラグ");
+                        .HasComment("現在アクティブに進行しているシーズンかどうかのフラグ");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("name")
-                        .HasComment("シーズン表示名");
+                        .HasComment("シーズンの表示名（例: 'Season 1'、'2026 Spring' など）");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("TEXT")
                         .HasColumnName("start_date")
-                        .HasComment("開始日時");
+                        .HasComment("シーズンの開始日時");
 
                     b.HasKey("Id");
 
                     b.ToTable("Seasons", t =>
                         {
-                            t.HasComment("レート集計期間（シーズン）を管理するテーブル");
+                            t.HasComment("レート計算や集計の期間区切りとなる「シーズン」の情報を管理するテーブル");
                         });
                 });
 
@@ -527,38 +530,38 @@ namespace NssOrderTool.Migrations
                     b.Property<string>("PredecessorId")
                         .HasColumnType("TEXT")
                         .HasColumnName("predecessor_id")
-                        .HasComment("前方プレイヤーID");
+                        .HasComment("前方に位置するプレイヤーのID");
 
                     b.Property<string>("SuccessorId")
                         .HasColumnType("TEXT")
                         .HasColumnName("successor_id")
-                        .HasComment("後方プレイヤーID");
+                        .HasComment("後方に位置するプレイヤーのID");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at")
-                        .HasComment("作成日時");
+                        .HasComment("レコード作成日時");
 
                     b.Property<int>("Frequency")
                         .HasColumnType("INTEGER")
                         .HasColumnName("frequency")
-                        .HasComment("累計出現頻度");
+                        .HasComment("この順序ペアが観測された累計頻度（回数）");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted")
-                        .HasComment("論理削除フラグ");
+                        .HasComment("論理削除フラグ（trueで削除済み）");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("updated_at")
-                        .HasComment("更新日時");
+                        .HasComment("レコード最終更新日時");
 
                     b.HasKey("PredecessorId", "SuccessorId");
 
                     b.ToTable("SequencePairs", t =>
                         {
-                            t.HasComment("出現順序ペアの頻度統計テーブル");
+                            t.HasComment("プレイヤーの出現順序ペア（前後関係）の出現頻度統計");
                         });
                 });
 

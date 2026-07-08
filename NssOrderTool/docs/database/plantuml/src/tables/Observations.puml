@@ -1,0 +1,11 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(Observations, プレイヤー出現順序の観測データを管理するテーブル) {
+    pk(observation_id, INTEGER)
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(observation_time, TEXT, '観測日時')
+    col(updated_at, TEXT, '更新日時')
+}
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaParticipants, アリーナ参加者の結果を管理するテーブル) {
+    pk(participant_id, INTEGER)
+    fk(player_id, '', '', '', '', TEXT)
+    fk(session_id, '', '', '', '', INTEGER)
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(rank, INTEGER, '最終順位')
+    col(slot_index, INTEGER, '座席番号（0〜7）')
+    col(updated_at, TEXT, '更新日時')
+    col(win_count, INTEGER, '獲得勝利数')
+}
+@enduml

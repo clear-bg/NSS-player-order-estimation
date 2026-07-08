@@ -1,0 +1,13 @@
+@startuml
+!include ../helper.puml
+
+package " 観測データ情報 " {
+    !include ../src/tables/Observations.puml
+    !include ../src/tables/ObservationDetails.puml
+    !include ../src/tables/SequencePairs.puml
+}
+
+' リレーションの定義 (1対多)
+Observations ||-d-o{ ObservationDetails
+
+@enduml

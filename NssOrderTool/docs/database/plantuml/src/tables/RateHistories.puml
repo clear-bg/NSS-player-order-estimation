@@ -1,0 +1,11 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(RateHistories, プレイヤーのレート変動履歴テーブル) {
+    pk(Id, INTEGER)
+    col(PlayerId, TEXT, '対象プレイヤーID')
+    col(Rate, REAL, '記録時点のレート値')
+    col(RecordedAt, TEXT, '記録日時')
+    col(season_id, INTEGER, '所属シーズンID')
+}
+@enduml

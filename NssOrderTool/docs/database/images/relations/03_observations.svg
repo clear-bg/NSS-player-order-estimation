@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="556px" preserveAspectRatio="none" style="width:815px;height:556px;background:#222222;" version="1.1" viewBox="0 0 815 556" width="815px" zoomAndPan="magnify"><defs/><g><!--MD5=[6eb758153ab51e045e7da1aabb0ce5ae]
+cluster  観測データ情報 --><polygon fill="#1F1F1F" points="16,9.9988,178.6,9.9988,185.6,48.5988,798,48.5988,798,549.9988,16,549.9988,16,9.9988" style="stroke:#5EBED0;stroke-width:2.5;"/><line style="stroke:#5EBED0;stroke-width:2.5;" x1="16" x2="185.6" y1="48.5988" y2="48.5988"/><text fill="#5EBED0" font-family="Meiryo" font-size="20" font-weight="bold" lengthAdjust="spacing" textLength="140" x="28.3" y="34.5">観測データ情報</text><!--MD5=[aa4437fe3cdea52f68365ecf5025e25a]
+class Observations--><rect codeLine="33" fill="#1D1D1D" height="178.1" id="Observations" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="428.6" x="352.5" y="70.4988"/><rect fill="#345998" height="66.6" rx="7.5" ry="7.5" style="stroke:#345998;stroke-width:2.5;" width="428.6" x="352.5" y="70.4988"/><rect fill="#345998" height="7.5" style="stroke:#345998;stroke-width:2.5;" width="428.6" x="352.5" y="129.5988"/><rect codeLine="33" fill="none" height="178.1" id="Observations" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="428.6" x="352.5" y="70.4988"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="504.3" y="95.8799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="18" font-weight="bold" lengthAdjust="spacing" textLength="125" x="504.3" y="95.8799">Observations</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="647.3" y="95.8799"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="374.8" y="122.8799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="16" lengthAdjust="spacing" textLength="384" x="374.8" y="123.7598">プレイヤー出現順序の観測データを管理するテーブル</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="776.8" y="122.8799"/><line style="stroke:#6489C6;stroke-width:2.5;" x1="353.5" x2="780.1" y1="137.0988" y2="137.0988"/><ellipse cx="363.5" cy="148.0988" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="80" x="377.8" y="154.0595">observation_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="465.8" y="154.0595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="57" x="377.8" y="173.1595">created_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="442.8" y="173.1595">作成日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="494.8" y="173.1595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="377.8" y="192.2595">is_deleted</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="77" x="439.8" y="192.2595">論理削除フラグ</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="524.8" y="192.2595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="94" x="377.8" y="211.3595">observation_time</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="479.8" y="211.3595">観測日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="531.8" y="211.3595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="61" x="377.8" y="230.4595">updated_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="446.8" y="230.4595">更新日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="498.8" y="230.4595">TEXT</text><line style="stroke:#6489C6;stroke-width:2.5;" x1="353.5" x2="780.1" y1="240.5988" y2="240.5988"/><!--MD5=[d6b6fe584715a7d69d8148e73b903013]
+class ObservationDetails--><rect codeLine="33" fill="#1D1D1D" height="216.3" id="ObservationDetails" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="460.6" x="320.5" y="317.9988"/><rect fill="#345998" height="66.6" rx="7.5" ry="7.5" style="stroke:#345998;stroke-width:2.5;" width="460.6" x="320.5" y="317.9988"/><rect fill="#345998" height="7.5" style="stroke:#345998;stroke-width:2.5;" width="460.6" x="320.5" y="377.0988"/><rect codeLine="33" fill="none" height="216.3" id="ObservationDetails" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="460.6" x="320.5" y="317.9988"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="460.3" y="343.3799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="18" font-weight="bold" lengthAdjust="spacing" textLength="181" x="460.3" y="343.3799">ObservationDetails</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="659.3" y="343.3799"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="342.8" y="370.3799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="16" lengthAdjust="spacing" textLength="416" x="342.8" y="371.2598">観測データの明細（プレイヤー順序）を管理するテーブル</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="776.8" y="370.3799"/><line style="stroke:#6489C6;stroke-width:2.5;" x1="321.5" x2="780.1" y1="384.5988" y2="384.5988"/><ellipse cx="331.5" cy="395.5988" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="46" x="345.8" y="401.5595">detail_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="399.8" y="401.5595">INTEGER</text><polygon fill="none" points="331.5,409.6988,335.5,413.6988,331.5,417.6988,327.5,413.6988" style="stroke:#B38D22;stroke-width:1.0;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="80" x="345.8" y="420.6595">observation_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="433.8" y="420.6595">INTEGER</text><polygon fill="none" points="331.5,428.7988,335.5,432.7988,331.5,436.7988,327.5,432.7988" style="stroke:#B38D22;stroke-width:1.0;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="50" x="345.8" y="439.7595">player_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="403.8" y="439.7595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="57" x="345.8" y="458.8595">created_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="410.8" y="458.8595">作成日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="462.8" y="458.8595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="345.8" y="477.9595">is_deleted</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="77" x="407.8" y="477.9595">論理削除フラグ</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="492.8" y="477.9595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="66" x="345.8" y="497.0595">order_index</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="107" x="419.8" y="497.0595">出現順序（0,1,2...）</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="534.8" y="497.0595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="61" x="345.8" y="516.1595">updated_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="414.8" y="516.1595">更新日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="466.8" y="516.1595">TEXT</text><line style="stroke:#6489C6;stroke-width:2.5;" x1="321.5" x2="780.1" y1="526.2988" y2="526.2988"/><!--MD5=[33d6d4ff935dc2be24c3e26ddc067be7]
+class SequencePairs--><rect codeLine="33" fill="#1D1D1D" height="197.2" id="SequencePairs" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="284.6" x="32.5" y="60.9988"/><rect fill="#345998" height="66.6" rx="7.5" ry="7.5" style="stroke:#345998;stroke-width:2.5;" width="284.6" x="32.5" y="60.9988"/><rect fill="#345998" height="7.5" style="stroke:#345998;stroke-width:2.5;" width="284.6" x="32.5" y="120.0988"/><rect codeLine="33" fill="none" height="197.2" id="SequencePairs" rx="7.5" ry="7.5" style="stroke:#6489C6;stroke-width:2.5;" width="284.6" x="32.5" y="60.9988"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="105.8" y="86.3799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="18" font-weight="bold" lengthAdjust="spacing" textLength="138" x="105.8" y="86.3799">SequencePairs</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="261.8" y="86.3799"/><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="54.8" y="113.3799"/><text fill="#EEEEEE" font-family="Meiryo" font-size="16" lengthAdjust="spacing" textLength="240" x="54.8" y="114.2598">出現順序ペアの頻度統計テーブル</text><text fill="#000000" font-family="Meiryo" font-size="18" lengthAdjust="spacing" textLength="0" x="312.8" y="113.3799"/><line style="stroke:#6489C6;stroke-width:2.5;" x1="33.5" x2="316.1" y1="127.5988" y2="127.5988"/><ellipse cx="43.5" cy="138.5988" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="82" x="57.8" y="144.5595">predecessor_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="147.8" y="144.5595">TEXT</text><ellipse cx="43.5" cy="157.6988" rx="3" ry="3" style="stroke:#038048;stroke-width:1.0;fill:none;"/><text fill="#C88049" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="69" x="57.8" y="163.6595">successor_id</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="134.8" y="163.6595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="57" x="57.8" y="182.7595">created_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="122.8" y="182.7595">作成日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="174.8" y="182.7595">TEXT</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="57.8" y="201.8595">frequency</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="66" x="119.8" y="201.8595">累計出現頻度</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="193.8" y="201.8595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="54" x="57.8" y="220.9595">is_deleted</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="77" x="119.8" y="220.9595">論理削除フラグ</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="49" x="204.8" y="220.9595">INTEGER</text><text fill="#84B9EE" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="61" x="57.8" y="240.0595">updated_at</text><text fill="#D4B31D" font-family="Meiryo" font-size="11" lengthAdjust="spacing" textLength="44" x="126.8" y="240.0595">更新日時</text><text fill="#709AE0" font-family="Meiryo" font-size="11" font-style="italic" lengthAdjust="spacing" textLength="28" x="178.8" y="240.0595">TEXT</text><line style="stroke:#6489C6;stroke-width:2.5;" x1="33.5" x2="316.1" y1="250.1988" y2="250.1988"/><!--MD5=[7ffc541504e89617f3999c2d1d9419e4]
+link Observations to ObservationDetails--><path codeLine="10" d="M561.18,256.6788 C560.14,273.8188 559.05,291.8488 557.99,309.4688 " fill="none" id="Observations-ObservationDetails" style="stroke:#5A97FF;stroke-width:2.5;"/><line style="stroke:#5A97FF;stroke-width:2.5;" x1="557.9857" x2="563.4889" y1="309.5436" y2="317.8931"/><line style="stroke:#5A97FF;stroke-width:2.5;" x1="557.9857" x2="551.5111" y1="309.5436" y2="317.1646"/><line style="stroke:#5A97FF;stroke-width:2.5;" x1="557.9857" x2="557.5" y1="309.5436" y2="317.5288"/><ellipse cx="558.3499" cy="303.5547" rx="4" ry="4" style="stroke:#5A97FF;stroke-width:2.5;fill:none;"/><line style="stroke:#5A97FF;stroke-width:2.5;fill:none;" x1="557.4345" x2="565.4198" y1="252.3186" y2="252.8043"/><line style="stroke:#5A97FF;stroke-width:2.5;fill:none;" x1="557.2524" x2="565.2376" y1="255.3131" y2="255.7988"/><line style="stroke:#5A97FF;stroke-width:2.5;fill:none;" x1="561.1843" x2="561.67" y1="256.5541" y2="248.5688"/><!--MD5=[b32260a630fdc6549335c869fd26be3f]
+@startuml
+!include ../helper.puml
+
+package " 観測データ情報 " {
+    !include ../src/tables/Observations.puml
+    !include ../src/tables/ObservationDetails.puml
+    !include ../src/tables/SequencePairs.puml
+}
+
+' リレーションの定義 (1対多)
+Observations ||-d-o{ ObservationDetails
+
+@enduml
+
+@startuml
+hide circle 
+skinparam shadowing false
+skinparam RoundCorner 15
+skinparam padding 1.3
+skinparam DefaultFontName Meiryo
+skinparam BackgroundColor #222222
+skinparam PackageBackgroundColor #1F1F1F
+skinparam PackageBorderColor #5EBED0
+skinparam PackageBorderThickness 2.5
+skinparam PackageFontColor #5EBED0
+skinparam PackageFontSize 20
+skinparam ClassHeaderBackgroundColor #345998
+skinparam ClassFontSize 18
+skinparam ClassBackgroundColor #1D1D1D
+skinparam ClassBorderColor #6489C6
+skinparam ClassBorderThickness 2.5
+skinparam ObjectBackgroundColor #1D1D1D
+skinparam ObjectBorderColor #846DC3
+skinparam ObjectBorderThickness 2.5
+skinparam ObjectStereotypeFontColor #846DC3
+skinparam ObjectFontColor #846DC3
+skinparam ObjectAttributeFontColor #846DC3
+skinparam ArrowColor #5A97FF
+skinparam ArrowThickness 2.5
+skinparam CircledCharacterFontColor #GhostWhite
+skinparam CircledCharacterRadius 15
+skinparam CircledCharacterFontSize 20
+
+
+
+
+
+
+package " 観測データ情報 " {
+
+entity     "   <b><color:#EEEEEE>Observations</b>   \n   <size:16><color:#EEEEEE>プレイヤー出現順序の観測データを管理するテーブル</size>   " as Observations {
+    +<color:#C88049>observation_id  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>created_at  </color><color:#D4B31D>作成日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>is_deleted  </color><color:#D4B31D>論理削除フラグ  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>observation_time  </color><color:#D4B31D>観測日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>updated_at  </color><color:#D4B31D>更新日時  </color><i><color:#709AE0>TEXT</i>
+}
+
+entity     "   <b><color:#EEEEEE>ObservationDetails</b>   \n   <size:16><color:#EEEEEE>観測データの明細（プレイヤー順序）を管理するテーブル</size>   " as ObservationDetails {
+    +<color:#C88049>detail_id  </color><i><color:#709AE0>INTEGER</i>
+    #<color:#C88049>observation_id  </color><i><color:#709AE0>INTEGER</i><i><color:#A077E5></i>
+    #<color:#C88049>player_id  </color><i><color:#709AE0>TEXT</i><i><color:#A077E5></i>
+    <color:#84B9EE>created_at  </color><color:#D4B31D>作成日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>is_deleted  </color><color:#D4B31D>論理削除フラグ  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>order_index  </color><color:#D4B31D>出現順序（0,1,2...）  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>updated_at  </color><color:#D4B31D>更新日時  </color><i><color:#709AE0>TEXT</i>
+}
+
+entity     "   <b><color:#EEEEEE>SequencePairs</b>   \n   <size:16><color:#EEEEEE>出現順序ペアの頻度統計テーブル</size>   " as SequencePairs {
+    +<color:#C88049>predecessor_id  </color><i><color:#709AE0>TEXT</i>
+    +<color:#C88049>successor_id  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>created_at  </color><color:#D4B31D>作成日時  </color><i><color:#709AE0>TEXT</i>
+    <color:#84B9EE>frequency  </color><color:#D4B31D>累計出現頻度  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>is_deleted  </color><color:#D4B31D>論理削除フラグ  </color><i><color:#709AE0>INTEGER</i>
+    <color:#84B9EE>updated_at  </color><color:#D4B31D>更新日時  </color><i><color:#709AE0>TEXT</i>
+}
+}
+
+Observations ||-d-o{ ObservationDetails
+
+@enduml
+
+PlantUML version 1.2021.16(Thu Dec 09 02:25:22 JST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: MS932
+Language: ja
+Country: JP
+--></g></svg>

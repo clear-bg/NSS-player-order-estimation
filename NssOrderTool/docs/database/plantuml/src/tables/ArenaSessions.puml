@@ -1,0 +1,14 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaSessions, アリーナ対戦セッションを管理するテーブル) {
+    pk(session_id, INTEGER)
+    fk(season_id, '', '', '', '', INTEGER)
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(is_valid, INTEGER, '結果有効フラグ')
+    col(memo, TEXT, '自由記述メモ')
+    col(session_date, TEXT, '実施日時')
+    col(updated_at, TEXT, '更新日時')
+}
+@enduml

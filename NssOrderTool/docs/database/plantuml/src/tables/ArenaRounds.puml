@@ -1,0 +1,13 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(ArenaRounds, アリーナラウンドの結果を管理するテーブル) {
+    pk(round_id, INTEGER)
+    fk(session_id, '', '', '', '', INTEGER)
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(round_number, INTEGER, 'ラウンド番号（1〜14）')
+    col(updated_at, TEXT, '更新日時')
+    col(winning_team, INTEGER, '勝利チーム（0:無効 1:Blue 2:Orange）')
+}
+@enduml

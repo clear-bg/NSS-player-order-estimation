@@ -1,0 +1,14 @@
+@startuml
+!include ../helper.puml
+
+package " アリーナ対戦情報 " {
+    !include ../src/tables/ArenaSessions.puml
+    !include ../src/tables/ArenaRounds.puml
+    !include ../src/tables/ArenaParticipants.puml
+}
+
+' リレーションの定義 (1対多)
+ArenaSessions ||-d-o{ ArenaRounds
+ArenaSessions ||-d-o{ ArenaParticipants
+
+@enduml

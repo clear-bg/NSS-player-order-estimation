@@ -1,0 +1,12 @@
+@startuml
+!include ../../helper.puml
+
+entity table_desc(Aliases, プレイヤー別名を管理するテーブル) {
+    pk(id, INTEGER)
+    col(alias_name, TEXT, '観測時に入力された別名')
+    col(created_at, TEXT, '作成日時')
+    col(is_deleted, INTEGER, '論理削除フラグ')
+    col(target_player_id, TEXT, '紐付け先プレイヤーID')
+    col(updated_at, TEXT, '更新日時')
+}
+@enduml

@@ -41,3 +41,6 @@ logs/*
 *.db
 *.db-shm
 *.db-wal
+
+# PlantUML本体（ER図生成用、docs/database/build_er.ps1 と同じ場所に手動配置する）
+NssOrderTool/docs/database/plantuml-*.jar
